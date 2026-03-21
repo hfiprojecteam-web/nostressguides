@@ -1,0 +1,1064 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Greece No-Stress — Interactive Map</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Serif+Display&display=swap" rel="stylesheet">
+<style>
+:root {
+    --primary: #1a3a5c;
+    --secondary: #c4533a;
+    --accent: #e8a838;
+    --light: #f5f1eb;
+    --dark: #2c2c2c;
+    --success: #4a7c59;
+    --ferry: #1a5c8c;
+    --flight: #7c3a9c;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:'DM Sans',sans-serif; background:var(--light); color:var(--dark); overflow:hidden; }
+
+.header {
+    position:fixed; top:0; left:0; right:0; height:50px;
+    background:var(--primary); color:white;
+    display:flex; align-items:center; justify-content:space-between;
+    padding:0 16px; z-index:1001;
+    box-shadow:0 2px 12px rgba(0,0,0,.15);
+}
+.logo { display:flex; align-items:baseline; gap:8px; }
+.logo-main { font-family:'DM Serif Display',serif; font-size:1.3rem; }
+.logo-sub { font-size:.65rem; font-weight:500; opacity:.8; text-transform:uppercase; letter-spacing:.1em; }
+.header-badge { background:var(--secondary); padding:4px 10px; border-radius:20px; font-size:.7rem; font-weight:600; }
+
+#map { position:fixed; top:50px; left:0; right:0; bottom:0; z-index:1; }
+
+.mobile-toggle {
+    display:none; position:fixed; bottom:20px; right:20px;
+    width:56px; height:56px; background:var(--secondary); color:white;
+    border:none; border-radius:50%; font-size:1.5rem; cursor:pointer;
+    z-index:1002; box-shadow:0 4px 12px rgba(0,0,0,.3);
+    align-items:center; justify-content:center;
+}
+
+.main-panel {
+    position:fixed; top:70px; left:20px; width:360px;
+    background:white; border-radius:12px;
+    box-shadow:0 4px 24px rgba(0,0,0,.12);
+    z-index:1000; overflow:hidden;
+    max-height:calc(100vh - 100px);
+    display:flex; flex-direction:column;
+}
+
+.panel-tabs { display:flex; background:var(--primary); flex-shrink:0; }
+.panel-tab {
+    flex:1; padding:12px 6px; text-align:center;
+    font-size:.7rem; font-weight:600; color:rgba(255,255,255,.7);
+    cursor:pointer; transition:all .2s; border:none; background:none;
+}
+.panel-tab.active { color:white; background:rgba(255,255,255,.15); }
+.panel-tab:hover { color:white; }
+.panel-close { background:none; border:none; color:white; font-size:1.5rem; cursor:pointer; padding:0 12px; display:none; }
+
+.panel-content { overflow-y:auto; flex:1; }
+.tab-content { display:none; padding:12px; }
+.tab-content.active { display:block; }
+
+/* Itinerary cards */
+.itinerary-card {
+    background:var(--light); border-radius:10px; padding:14px;
+    margin-bottom:10px; cursor:pointer; transition:all .2s;
+    border:2px solid transparent;
+}
+.itinerary-card:hover { border-color:var(--primary); }
+.itinerary-card.active { border-color:var(--secondary); background:white; }
+.itinerary-card h3 { font-family:'DM Serif Display',serif; font-size:1rem; color:var(--primary); margin-bottom:4px; }
+.itinerary-card .meta { font-size:.75rem; color:#666; margin-bottom:6px; }
+.itinerary-card .meta span { margin-right:12px; }
+.itinerary-card .desc { font-size:.8rem; color:#555; line-height:1.4; }
+
+/* Route planner */
+.route-section { margin-bottom:16px; }
+.route-section label { display:block; font-size:.75rem; font-weight:600; color:#666; margin-bottom:6px; text-transform:uppercase; }
+.route-select {
+    width:100%; padding:12px; border:2px solid #e0e0e0; border-radius:8px;
+    font-family:inherit; font-size:.95rem; background:white;
+    cursor:pointer; transition:border-color .2s;
+}
+.route-select:focus { outline:none; border-color:var(--primary); }
+.mode-row { display:flex; gap:8px; margin-bottom:12px; flex-wrap:wrap; }
+.mode-btn {
+    padding:6px 14px; border-radius:20px; font-size:.75rem; font-weight:600;
+    border:2px solid #ddd; background:white; color:#666; cursor:pointer; transition:all .2s;
+}
+.mode-btn.active { border-color:var(--secondary); background:var(--secondary); color:white; }
+.route-btn {
+    width:100%; padding:14px; background:var(--secondary); color:white;
+    border:none; border-radius:8px; font-family:inherit; font-size:1rem;
+    font-weight:600; cursor:pointer; margin-top:8px;
+}
+.route-btn:hover { background:#b04530; }
+.route-btn:disabled { background:#ccc; cursor:not-allowed; }
+.route-results { margin-top:16px; }
+.route-result-card {
+    background:var(--light); border-radius:10px; padding:14px;
+    margin-bottom:10px; border:2px solid transparent; transition:all .2s;
+}
+.route-result-card.clickable { cursor:pointer; }
+.route-result-card.clickable:hover { border-color:var(--primary); }
+.route-result-card.active { border-color:var(--secondary); background:white; }
+.route-result-header { display:flex; align-items:center; gap:10px; margin-bottom:8px; }
+.route-icon { font-size:1.3rem; }
+.route-mode { font-weight:600; font-size:.95rem; color:var(--primary); }
+.route-time { font-size:.85rem; color:var(--secondary); font-weight:600; margin-left:auto; }
+.route-details { font-size:.8rem; color:#666; line-height:1.5; }
+.route-segments { margin-top:10px; padding-top:10px; border-top:1px solid #eee; }
+.route-segment { display:flex; align-items:center; gap:6px; font-size:.75rem; color:#555; margin-bottom:4px; }
+.route-note { font-size:.75rem; color:var(--primary); background:var(--light); padding:4px 8px; border-radius:4px; margin-top:4px; }
+.route-not-available { color:#999; font-style:italic; font-size:.85rem; }
+
+/* Key Info tab */
+.info-section { margin-bottom:16px; }
+.info-title { font-size:.75rem; font-weight:600; color:#666; text-transform:uppercase; letter-spacing:.05em; margin-bottom:8px; border-bottom:1px solid #eee; padding-bottom:4px; }
+.info-row { display:flex; gap:8px; font-size:.8rem; color:#555; margin-bottom:6px; align-items:flex-start; line-height:1.4; }
+.info-row .lbl { font-weight:600; color:var(--primary); min-width:80px; flex-shrink:0; font-size:.75rem; }
+
+/* Stops panel */
+.stops-panel {
+    position:fixed; bottom:20px; left:20px; width:360px;
+    background:white; border-radius:12px;
+    box-shadow:0 4px 24px rgba(0,0,0,.12);
+    z-index:1000; display:none; overflow:hidden; max-height:45vh;
+}
+.stops-panel.visible { display:block; animation:slideUp .3s ease; }
+@keyframes slideUp { from{transform:translateY(20px);opacity:0} to{transform:translateY(0);opacity:1} }
+.stops-header {
+    background:var(--success); color:white; padding:12px 16px;
+    display:flex; align-items:center; justify-content:space-between;
+}
+.stops-header h3 { font-family:'DM Serif Display',serif; font-size:1rem; font-weight:400; }
+.close-btn { background:none; border:none; color:white; font-size:1.3rem; cursor:pointer; }
+.stops-content { padding:0; overflow-y:auto; max-height:calc(45vh - 50px); }
+.stop-item { padding:14px 16px; border-bottom:1px solid #eee; cursor:pointer; transition:background .2s; }
+.stop-item:hover { background:var(--light); }
+.stop-item:last-child { border-bottom:none; }
+.stop-number {
+    display:inline-flex; align-items:center; justify-content:center;
+    width:24px; height:24px; border-radius:50%;
+    background:var(--secondary); color:white;
+    font-size:.75rem; font-weight:700; margin-right:10px;
+}
+.stop-name { font-weight:600; font-size:.95rem; }
+.stop-info { font-size:.8rem; color:var(--primary); margin-left:8px; }
+.stop-tip { font-size:.8rem; color:#666; margin-top:4px; padding-left:34px; }
+
+/* Markers */
+.stop-marker { display:flex; flex-direction:column; align-items:center; }
+.stop-marker-dot {
+    width:22px; height:22px; border-radius:50%;
+    background:var(--secondary); border:3px solid white;
+    box-shadow:0 2px 8px rgba(0,0,0,.3);
+    display:flex; align-items:center; justify-content:center;
+    color:white; font-size:10px; font-weight:700;
+}
+.stop-marker-label {
+    margin-top:3px; font-family:'DM Sans',sans-serif;
+    font-size:11px; font-weight:600; color:var(--dark);
+    text-shadow:1px 1px 2px white,-1px -1px 2px white,1px -1px 2px white,-1px 1px 2px white;
+    white-space:nowrap;
+}
+
+/* Popup */
+.leaflet-popup-content-wrapper { border-radius:12px; padding:0; box-shadow:0 4px 20px rgba(0,0,0,.15); }
+.leaflet-popup-content { margin:0; min-width:220px; max-width:280px; }
+.city-popup { padding:14px; }
+.city-popup h3 {
+    font-family:'DM Serif Display',serif; font-size:1.1rem;
+    color:var(--primary); margin-bottom:10px;
+    border-bottom:2px solid var(--secondary); padding-bottom:6px;
+}
+.city-popup-row { display:flex; gap:8px; margin-bottom:8px; font-size:.8rem; }
+.city-popup-row .icon { flex-shrink:0; width:20px; text-align:center; }
+.city-popup-row .value { color:#333; flex:1; }
+.city-popup-highlights { background:var(--light); padding:8px 10px; border-radius:6px; font-size:.8rem; color:var(--primary); margin:10px 0; }
+.city-popup-tip { background:#fff8e6; border-left:3px solid var(--accent); padding:8px 10px; font-size:.75rem; color:#6b5a00; margin-top:8px; }
+.city-popup-tip::before { content:'💡 '; }
+
+/* Legend */
+.legend {
+    position:fixed; bottom:20px; right:20px;
+    background:white; padding:14px 18px; border-radius:10px;
+    box-shadow:0 4px 16px rgba(0,0,0,.1); z-index:1000;
+}
+.legend h4 { font-size:.7rem; font-weight:600; text-transform:uppercase; color:#888; margin-bottom:8px; }
+.legend-row { display:flex; align-items:center; gap:8px; margin-bottom:6px; font-size:.8rem; }
+.legend-line { width:28px; height:4px; border-radius:2px; background:var(--secondary); flex-shrink:0; }
+.legend-line.ferry { height:5px; background:repeating-linear-gradient(90deg,#1a5c8c 0px,#1a5c8c 10px,transparent 10px,transparent 15px); }
+.legend-line.flight { height:3px; background:#c43a9c; border-radius:2px; }
+.legend-line.bus { height:4px; background:#4a7c59; border-radius:2px; }
+.legend-line.dashed { background:repeating-linear-gradient(90deg,var(--secondary),var(--secondary) 4px,transparent 4px,transparent 8px); }
+
+@media(max-width:768px){
+    .header { height:46px; padding:0 12px; }
+    #map { top:46px; }
+    .mobile-toggle { display:flex; }
+    .main-panel {
+        position:fixed; top:auto; bottom:0; left:0; right:0;
+        width:100%; border-radius:16px 16px 0 0;
+        transform:translateY(100%); max-height:75vh;
+        transition:transform .3s ease;
+    }
+    .main-panel.open { transform:translateY(0); }
+    .panel-close { display:block; }
+    .stops-panel { bottom:0; left:0; right:0; width:100%; border-radius:16px 16px 0 0; max-height:50vh; }
+    .legend { display:none; }
+}
+</style>
+</head>
+<body>
+
+<header class="header">
+    <div class="logo">
+        <span class="logo-main">Greece</span>
+        <span class="logo-sub">No-Stress Travel Guide</span>
+    </div>
+    <span class="header-badge">Interactive Map</span>
+</header>
+
+<div id="map"></div>
+<button class="mobile-toggle" id="mobileToggle">🗺️</button>
+
+<div class="main-panel" id="mainPanel">
+    <div class="panel-tabs">
+        <button class="panel-tab active" data-tab="tabItineraries">📚 Itineraries</button>
+        <button class="panel-tab" data-tab="tabRoutes">🧭 Routes</button>
+        <button class="panel-tab" data-tab="tabInfo">ℹ️ Key Info</button>
+        <button class="panel-close" id="panelClose">&times;</button>
+    </div>
+    <div class="panel-content">
+        <div class="tab-content active" id="tabItineraries">
+            <div id="itineraryList"></div>
+        </div>
+        <div class="tab-content" id="tabRoutes">
+            <div class="route-section">
+                <label>From</label>
+                <select class="route-select" id="routeFrom">
+                    <option value="">Select departure…</option>
+                </select>
+            </div>
+            <div class="route-section">
+                <label>To</label>
+                <select class="route-select" id="routeTo">
+                    <option value="">Select destination…</option>
+                </select>
+            </div>
+            <div class="mode-row">
+                <button class="mode-btn active" data-mode="ferry">⛴ Ferry</button>
+                <button class="mode-btn" data-mode="flight">✈ Flight</button>
+                <button class="mode-btn" data-mode="bus">🚌 Bus/Train</button>
+            </div>
+            <button class="route-btn" id="routeBtn" disabled>Show Route</button>
+            <div class="route-results" id="routeResults"></div>
+        </div>
+        <div class="tab-content" id="tabInfo">
+            <div class="info-section">
+                <p class="info-title">Ferry Ports</p>
+                <div class="info-row"><span class="lbl">Piraeus</span><span>Main hub. Metro Line 1, 40 min from Athens centre. Cyclades, Crete, Dodecanese.</span></div>
+                <div class="info-row"><span class="lbl">Rafina</span><span>30km east of Athens, closer to airport. Bus €3. Good for Mykonos &amp; Naxos.</span></div>
+                <div class="info-row"><span class="lbl">Igoumenitsa</span><span>NW Greece. Corfu ferries (90 min). International routes to Italy.</span></div>
+            </div>
+            <div class="info-section">
+                <p class="info-title">Athens Airport (ATH)</p>
+                <div class="info-row"><span class="lbl">Metro</span><span>€9 one-way, 40 min to Syntagma. 6:30 AM–11:30 PM, every 30 min.</span></div>
+                <div class="info-row"><span class="lbl">Taxi</span><span>€40 day / €55 night — fixed official rate.</span></div>
+                <div class="info-row"><span class="lbl">Bus X95</span><span>€5.50, 24h to Syntagma. Only option after midnight.</span></div>
+            </div>
+            <div class="info-section">
+                <p class="info-title">Key Prices 2026 (verified)</p>
+                <div class="info-row"><span class="lbl">Acropolis</span><span>€30 — timed entry mandatory. Book at hhticket.gr</span></div>
+                <div class="info-row"><span class="lbl">Acrop. Museum</span><span>€10 (€5 Nov–Mar)</span></div>
+                <div class="info-row"><span class="lbl">Delphi</span><span>€12 (site + museum)</span></div>
+                <div class="info-row"><span class="lbl">Meteora</span><span>€3 per monastery (dress code enforced)</span></div>
+                <div class="info-row"><span class="lbl">Knossos</span><span>€15 — Bus 3 from Heraklion €1.80</span></div>
+                <div class="info-row"><span class="lbl">Olympia</span><span>€14 (site + museum)</span></div>
+                <div class="info-row"><span class="lbl">Athens metro</span><span>€1.20 / 90 min, valid all modes</span></div>
+            </div>
+            <div class="info-section">
+                <p class="info-title">ETIAS — Required from 2025</p>
+                <div class="info-row"><span class="lbl"></span><span>US, UK, Canada, Australia: ETIAS authorisation required. €7, valid 3 years. Apply at etias.eu.com at least 72h before departure.</span></div>
+            </div>
+            <div class="info-section">
+                <p class="info-title">Ferry Booking</p>
+                <div class="info-row"><span class="lbl">Sites</span><span>openseas.gr · ferryhopper.com</span></div>
+                <div class="info-row"><span class="lbl">Timing</span><span>Jul–Aug: book 2–4 weeks ahead. Shoulder season: 1 week usually fine.</span></div>
+                <div class="info-row"><span class="lbl">Classes</span><span>Deck class fine under 5h. Overnight routes (Crete, Rhodes): book a cabin.</span></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="stops-panel" id="stopsPanel">
+    <div class="stops-header">
+        <h3 id="stopsPanelTitle">Itinerary Stops</h3>
+        <button class="close-btn" id="closeStops">&times;</button>
+    </div>
+    <div class="stops-content" id="stopsContent"></div>
+</div>
+
+<div class="legend">
+    <h4>Route types</h4>
+    <div class="legend-row"><span class="legend-line ferry"></span><span>Ferry ⛴</span></div>
+    <div class="legend-row"><span class="legend-line flight"></span><span>Flight ✈</span></div>
+    <div class="legend-row"><span class="legend-line bus"></span><span>Bus / Train 🚌</span></div>
+    <div class="legend-row"><span class="legend-line"></span><span>Car / Drive 🚗</span></div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script>
+(function() {
+'use strict';
+
+// ── CITIES (coordinates verified) ─────────────────────────────────────────
+var CITIES = {
+    athens:       { name:'Athens',           lat:37.9838, lng:23.7275 },
+    piraeus:      { name:'Piraeus',          lat:37.9475, lng:23.6430 },
+    thessaloniki: { name:'Thessaloniki',     lat:40.6401, lng:22.9444 },
+    nafplio:      { name:'Nafplio',          lat:37.5672, lng:22.8031 },
+    mycenae:      { name:'Mycenae',          lat:37.7306, lng:22.7570 },
+    epidaurus:    { name:'Epidaurus',        lat:37.5981, lng:23.0786 },
+    olympia:      { name:'Ancient Olympia',  lat:37.6385, lng:21.6301 },
+    mystras:      { name:'Mystras',          lat:37.0703, lng:22.3622 },
+    sparta:       { name:'Sparta',           lat:37.0758, lng:22.4331 },
+    delphi:       { name:'Delphi',           lat:38.4824, lng:22.4998 },
+    meteora:      { name:'Meteora',          lat:39.7219, lng:21.6306 },
+    kalambaka:    { name:'Kalambaka',        lat:39.7044, lng:21.6272 },
+    patras:       { name:'Patras',           lat:38.2466, lng:21.7346 },
+    // Cyclades
+    santorini:    { name:'Santorini',        lat:36.3932, lng:25.4615 },
+    mykonos:      { name:'Mykonos',          lat:37.4467, lng:25.3289 },
+    naxos:        { name:'Naxos',            lat:37.1036, lng:25.3765 },
+    paros:        { name:'Paros',            lat:37.0853, lng:25.1489 },
+    milos:        { name:'Milos',            lat:36.6949, lng:24.4365 },
+    sifnos:       { name:'Sifnos',           lat:36.9667, lng:24.7167 },
+    folegandros:  { name:'Folegandros',      lat:36.6167, lng:24.9167 },
+    ios:          { name:'Ios',              lat:36.7222, lng:25.2889 },
+    syros:        { name:'Syros',            lat:37.4500, lng:24.9167 },
+    // Crete
+    heraklion:    { name:'Heraklion',        lat:35.3387, lng:25.1442 },
+    chania:       { name:'Chania',           lat:35.5138, lng:24.0180 },
+    rethymno:     { name:'Rethymno',         lat:35.3644, lng:24.4753 },
+    knossos:      { name:'Knossos',          lat:35.2985, lng:25.1632 },
+    // Dodecanese
+    rhodes:       { name:'Rhodes',           lat:36.4341, lng:28.2176 },
+    kos:          { name:'Kos',              lat:36.8935, lng:27.2877 },
+    patmos:       { name:'Patmos',           lat:37.3211, lng:26.5417 },
+    symi:         { name:'Symi',             lat:36.6167, lng:27.8333 },
+    // Ionian
+    corfu:        { name:'Corfu',            lat:39.6243, lng:19.9217 },
+    lefkada:      { name:'Lefkada',          lat:38.8333, lng:20.7000 },
+    kefalonia:    { name:'Kefalonia',        lat:38.1833, lng:20.6833 },
+    zakynthos:    { name:'Zakynthos',        lat:37.7833, lng:20.8960 },
+    igoumenitsa:  { name:'Igoumenitsa',      lat:39.5059, lng:20.2677 },
+    // N. Aegean
+    lesbos:       { name:'Lesbos',           lat:39.1061, lng:26.5521 }
+};
+
+// ── CITY INFO ─────────────────────────────────────────────────────────────
+var CITY_INFO = {
+    athens:       { access:'ATH airport: metro €9 (40 min) or taxi €40', days:'3–4 days', highlights:'Acropolis (€30), Acropolis Museum, Monastiraki, Koukaki for dinner', tip:'Visit Acropolis at 8 AM opening — midday in summer is brutal heat and crowds.' },
+    santorini:    { access:'Ferry from Piraeus: 4.5h fast / 8h slow · Fly 45 min', days:'2–3 nights', highlights:'Caldera views, Oia, Fira, Akrotiri excavation, wine estates', tip:'Oia sunset in August: arrive 2h early or watch from the Imerovigli path instead.' },
+    mykonos:      { access:'Ferry from Piraeus or Rafina: 2.5–4h · Fly 45 min', days:'2 nights', highlights:'Chora alleys, Delos archaeological site (€32 return), beaches', tip:'Delos is the best reason to visit Mykonos — the majority of visitors skip it.' },
+    naxos:        { access:'Ferry from Piraeus: 3.5h fast / 5.5h slow', days:'3–5 nights', highlights:'Portara gate, Naxos Town, beaches, mountain villages', tip:'Best value in the Cyclades. Largest island — rent a car for the interior.' },
+    paros:        { access:'Ferry from Piraeus: 3–5h', days:'2–3 nights', highlights:'Naoussa village, beaches, excellent ferry connections', tip:'Naoussa has the best food on the island. Good base for island-hopping.' },
+    heraklion:    { access:'Fly 50 min or overnight ferry from Piraeus (8–9h)', days:'1–2 days', highlights:'Knossos (5km, Bus 3 €1.80), Archaeological Museum, Venetian harbour', tip:'Use as a base for Knossos. Rent a car to explore the rest of Crete.' },
+    chania:       { access:'Fly from Athens (direct) or bus 1.5h from Heraklion', days:'2–3 days', highlights:'Venetian harbour, old town, Samaria Gorge day trip', tip:'Most beautiful city in Crete. West Crete is quieter than the east.' },
+    rethymno:     { access:'KTEL bus 1.5h from Heraklion, 1h from Chania', days:'1–2 days', highlights:'Venetian old town, Fortezza, central beaches', tip:'Best central base for exploring both east and west Crete.' },
+    knossos:      { access:'Bus 3 from Heraklion Plateia Eleftherias (€1.80, 15 min)', days:'Half–full day', highlights:'Minoan palace, original frescoes, throne room, labyrinthine layout', tip:'Arrive at 8 AM to beat the cruise ship groups that arrive from 10 AM.' },
+    rhodes:       { access:'Fly 55 min from Athens · Ferry overnight 15–18h', days:'3–4 days', highlights:'UNESCO medieval city, Lindos Acropolis (50km), beaches', tip:'Rhodes Old Town at night, after day visitors leave, is extraordinary.' },
+    delphi:       { access:'KTEL bus from Athens 3h (€17–20 return) or car', days:'1 day (stay overnight for early site access)', highlights:'Temple of Apollo, Sacred Way, ancient theatre, stadium, museum', tip:'Stay overnight in Delphi village. The site at 8 AM before tour groups is exceptional.' },
+    meteora:      { access:'Train Athens→Kalambaka 4–4.5h (€35), then local bus', days:'1–2 nights', highlights:'Six monasteries perched on rock pillasters, UNESCO', tip:'Dress code strictly enforced: covered knees and shoulders for all genders. €3 per monastery.' },
+    nafplio:      { access:'KTEL bus from Athens 2.5h (€15) or car 1.5h', days:'2 nights', highlights:'Bourtzi castle, Palamidi fortress, base for Mycenae and Epidaurus', tip:'Most charming town in the Peloponnese. Limited accommodation — book ahead.' },
+    olympia:      { access:'KTEL bus from Athens 5.5h or car 3.5h via Corinth', days:'Full day', highlights:'Temple of Zeus, original Olympic stadium, excellent museum', tip:'Children can run the original Olympic stadium starting line — genuinely good for families.' },
+    mycenae:      { access:'30 min from Nafplio by car or bus', days:'Half day', highlights:'Lion Gate, Treasury of Atreus (Tomb of Agamemnon), citadel walls', tip:'Combine with Nafplio overnight and Epidaurus for an efficient 2-day circuit.' },
+    epidaurus:    { access:'30–45 min from Nafplio by car or KTEL bus', days:'Half day', highlights:'Best acoustic ancient theatre in existence, sanctuary of Asclepius', tip:'Summer festival performances (July–Aug) in the theatre are worth planning around.' },
+    mystras:      { access:'7km from Sparta, 2.5h from Nafplio', days:'Half day', highlights:'Byzantine ghost city, frescoes, UNESCO World Heritage', tip:'Visit in the morning before it gets hot — it is built on a steep hillside.' },
+    thessaloniki: { access:'Train from Athens 4–4.5h (€20–50 intercity)', days:'2 days', highlights:'White Tower, Byzantine churches, Modiano market, exceptional food', tip:'Food capital of Greece. The Modiano and Kapani markets on a Sunday morning.' },
+    corfu:        { access:'Fly 1h from Athens · Ferry from Igoumenitsa 90 min', days:'3–4 days', highlights:'Corfu Town (UNESCO), beaches, Achilleion palace', tip:'Airport is 3km from town — easiest island airport transfer in Greece.' },
+    lefkada:      { access:'Drive from Athens 4–5h — bridge to mainland, no ferry', days:'3–4 days', highlights:'West coast beaches (among Aegean\'s finest), windsurfing at Vassiliki', tip:'Only Greek island accessible by car without a ferry — significantly underrated.' },
+    kefalonia:    { access:'Fly 1h from Athens or ferry from Patras 2.5h', days:'3–4 days', highlights:'Myrtos Beach, Melissani Cave, Assos village, Fiskardo', tip:'Most dramatically beautiful island in the Ionians.' },
+    zakynthos:    { access:'Fly 1h from Athens or ferry from Killini 1.5h', days:'2–3 days', highlights:'Navagio (Shipwreck) Beach, Blue Caves, loggerhead turtles', tip:'Avoid Laganas entirely. The rest of the island — particularly the southeast — is excellent.' },
+    milos:        { access:'Ferry from Piraeus 3.5–5h or fly 45 min', days:'3–4 nights', highlights:'Sarakiniko (lunar landscape), sea cave boat trip, Klima fishing village', tip:'The sea cave boat trip is the single best activity in the Cyclades.' },
+    sifnos:       { access:'Ferry from Piraeus 3–4h', days:'3–4 nights', highlights:'Apollonia, Kastro village, best food island in the Cyclades', tip:'Revithia (chickpea soup cooked in ceramic pots) on Sundays is a tradition.' },
+    folegandros:  { access:'Ferry from Piraeus 4–6h (often via Milos or Ios)', days:'3–4 nights', highlights:'Chora village (finest in the Cyclades), quiet beaches', tip:'Bring enough cash — ATMs run out in peak season.' },
+    patmos:       { access:'Ferry from Piraeus 6–8h or connection via Rhodes/Kos', days:'2 nights', highlights:'Monastery of St John (UNESCO), Cave of the Apocalypse', tip:'Most serene island in Greece — a complete change of pace from Santorini.' },
+    kos:          { access:'Fly 55 min from Athens or ferry via Blue Star', days:'2–3 days', highlights:'Ancient Asklepion, Hippocrates plane tree, beaches', tip:'Flat island — rent a bicycle. Much more relaxed than Rhodes.' },
+    symi:         { access:'1.5h fast ferry from Rhodes', days:'1 night or day trip', highlights:'Neoclassical harbour, walking paths, quiet tavernas', tip:'Take the early morning boat from Rhodes and return in the evening.' },
+    lesbos:       { access:'Fly 1h from Athens', days:'4–5 days', highlights:'Molyvos castle village, petrified forest, ouzo distilleries', tip:'Most authentic large island in Greece — minimal mass tourism.' }
+};
+
+// ── ITINERARIES ────────────────────────────────────────────────────────────
+var ITINERARIES = [
+    {
+        id: 'athens',
+        name: 'Athens Essentials',
+        days: 3,
+        transport: 'Walk + Metro',
+        description: 'The Acropolis, the right neighbourhoods, and how to eat like an Athenian without getting trapped in Plaka.',
+        stops: [
+            { city:'athens', nights:3, highlights:'Acropolis at 8 AM (€30), Ancient Agora, Monastiraki, Koukaki dinner' }
+        ],
+        routes: []
+    },
+    {
+        id: 'peloponnese',
+        name: 'Peloponnese Circuit',
+        days: 5,
+        transport: 'Car',
+        description: 'Mycenae, Epidaurus, Nafplio, Mystras, Olympia — the most historically rich region in Greece, almost entirely skipped by first-timers.',
+        stops: [
+            { city:'nafplio',   nights:2, highlights:'Base town, Bourtzi, Palamidi fortress' },
+            { city:'mycenae',   nights:0, highlights:'Lion Gate, Treasury of Atreus, half day' },
+            { city:'epidaurus', nights:0, highlights:'Best acoustic ancient theatre, half day' },
+            { city:'mystras',   nights:0, highlights:'Byzantine ghost city, half day' },
+            { city:'olympia',   nights:1, highlights:'Original Olympic stadium, Zeus temple, museum' }
+        ],
+        routes: [
+            { from:'nafplio',   to:'mycenae',   type:'car',  time:'30 min' },
+            { from:'mycenae',   to:'epidaurus', type:'car',  time:'45 min' },
+            { from:'epidaurus', to:'mystras',   type:'car',  time:'2h 30m', waypoints:['sparta'] },
+            { from:'mystras',   to:'olympia',   type:'car',  time:'3h' }
+        ]
+    },
+    {
+        id: 'cyclades-classic',
+        name: 'Cyclades Island Hop',
+        days: 11,
+        transport: 'Ferry',
+        description: 'The iconic Cyclades route — with honest advice on where to eat, what to skip, and how to avoid being overcharged.',
+        stops: [
+            { city:'athens',   nights:2, highlights:'Acropolis, Ancient Agora, Koukaki dinner' },
+            { city:'santorini',nights:3, highlights:'Oia, Fira, Akrotiri. Eat inland, not caldera-front.' },
+            { city:'naxos',    nights:3, highlights:'Best beaches in Cyclades. Half price vs Santorini.' },
+            { city:'paros',    nights:2, highlights:'Naoussa village, excellent food, ferry connections' },
+            { city:'mykonos',  nights:2, highlights:'Chora, Delos day trip (€32 return — do not skip)' }
+        ],
+        routes: [
+            { from:'athens',    to:'santorini', type:'ferry', time:'4h 30m fast', waypoints:['piraeus'] },
+            { from:'santorini', to:'naxos',     type:'ferry', time:'2h' },
+            { from:'naxos',     to:'paros',     type:'ferry', time:'45 min' },
+            { from:'paros',     to:'mykonos',   type:'ferry', time:'45 min' }
+        ]
+    },
+    {
+        id: 'cyclades-alternative',
+        name: 'Cyclades — The Better Route',
+        days: 10,
+        transport: 'Ferry',
+        description: 'Same Cycladic beauty at 40% less cost. The islands most visitors miss — and should not.',
+        stops: [
+            { city:'athens',     nights:2, highlights:'Acropolis, Koukaki dinner, Testaccio-equivalent market' },
+            { city:'milos',      nights:4, highlights:'Sarakiniko, sea cave boat trip (best in Cyclades), Klima' },
+            { city:'sifnos',     nights:3, highlights:'Best food island in Cyclades, Kastro village' },
+            { city:'folegandros',nights:2, highlights:'Finest Chora in Cyclades. Bring cash. Complete quiet.' }
+        ],
+        routes: [
+            { from:'athens',      to:'milos',       type:'ferry', time:'3h 30m fast', waypoints:['piraeus'] },
+            { from:'milos',       to:'sifnos',      type:'ferry', time:'1h 30m' },
+            { from:'sifnos',      to:'folegandros', type:'ferry', time:'2h' }
+        ]
+    },
+    {
+        id: 'crete',
+        name: 'Crete Deep Dive',
+        days: 7,
+        transport: 'Ferry + Car',
+        description: 'The largest Greek island. More to see than most first-timers realise. Rent a car on arrival.',
+        stops: [
+            { city:'heraklion', nights:1, highlights:'Knossos (8 AM next morning), Archaeological Museum' },
+            { city:'knossos',   nights:0, highlights:'Minoan palace, frescoes — arrive at 8 AM' },
+            { city:'rethymno',  nights:2, highlights:'Venetian old town, Fortezza, central base' },
+            { city:'chania',    nights:3, highlights:'Venetian harbour, Samaria Gorge, old town' }
+        ],
+        routes: [
+            { from:'athens',    to:'heraklion', type:'ferry', time:'8h (overnight)', waypoints:['piraeus'] },
+            { from:'heraklion', to:'knossos',   type:'car',   time:'15 min' },
+            { from:'heraklion', to:'rethymno',  type:'car',   time:'1h 15m' },
+            { from:'rethymno',  to:'chania',    type:'car',   time:'1h' }
+        ]
+    },
+    {
+        id: 'mainland-culture',
+        name: 'Athens + Delphi + Meteora',
+        days: 7,
+        transport: 'Bus + Train',
+        description: 'The mainland\'s three greatest sites. Most visitors skip Meteora — this is the most common mistake in Greece.',
+        stops: [
+            { city:'athens',      nights:2, highlights:'Acropolis, Acropolis Museum, evening in Koukaki' },
+            { city:'delphi',      nights:1, highlights:'Temple of Apollo, theatre, stadium, museum — 8 AM before tours' },
+            { city:'meteora',     nights:2, highlights:'Six monasteries on rock pinnacles. One of Europe\'s most extraordinary places.' },
+            { city:'thessaloniki',nights:1, highlights:'Byzantine churches, Modiano market, food capital of Greece' }
+        ],
+        routes: [
+            { from:'athens',      to:'delphi',       type:'bus',  time:'3h' },
+            { from:'delphi',      to:'meteora',      type:'car',  time:'3h', waypoints:['kalambaka'] },
+            { from:'meteora',     to:'thessaloniki', type:'train',time:'2h 30m' }
+        ]
+    },
+    {
+        id: 'ionian',
+        name: 'Ionian Islands',
+        days: 9,
+        transport: 'Car + Ferry',
+        description: 'The greener, calmer alternative to the Cyclades. Accessible, beautiful, and consistently underrated.',
+        stops: [
+            { city:'corfu',     nights:3, highlights:'UNESCO old town, beaches, Achilleion palace' },
+            { city:'lefkada',   nights:2, highlights:'West coast beaches, only island driveable from mainland' },
+            { city:'kefalonia', nights:2, highlights:'Myrtos Beach, Melissani Cave, Assos village' },
+            { city:'zakynthos', nights:2, highlights:'Navagio Beach, Blue Caves — avoid Laganas entirely' }
+        ],
+        routes: [
+            { from:'athens',    to:'corfu',     type:'flight', time:'1h' },
+            { from:'corfu',     to:'lefkada',   type:'car',    time:'2h', waypoints:['igoumenitsa'] },
+            { from:'lefkada',   to:'kefalonia', type:'ferry',  time:'2h' },
+            { from:'kefalonia', to:'zakynthos', type:'ferry',  time:'1h 30m' }
+        ]
+    },
+    {
+        id: 'dodecanese',
+        name: 'Dodecanese — Rhodes & Beyond',
+        days: 8,
+        transport: 'Flight + Ferry',
+        description: 'Rhodes Old Town is one of the finest medieval cities in Europe. The islands around it are quieter and cheaper.',
+        stops: [
+            { city:'rhodes', nights:3, highlights:'UNESCO medieval city, Lindos Acropolis, beaches' },
+            { city:'symi',   nights:1, highlights:'Neoclassical harbour, completely quiet, remarkable' },
+            { city:'kos',    nights:2, highlights:'Hippocrates plane tree, Asklepion, flat island — rent a bicycle' },
+            { city:'patmos', nights:2, highlights:'Monastery of St John, most serene island in Greece' }
+        ],
+        routes: [
+            { from:'athens', to:'rhodes', type:'flight', time:'55 min' },
+            { from:'rhodes', to:'symi',   type:'ferry',  time:'1h' },
+            { from:'symi',   to:'kos',    type:'ferry',  time:'1h 30m', waypoints:['rhodes'] },
+            { from:'kos',    to:'patmos', type:'ferry',  time:'2h' }
+        ]
+    }
+];
+
+// ── TRANSPORT DATA ─────────────────────────────────────────────────────────
+var FERRY_DATA = {
+    'piraeus-santorini':  { fast:270, slow:480, price:'€70–90 fast / €40–50 slow', op:'Seajets, Golden Star, Blue Star' },
+    'piraeus-mykonos':    { fast:150, slow:270, price:'€60–75 fast / €35–45 slow', op:'Seajets, Golden Star' },
+    'piraeus-naxos':      { fast:195, slow:330, price:'€50–65 fast / €30–42 slow', op:'Blue Star, SeaJets' },
+    'piraeus-paros':      { fast:165, slow:300, price:'€50–65 fast / €30–42 slow', op:'Blue Star, SeaJets' },
+    'piraeus-milos':      { fast:210, slow:360, price:'€55–70 fast / €32–45 slow', op:'SeaJets, Kimolos Lines' },
+    'piraeus-heraklion':  { fast:null, slow:540, price:'€35–45 deck / €80–120 cabin', op:'ANEK, Minoan — overnight', overnight:true },
+    'piraeus-chania':     { fast:null, slow:510, price:'€35–45 deck / €75–110 cabin', op:'ANEK — overnight', overnight:true },
+    'piraeus-rhodes':     { fast:null, slow:960, price:'€45–65 deck / €90–140 cabin', op:'Blue Star — overnight', overnight:true },
+    'piraeus-ios':        { fast:240, slow:420, price:'€55–70 fast / €32–44 slow', op:'Blue Star, SeaJets' },
+    'piraeus-folegandros':{ fast:255, slow:420, price:'€50–65', op:'Often via Milos' },
+    'piraeus-sifnos':     { fast:180, slow:300, price:'€45–58', op:'SeaJets, Kimolos Lines' },
+    'piraeus-syros':      { fast:120, slow:180, price:'€40–55', op:'Blue Star, SeaJets' },
+    'piraeus-patmos':     { fast:null, slow:480, price:'€40–55', op:'Blue Star via Kos' },
+    'piraeus-kos':        { fast:null, slow:720, price:'€40–60', op:'Blue Star — overnight' },
+    'rafina-mykonos':     { fast:135, slow:240, price:'€55–70', op:'SeaJets — closer to airport' },
+    'rafina-naxos':       { fast:165, slow:280, price:'€45–58', op:'SeaJets' },
+    'rafina-santorini':   { fast:255, slow:null, price:'€65–80', op:'SeaJets' },
+    'santorini-mykonos':  { fast:120, slow:null, price:'€55–70', op:'SeaJets' },
+    'santorini-heraklion':{ fast:90,  slow:120, price:'€25–40', op:'SeaJets, Minoan' },
+    'santorini-ios':      { fast:40,  slow:60,  price:'€15–25', op:'Blue Star, SeaJets' },
+    'mykonos-naxos':      { fast:60,  slow:90,  price:'€25–35', op:'SeaJets, Blue Star' },
+    'mykonos-paros':      { fast:45,  slow:75,  price:'€20–30', op:'SeaJets' },
+    'naxos-paros':        { fast:30,  slow:45,  price:'€10–18', op:'Blue Star' },
+    'naxos-milos':        { fast:120, slow:null, price:'€30–45', op:'SeaJets' },
+    'milos-sifnos':       { fast:90,  slow:null, price:'€20–30', op:'Kimolos Lines, SeaJets' },
+    'sifnos-folegandros': { fast:120, slow:null, price:'€25–38', op:'SeaJets, Kimolos' },
+    'rhodes-kos':         { fast:75,  slow:150, price:'€25–40', op:'Dodekanisos Seaways' },
+    'rhodes-symi':        { fast:60,  slow:90,  price:'€15–25', op:'Dodekanisos Seaways' },
+    'kos-patmos':         { fast:120, slow:180, price:'€25–40', op:'Dodekanisos Seaways' },
+    'heraklion-santorini':{ fast:90,  slow:120, price:'€25–40', op:'SeaJets, Minoan' },
+    'igoumenitsa-corfu':  { fast:90,  slow:90,  price:'€10–15', op:'Ionian Ferries — frequent' },
+    'patras-kefalonia':   { fast:150, slow:150, price:'€20–30', op:'Ionian Ferries' },
+    'kefalonia-zakynthos':{ fast:90,  slow:90,  price:'€15–25', op:'Ionian Ferries' }
+};
+
+var FLIGHT_DATA = {
+    'athens-santorini':  { min:45, price:'€60–150', op:'Aegean, Olympic Air' },
+    'athens-mykonos':    { min:40, price:'€60–150', op:'Aegean, Olympic, Ryanair' },
+    'athens-heraklion':  { min:50, price:'€50–130', op:'Most frequent route — Aegean, Ryanair' },
+    'athens-chania':     { min:55, price:'€50–130', op:'Aegean, Ryanair' },
+    'athens-rhodes':     { min:55, price:'€55–140', op:'Aegean, Olympic, Ryanair' },
+    'athens-corfu':      { min:55, price:'€50–120', op:'Aegean, Olympic Air' },
+    'athens-kefalonia':  { min:55, price:'€55–130', op:'Aegean — seasonal' },
+    'athens-zakynthos':  { min:60, price:'€55–130', op:'Aegean — seasonal' },
+    'athens-kos':        { min:55, price:'€55–130', op:'Aegean, Ryanair' },
+    'athens-milos':      { min:45, price:'€60–140', op:'Olympic Air — small airport, book early' },
+    'athens-lesbos':     { min:55, price:'€50–120', op:'Aegean, Olympic Air' },
+    'athens-thessaloniki':{ min:55, price:'€40–100', op:'Train is cheaper and similar total time' }
+};
+
+var BUS_DATA = {
+    'athens-delphi':      { min:180, price:'€17–20 return', info:'KTEL bus from Liossion terminal (260)' },
+    'athens-nafplio':     { min:150, price:'€15', info:'KTEL from Kifissos terminal (100)' },
+    'athens-olympia':     { min:330, price:'€30', info:'KTEL — change at Pyrgos' },
+    'athens-meteora':     { min:300, price:'€35', info:'Train to Kalambaka (4.5h), then local bus to monasteries' },
+    'athens-thessaloniki':{ min:240, price:'€20–50', info:'Intercity train — fast and comfortable' },
+    'nafplio-mycenae':    { min:30,  price:'€2',  info:'Local bus or taxi — 30 min' },
+    'nafplio-epidaurus':  { min:45,  price:'€3',  info:'KTEL bus — check timetable' },
+    'heraklion-knossos':  { min:20,  price:'€1.80',info:'Bus 3 from Plateia Eleftherias, every 10–15 min' },
+    'heraklion-chania':   { min:130, price:'€8',  info:'KTEL bus — frequent service' },
+    'heraklion-rethymno': { min:75,  price:'€5',  info:'KTEL bus' }
+};
+
+// ── MAP + LAYERS ───────────────────────────────────────────────────────────
+var map, markersLayer, routesLayer;
+
+var activeRouteLines = [];
+
+window.onload = function() {
+    if (typeof L === 'undefined') return;
+    
+    map = L.map('map', { zoomControl:true, scrollWheelZoom:true }).setView([38.5,24.5], 6);
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+        attribution:'© OpenStreetMap © CARTO', subdomains:'abcd', maxZoom:19
+    }).addTo(map);
+
+    markersLayer = L.layerGroup().addTo(map);
+    
+    placeCityMarkers();
+    renderItineraryList();
+    initRoutePlanner();
+    initUI();
+};
+
+// ── CITY MARKERS (background) ──────────────────────────────────────────────
+var TYPE_COLOR = {
+    city:'#1a3a5c', island:'#1a5080', arch:'#4a7c59', mainland:'#7c5a1a', port:'#5c3a7c'
+};
+function cityType(id) {
+    var islands = ['santorini','mykonos','naxos','paros','milos','sifnos','folegandros','ios','syros','heraklion','chania','rethymno','knossos','rhodes','kos','patmos','symi','corfu','lefkada','kefalonia','zakynthos','lesbos'];
+    var arch    = ['mycenae','epidaurus','olympia','mystras','delphi','meteora','knossos'];
+    var ports   = ['piraeus','igoumenitsa'];
+    if (arch.indexOf(id)   > -1) return 'arch';
+    if (ports.indexOf(id)  > -1) return 'port';
+    if (islands.indexOf(id)> -1) return 'island';
+    if (id === 'athens' || id === 'thessaloniki') return 'city';
+    return 'mainland';
+}
+
+function placeCityMarkers() {
+    Object.keys(CITIES).forEach(function(id){
+        var c = CITIES[id];
+        var col = TYPE_COLOR[cityType(id)] || '#1a3a5c';
+        var icon = L.divIcon({
+            html:'<svg xmlns="http://www.w3.org/2000/svg" width="22" height="30" viewBox="0 0 22 30">'
+                +'<path d="M11 0C4.93 0 0 4.93 0 11c0 8.25 11 19 11 19S22 19.25 22 11C22 4.93 17.07 0 11 0z" fill="'+col+'" stroke="white" stroke-width="1.5"/>'
+                +'<circle cx="11" cy="11" r="4" fill="white" opacity="0.9"/></svg>',
+            iconSize:[22,30], iconAnchor:[11,30], popupAnchor:[0,-30], className:''
+        });
+        var info = CITY_INFO[id];
+        var html = '<div class="city-popup"><h3>'+c.name+'</h3>';
+        if(info){
+            html+='<div class="city-popup-row"><span class="icon">🛬</span><span class="value">'+info.access+'</span></div>';
+            html+='<div class="city-popup-row"><span class="icon">📅</span><span class="value">'+info.days+'</span></div>';
+            html+='<div class="city-popup-highlights">✨ '+info.highlights+'</div>';
+            if(info.tip) html+='<div class="city-popup-tip">'+info.tip+'</div>';
+        }
+        html+='</div>';
+        L.marker([c.lat,c.lng],{icon:icon}).bindPopup(html,{maxWidth:290}).addTo(markersLayer);
+    });
+}
+
+// ── ITINERARY LIST ─────────────────────────────────────────────────────────
+function renderItineraryList() {
+    var container = document.getElementById('itineraryList');
+    var html = '';
+    ITINERARIES.forEach(function(it){
+        html += '<div class="itinerary-card" data-id="'+it.id+'">'
+            + '<h3>'+it.name+'</h3>'
+            + '<div class="meta"><span>📅 '+it.days+' days</span><span>🚌 '+it.transport+'</span></div>'
+            + '<div class="desc">'+it.description+'</div>'
+            + '</div>';
+    });
+    container.innerHTML = html;
+    container.querySelectorAll('.itinerary-card').forEach(function(card){
+        card.onclick = function(){
+            container.querySelectorAll('.itinerary-card').forEach(function(c){ c.classList.remove('active'); });
+            this.classList.add('active');
+            selectItinerary(this.getAttribute('data-id'));
+        };
+    });
+}
+
+// ── SELECT & DRAW ITINERARY ────────────────────────────────────────────────
+var currentItinerary = null;
+
+function selectItinerary(id) {
+    var it = ITINERARIES.filter(function(i){ return i.id===id; })[0];
+    if(!it) return;
+    currentItinerary = it;
+    
+    // Clear previous route lines
+    activeRouteLines.forEach(function(l){ map.removeLayer(l); });
+    activeRouteLines = [];
+    
+    // Redraw city markers and stop markers
+    markersLayer.clearLayers();
+    placeCityMarkers();
+    
+    drawRoutes(it);
+    addStopMarkers(it);
+    fitToItinerary(it);
+    showStopsPanel(it);
+    closeMobilePanel();
+}
+
+function drawRoutes(it) {
+    it.routes.forEach(function(route){
+        var fromCity = CITIES[route.from];
+        var toCity   = CITIES[route.to];
+        if(!fromCity || !toCity) return;
+        
+        var path = [[fromCity.lat, fromCity.lng]];
+        if(route.waypoints && route.waypoints.length){
+            route.waypoints.forEach(function(wp){
+                var w = CITIES[wp];
+                if(w) path.push([w.lat, w.lng]);
+            });
+        }
+        path.push([toCity.lat, toCity.lng]);
+        
+        var color = '#c4533a';
+        var dash  = null;
+        if(route.type === 'ferry'){   color = '#1a5c8c'; dash = '8,6'; }
+        if(route.type === 'flight'){  color = '#7c3a9c'; dash = null; }
+        if(route.type === 'car'){     color = '#1a3a5c'; dash = null; }
+        if(route.type === 'bus'){     color = '#4a7c59'; dash = null; }
+        if(route.type === 'train'){   color = '#4a7c59'; dash = null; }
+        
+        var line = L.polyline(path, {
+            color:color, weight:6, opacity:1,
+            dashArray:dash, lineCap:'round', lineJoin:'round'
+        }).addTo(map);
+        activeRouteLines.push(line);
+    });
+}
+
+function addStopMarkers(it) {
+    it.stops.forEach(function(stop, index){
+        var city = CITIES[stop.city];
+        if(!city) return;
+        
+        var icon = L.divIcon({
+            className:'stop-marker-wrapper',
+            html:'<div class="stop-marker">'
+                +'<div class="stop-marker-dot">'+(index+1)+'</div>'
+                +'<div class="stop-marker-label">'+city.name+'</div>'
+                +'</div>',
+            iconSize:[100,40], iconAnchor:[50,12], popupAnchor:[0,-15]
+        });
+        
+        var info = CITY_INFO[stop.city];
+        var html = '<div class="city-popup"><h3>'+city.name+'</h3>';
+        html += '<div style="display:inline-block;background:var(--secondary);color:white;padding:2px 8px;border-radius:4px;font-size:.75rem;margin-bottom:8px;">';
+        html += stop.nights ? stop.nights+' night'+(stop.nights>1?'s':'') : 'Day visit';
+        html += '</div>';
+        if(info){
+            html += '<div class="city-popup-highlights">✨ '+stop.highlights+'</div>';
+            if(info.tip) html += '<div class="city-popup-tip">'+info.tip+'</div>';
+        }
+        html += '</div>';
+        
+        L.marker([city.lat,city.lng],{icon:icon}).bindPopup(html,{maxWidth:290}).addTo(markersLayer);
+    });
+}
+
+function fitToItinerary(it) {
+    var bounds = [];
+    it.stops.forEach(function(s){
+        var c = CITIES[s.city];
+        if(c) bounds.push([c.lat,c.lng]);
+    });
+    if(bounds.length > 0) map.fitBounds(bounds,{padding:[80,80]});
+}
+
+function showStopsPanel(it) {
+    var panel   = document.getElementById('stopsPanel');
+    var title   = document.getElementById('stopsPanelTitle');
+    var content = document.getElementById('stopsContent');
+    
+    title.textContent = it.name + ' — ' + it.days + ' days';
+    
+    var html = '';
+    it.stops.forEach(function(stop, index){
+        var city = CITIES[stop.city];
+        if(!city) return;
+        var nightsText = stop.nights ? '<span class="stop-info">'+stop.nights+' night'+(stop.nights>1?'s':'')+'</span>' : '<span class="stop-info">Day visit</span>';
+        html += '<div class="stop-item" data-city="'+stop.city+'">'
+            + '<span class="stop-number">'+(index+1)+'</span>'
+            + '<span class="stop-name">'+city.name+'</span>'
+            + nightsText
+            + '<div class="stop-tip">'+stop.highlights+'</div>'
+            + '</div>';
+    });
+    content.innerHTML = html;
+    panel.classList.add('visible');
+    
+    content.querySelectorAll('.stop-item').forEach(function(item){
+        item.onclick = function(){
+            var c = CITIES[this.getAttribute('data-city')];
+            if(c) map.setView([c.lat,c.lng], 10);
+        };
+    });
+}
+
+// ── ROUTE PLANNER ──────────────────────────────────────────────────────────
+function initRoutePlanner() {
+    var fromSel = document.getElementById('routeFrom');
+    var toSel   = document.getElementById('routeTo');
+    var btn     = document.getElementById('routeBtn');
+    
+    Object.keys(CITIES).sort(function(a,b){
+        return CITIES[a].name.localeCompare(CITIES[b].name);
+    }).forEach(function(id){
+        var o1 = document.createElement('option'); o1.value=id; o1.textContent=CITIES[id].name; fromSel.appendChild(o1);
+        var o2 = document.createElement('option'); o2.value=id; o2.textContent=CITIES[id].name; toSel.appendChild(o2);
+    });
+    
+    function upd(){ btn.disabled = !fromSel.value || !toSel.value || fromSel.value===toSel.value; }
+    fromSel.onchange = upd; toSel.onchange = upd;
+    
+    var selMode = 'ferry';
+    document.querySelectorAll('.mode-btn').forEach(function(mb){
+        mb.addEventListener('click', function(){
+            document.querySelectorAll('.mode-btn').forEach(function(b){ b.classList.remove('active'); });
+            this.classList.add('active');
+            selMode = this.getAttribute('data-mode');
+        });
+    });
+    
+    btn.onclick = function(){ showRoute(fromSel.value, toSel.value, selMode); };
+}
+
+function ferryId(id){ return id==='athens'?'piraeus':id; }
+function fmtMin(m){ if(!m) return ''; return Math.floor(m/60)+'h'+(m%60>0?' '+m%60+'m':''); }
+
+function showRoute(fr, to, mode) {
+    var res = document.getElementById('routeResults');
+    var fromC = CITIES[fr], toC = CITIES[to];
+    if(!fromC||!toC){ res.innerHTML='<p class="route-not-available">Select valid locations.</p>'; return; }
+
+    // Clear previous route lines
+    activeRouteLines.forEach(function(l){ map.removeLayer(l); });
+    activeRouteLines = [];
+
+    var html = '<h4 style="margin-bottom:12px;font-size:.9rem;color:#666;">'+fromC.name+' → '+toC.name+'</h4>';
+
+    if(mode==='ferry'){
+        var fk = ferryId(fr), tk = ferryId(to);
+        var d = FERRY_DATA[fk+'-'+tk] || FERRY_DATA[tk+'-'+fk];
+        if(d){
+            html += '<div class="route-result-card">'
+                +'<div class="route-result-header"><span class="route-icon">⛴</span><span class="route-mode">Ferry</span>'
+                +(d.fast?'<span class="route-time">'+fmtMin(d.fast)+'</span>':'')
+                +'</div>'
+                +'<div class="route-details">'+d.price+'</div>'
+                +'<div class="route-segments">';
+            if(fr==='athens') html+='<div class="route-segment"><span>🚇</span><span>Metro Line 1 → Piraeus (40 min, €1.20)</span></div>';
+            if(d.fast)  html+='<div class="route-segment"><span>⚡</span><span>High-speed: <strong>'+fmtMin(d.fast)+'</strong></span></div>';
+            if(d.slow)  html+='<div class="route-segment"><span>⛴</span><span>Conventional: <strong>'+fmtMin(d.slow)+'</strong></span></div>';
+            if(d.overnight) html+='<div class="route-segment"><span>🌙</span><span>Overnight route — book a cabin</span></div>';
+            html+='</div><div class="route-note">'+d.op+' · openseas.gr</div></div>';
+
+            // Draw ferry route on map with sea waypoints
+            var startCity = CITIES[fk] || fromC;
+            var endCity   = CITIES[tk] || toC;
+            var path = buildFerryPath(fk, tk, startCity, endCity);
+            var line = L.polyline(path, {color:'#1a5c8c', weight:6, opacity:1, dashArray:'12,5', lineCap:'butt'}).addTo(map);
+            activeRouteLines.push(line);
+            // Start/end markers
+            activeRouteLines.push(L.circleMarker([startCity.lat,startCity.lng],{radius:8,color:'#1a5c8c',fillColor:'white',fillOpacity:1,weight:3}).addTo(map));
+            activeRouteLines.push(L.circleMarker([endCity.lat,endCity.lng],{radius:8,color:'#1a5c8c',fillColor:'#1a5c8c',fillOpacity:1,weight:3}).addTo(map));
+            map.fitBounds(L.latLngBounds(path),{padding:[80,80]});
+        } else {
+            html += '<div class="route-result-card"><div class="route-not-available">No direct ferry. Check openseas.gr — connections via other islands may exist.</div></div>';
+        }
+    }
+    else if(mode==='flight'){
+        var d2 = FLIGHT_DATA['athens-'+to] || FLIGHT_DATA['athens-'+fr] || FLIGHT_DATA[fr+'-'+to] || FLIGHT_DATA[to+'-'+fr];
+        if(d2){
+            var via = (fr!=='athens'&&to!=='athens')?' (connection via Athens)':'';
+            html += '<div class="route-result-card">'
+                +'<div class="route-result-header"><span class="route-icon">✈</span><span class="route-mode">Flight</span><span class="route-time">'+fmtMin(d2.min)+'</span></div>'
+                +'<div class="route-details">'+d2.price+via+'</div>'
+                +'<div class="route-segments"><div class="route-segment"><span>✈</span><span>'+d2.op+'</span></div></div>'
+                +'<div class="route-note">Book 3–6 weeks ahead · aegeanair.com</div></div>';
+
+            // Draw flight arc on map (curved great-circle approximation)
+            var path2 = buildFlightArc(fromC, toC);
+            var line2 = L.polyline(path2, {color:'#c43a9c', weight:3, opacity:0.9, dashArray:null, lineCap:'round'}).addTo(map);
+            activeRouteLines.push(line2);
+            activeRouteLines.push(L.circleMarker([fromC.lat,fromC.lng],{radius:8,color:'#c43a9c',fillColor:'white',fillOpacity:1,weight:3}).addTo(map));
+            activeRouteLines.push(L.circleMarker([toC.lat,toC.lng],{radius:8,color:'#c43a9c',fillColor:'#c43a9c',fillOpacity:1,weight:3}).addTo(map));
+            map.fitBounds(L.latLngBounds([[fromC.lat,fromC.lng],[toC.lat,toC.lng]]),{padding:[80,80]});
+        } else {
+            html += '<div class="route-result-card"><div class="route-not-available">No flight found. Check aegeanair.com or olympicair.com.</div></div>';
+        }
+    }
+    else if(mode==='bus'){
+        var d3 = BUS_DATA[fr+'-'+to] || BUS_DATA[to+'-'+fr];
+        if(d3){
+            html += '<div class="route-result-card">'
+                +'<div class="route-result-header"><span class="route-icon">🚌</span><span class="route-mode">Bus / Train</span><span class="route-time">'+fmtMin(d3.min)+'</span></div>'
+                +'<div class="route-details">'+d3.price+'</div>'
+                +'<div class="route-segments"><div class="route-segment"><span>🚌</span><span>'+d3.info+'</span></div></div></div>';
+
+            // Draw land route on map
+            var landPath = buildLandPath(fr, to);
+            var line3 = L.polyline(landPath, {color:'#4a7c59', weight:6, opacity:1, lineCap:'round'}).addTo(map);
+            activeRouteLines.push(line3);
+            activeRouteLines.push(L.circleMarker([fromC.lat,fromC.lng],{radius:8,color:'#4a7c59',fillColor:'white',fillOpacity:1,weight:3}).addTo(map));
+            activeRouteLines.push(L.circleMarker([toC.lat,toC.lng],{radius:8,color:'#4a7c59',fillColor:'#4a7c59',fillOpacity:1,weight:3}).addTo(map));
+            map.fitBounds(L.latLngBounds(landPath),{padding:[80,80]});
+        } else {
+            var isIsland = ['santorini','mykonos','naxos','paros','milos','sifnos','folegandros','heraklion','chania','rethymno','rhodes','kos','patmos','symi','corfu','kefalonia','zakynthos','lesbos'].indexOf(to)>-1
+                        || ['santorini','mykonos','naxos','paros','milos','sifnos','folegandros','heraklion','chania','rethymno','rhodes','kos','patmos','symi','corfu','kefalonia','zakynthos','lesbos'].indexOf(fr)>-1;
+            html += '<div class="route-result-card"><div class="route-not-available">'
+                +(isIsland?'Islands are not accessible by bus/train. Take a ferry or flight first.':'No direct bus/train found. Check ktel.org or trainose.gr.')
+                +'</div></div>';
+        }
+    }
+
+    res.innerHTML = html;
+}
+
+// Sea waypoints to keep ferry lines in water and avoid cutting through land
+var FERRY_WAYPOINTS = {
+    // Piraeus to Cyclades — exits south through Saronic gulf
+    'piraeus-santorini':  [[37.6,24.0],[37.0,24.5],[36.7,25.0]],
+    'piraeus-mykonos':    [[37.6,24.0],[37.5,24.8]],
+    'piraeus-naxos':      [[37.6,24.0],[37.3,24.6],[37.1,25.0]],
+    'piraeus-paros':      [[37.6,24.0],[37.3,24.6],[37.1,24.9]],
+    'piraeus-milos':      [[37.6,24.0],[37.2,24.0],[36.9,24.3]],
+    'piraeus-sifnos':     [[37.6,24.0],[37.2,24.0],[37.0,24.5]],
+    'piraeus-folegandros':[[37.6,24.0],[37.0,24.5],[36.7,24.7]],
+    'piraeus-ios':        [[37.6,24.0],[37.0,24.5],[36.8,25.1]],
+    'piraeus-heraklion':  [[37.6,24.0],[37.0,24.5],[36.5,25.0],[36.0,25.0]],
+    'piraeus-chania':     [[37.6,24.0],[36.8,23.5],[35.8,23.8]],
+    'piraeus-rhodes':     [[37.6,24.0],[37.0,25.5],[36.5,27.0],[36.5,28.0]],
+    'piraeus-kos':        [[37.6,24.0],[37.0,25.5],[36.9,26.5],[36.9,27.2]],
+    'piraeus-patmos':     [[37.6,24.0],[37.5,25.0],[37.4,26.0],[37.3,26.5]],
+    // Rafina to Cyclades
+    'rafina-mykonos':     [[38.0,24.5],[37.8,25.0],[37.5,25.2]],
+    'rafina-naxos':       [[38.0,24.5],[37.5,25.0],[37.1,25.3]],
+    'rafina-santorini':   [[38.0,24.5],[37.5,25.0],[37.0,25.2],[36.6,25.3]],
+    // Island to island — Cyclades
+    'santorini-mykonos':  [[36.6,25.5],[37.0,25.4],[37.3,25.4]],
+    'santorini-heraklion':[[36.4,25.4],[35.8,25.2],[35.4,25.2]],
+    'santorini-ios':      [[36.5,25.4],[36.7,25.3]],
+    'mykonos-naxos':      [[37.3,25.4],[37.2,25.4]],
+    'mykonos-paros':      [[37.3,25.3],[37.2,25.2]],
+    'naxos-paros':        [[37.1,25.3],[37.1,25.2]],
+    'naxos-milos':        [[37.0,25.1],[36.9,24.8],[36.8,24.5]],
+    'milos-sifnos':       [[36.7,24.4],[36.9,24.6]],
+    'sifnos-folegandros': [[36.9,24.7],[36.8,24.8]],
+    // Dodecanese
+    'rhodes-kos':         [[36.4,28.0],[36.7,27.5],[36.9,27.3]],
+    'rhodes-symi':        [[36.4,28.1],[36.5,27.9]],
+    'kos-patmos':         [[36.9,27.3],[37.1,26.9],[37.3,26.6]],
+    // Heraklion-Santorini
+    'heraklion-santorini':[[35.4,25.2],[35.8,25.3],[36.2,25.4]],
+    // Igoumenitsa-Corfu
+    'igoumenitsa-corfu':  [[39.5,20.0],[39.6,19.8]],
+    // Patras to Kefalonia
+    'patras-kefalonia':   [[38.2,21.5],[38.2,20.8]],
+    // Kefalonia-Zakynthos
+    'kefalonia-zakynthos':[[38.0,20.7],[37.9,20.9]]
+};
+
+function buildFerryPath(fk, tk, fromC, toC) {
+    var key = fk+'-'+tk;
+    var keyRev = tk+'-'+fk;
+    var wps = FERRY_WAYPOINTS[key] || FERRY_WAYPOINTS[keyRev];
+    var path = [[fromC.lat, fromC.lng]];
+    if(wps){
+        if(FERRY_WAYPOINTS[keyRev] && !FERRY_WAYPOINTS[key]){
+            wps = wps.slice().reverse();
+        }
+        wps.forEach(function(w){ path.push(w); });
+    }
+    path.push([toC.lat, toC.lng]);
+    return path;
+}
+
+// Land route waypoints for bus/train
+var LAND_WAYPOINTS = {
+    'athens-delphi':      [[38.0,23.5],[38.3,22.8]],
+    'athens-nafplio':     [[37.9,23.1],[37.7,22.9]],
+    'athens-olympia':     [[37.9,23.0],[37.9,22.0],[37.7,21.7]],
+    'athens-meteora':     [[38.5,22.5],[39.2,21.8],[39.7,21.6]],
+    'athens-thessaloniki':[[38.5,23.5],[39.5,22.8],[40.5,22.9]],
+    'nafplio-mycenae':    [],
+    'nafplio-epidaurus':  [],
+    'heraklion-knossos':  [],
+    'heraklion-chania':   [[35.4,25.0],[35.4,24.5],[35.5,24.1]],
+    'heraklion-rethymno': [[35.4,25.0],[35.4,24.6]]
+};
+
+function buildLandPath(fr, to) {
+    var key = fr+'-'+to, keyRev = to+'-'+fr;
+    var wps = LAND_WAYPOINTS[key] || LAND_WAYPOINTS[keyRev];
+    var fromC = CITIES[fr], toC = CITIES[to];
+    var path = [[fromC.lat, fromC.lng]];
+    if(wps && wps.length){
+        if(LAND_WAYPOINTS[keyRev] && !LAND_WAYPOINTS[key]){
+            wps = wps.slice().reverse();
+        }
+        wps.forEach(function(w){ path.push(w); });
+    }
+    path.push([toC.lat, toC.lng]);
+    return path;
+}
+
+// Curved arc for flights (intermediate points along great circle)
+function buildFlightArc(fromC, toC) {
+    var pts = [];
+    var steps = 20;
+    for(var i=0; i<=steps; i++){
+        var t = i/steps;
+        // Simple linear interpolation with slight altitude bow
+        var lat = fromC.lat + (toC.lat - fromC.lat)*t;
+        var lng = fromC.lng + (toC.lng - fromC.lng)*t;
+        // Add slight curve upward
+        var bow = Math.sin(Math.PI*t) * 0.5;
+        lat += bow;
+        pts.push([lat, lng]);
+    }
+    return pts;
+}
+
+
+// ── UI ─────────────────────────────────────────────────────────────────────
+function initUI() {
+    document.querySelectorAll('.panel-tab').forEach(function(tab){
+        tab.onclick = function(){
+            document.querySelectorAll('.panel-tab').forEach(function(t){ t.classList.remove('active'); });
+            document.querySelectorAll('.tab-content').forEach(function(c){ c.classList.remove('active'); });
+            this.classList.add('active');
+            document.getElementById(this.getAttribute('data-tab')).classList.add('active');
+        };
+    });
+    
+    document.getElementById('panelClose').onclick   = function(){ document.getElementById('mainPanel').classList.remove('open'); };
+    document.getElementById('mobileToggle').onclick = function(){ document.getElementById('mainPanel').classList.toggle('open'); };
+    document.getElementById('closeStops').onclick   = function(){ document.getElementById('stopsPanel').classList.remove('visible'); };
+}
+
+function closeMobilePanel() {
+    if(window.innerWidth <= 768) document.getElementById('mainPanel').classList.remove('open');
+}
+
+})();
+</script>
+</body>
+</html>
