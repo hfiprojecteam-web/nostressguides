@@ -1,0 +1,941 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>The Black List — The No-Stress Greece Travel Guide</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@300;400;500;600;700&family=Lato:ital,wght@0,300;0,400;0,700;1,300&display=swap" rel="stylesheet">
+<style>
+
+:root {
+  --navy:         #112244;
+  --navy-mid:     #1B3566;
+  --navy-light:   #254580;
+  --gold:         #F5C842;
+  --gold-dark:    #C89A10;
+  --bg:           #F0F4FB;
+  --white:        #FFFFFF;
+  --text:         #1A2340;
+  --text-mid:     #3A4A6A;
+  --text-muted:   #6A7A9A;
+  --bad:          #8C2020;
+  --bad-pale:     #FBF0F0;
+  --warn:         #B36A10;
+  --warn-pale:    #FDF3E3;
+  --trap:         #1A6B5A;
+  --trap-pale:    #E3F5EE;
+  --tour:         #8A5A10;
+  --tour-pale:    #FDF0DC;
+  --mistake:      #5A3A8A;
+  --mistake-pale: #EEEAF8;
+  --border:       #C8D6EE;
+  --border-lt:    #E2EAF8;
+  --radius:       10px;
+  --shadow:       0 2px 12px rgba(17,34,68,0.08);
+}
+
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+html { font-size:16px; -webkit-text-size-adjust:100%; scroll-behavior:smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Lato', sans-serif;
+  font-weight: 300;
+  line-height: 1.65;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+
+.header {
+  background: var(--navy);
+  background-image:
+    radial-gradient(ellipse at 80% 0%, rgba(37,69,128,0.8) 0%, transparent 60%),
+    radial-gradient(ellipse at 20% 100%, rgba(17,34,68,0.9) 0%, transparent 50%);
+  padding: 2rem 1.5rem 0;
+  position: relative;
+  overflow: hidden;
+}
+
+.header::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(rgba(255,255,255,0.06) 1px, transparent 1px);
+  background-size: 20px 20px;
+  pointer-events: none;
+}
+
+.stamp { position:relative; z-index:1; margin-bottom:1.5rem; }
+
+.stamp-inner {
+  border: 2.5px solid var(--gold);
+  border-radius: 4px;
+  padding: 1.1rem 1.3rem 1rem;
+  background: rgba(17,34,68,0.55);
+  backdrop-filter: blur(4px);
+  position: relative;
+}
+
+.stamp-inner::before {
+  content: '';
+  position: absolute;
+  top: -9px; left: 8px; right: 8px;
+  height: 8px;
+  background: repeating-linear-gradient(90deg, transparent 0px, transparent 3px, var(--gold) 3px, var(--gold) 7px, transparent 7px, transparent 10px);
+  opacity: 0.5;
+}
+
+.stamp-inner::after {
+  content: '';
+  position: absolute;
+  bottom: -9px; left: 8px; right: 8px;
+  height: 8px;
+  background: repeating-linear-gradient(90deg, transparent 0px, transparent 3px, var(--gold) 3px, var(--gold) 7px, transparent 7px, transparent 10px);
+  opacity: 0.5;
+}
+
+.stamp-eyebrow {
+  font-family: 'Oswald', sans-serif;
+  font-size: 0.56rem;
+  font-weight: 300;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: rgba(245,200,66,0.7);
+  margin-bottom: 0.5rem;
+}
+
+.stamp-the {
+  font-family: 'Oswald', sans-serif;
+  font-size: 0.78rem;
+  font-weight: 300;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.6);
+  line-height: 1;
+}
+
+.stamp-dest {
+  font-family: 'Oswald', sans-serif;
+  font-size: 4rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--white);
+  line-height: 0.85;
+}
+
+.stamp-guide {
+  font-family: 'Oswald', sans-serif;
+  font-size: 0.82rem;
+  font-weight: 300;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.6);
+  margin-top: 0.15rem;
+}
+
+.stamp-blacklist {
+  font-family: 'Oswald', sans-serif;
+  font-size: 2rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--gold);
+  line-height: 1;
+  margin-top: 0.4rem;
+}
+
+.stamp-rule {
+  height: 1px;
+  background: linear-gradient(90deg, rgba(245,200,66,0.5), transparent);
+  margin: 0.85rem 0 0.7rem;
+}
+
+.stamp-footer { display:flex; align-items:center; justify-content:space-between; }
+
+.stamp-footer-tag {
+  font-family: 'Oswald', sans-serif;
+  font-size: 0.58rem;
+  font-weight: 400;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--gold);
+  opacity: 0.85;
+}
+
+.stamp-year {
+  font-family: 'Oswald', sans-serif;
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--gold);
+  letter-spacing: 0.06em;
+}
+
+.header-sub {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding-bottom: 1.3rem;
+  flex-wrap: wrap;
+}
+
+.bl-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.38rem;
+  background: rgba(140,32,32,0.18);
+  border: 1px solid rgba(140,32,32,0.35);
+  border-radius: 2rem;
+  padding: 0.3rem 0.8rem;
+  font-family: 'Oswald', sans-serif;
+  font-size: 0.62rem;
+  font-weight: 400;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #E07A7A;
+  min-height: 44px;
+}
+
+.header-note { font-size:0.67rem; color:rgba(255,255,255,0.28); letter-spacing:0.02em; }
+
+.intro-bar {
+  background: var(--bad);
+  color: #fff;
+  padding: 0.85rem 1.4rem;
+  display: flex;
+  gap: 0.65rem;
+  align-items: flex-start;
+  font-size: 0.8rem;
+  font-weight: 400;
+  line-height: 1.55;
+}
+
+.intro-bar svg { flex-shrink:0; margin-top:0.12rem; opacity:0.85; }
+
+.disclaimer {
+  background: var(--white);
+  border-left: 4px solid var(--navy-mid);
+  padding: 0.9rem 1.4rem;
+  font-size: 0.78rem;
+  color: var(--text-mid);
+  line-height: 1.6;
+}
+
+.disclaimer-label {
+  font-family: 'Oswald', sans-serif;
+  font-size: 0.6rem;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--navy-mid);
+  display: block;
+  margin-bottom: 0.35rem;
+}
+
+main {
+  padding: 1.6rem 1.25rem 6rem;
+  max-width: 560px;
+  margin: 0 auto;
+}
+
+.legend {
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+  margin-bottom: 1.8rem;
+}
+
+.leg {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.32rem;
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 2rem;
+  padding: 0.3rem 0.7rem;
+  font-family: 'Oswald', sans-serif;
+  font-size: 0.62rem;
+  font-weight: 400;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-mid);
+  min-height: 44px;
+}
+
+.leg-pip { width:7px; height:7px; border-radius:2px; flex-shrink:0; }
+.lp-scam    { background:var(--bad); }
+.lp-trap    { background:var(--trap); }
+.lp-tour    { background:var(--tour); }
+.lp-mistake { background:var(--mistake); }
+
+.section {
+  margin-bottom: 3rem;
+  opacity: 0;
+  transform: translateY(14px);
+  transition: opacity 0.45s ease, transform 0.45s ease;
+}
+
+.section.visible { opacity:1; transform:translateY(0); }
+
+.section-head {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: var(--bg);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.6rem 0 0.55rem;
+  margin-bottom: 0.9rem;
+  border-bottom: 2.5px solid var(--navy);
+  box-shadow: 0 4px 12px rgba(240,244,251,0.95);
+}
+
+.sh-left { display:flex; align-items:center; gap:0.55rem; }
+
+.sh-pip { width:10px; height:10px; border-radius:2px; flex-shrink:0; }
+.sp-scam    { background:var(--bad); }
+.sp-trap    { background:var(--trap); }
+.sp-tour    { background:var(--tour); }
+.sp-mistake { background:var(--mistake); }
+
+.sh-title {
+  font-family: 'Oswald', sans-serif;
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--navy);
+}
+
+.sh-date { font-size:0.6rem; color:var(--text-muted); letter-spacing:0.04em; white-space:nowrap; }
+
+.city {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  margin: 1.1rem 0 0.6rem;
+}
+
+.city-label {
+  font-family: 'Oswald', sans-serif;
+  font-size: 0.6rem;
+  font-weight: 500;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--gold-dark);
+  white-space: nowrap;
+}
+
+.city-line { flex:1; height:1px; background:var(--border); }
+
+.card {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  margin-bottom: 0.55rem;
+  overflow: hidden;
+  position: relative;
+  box-shadow: var(--shadow);
+  transition: box-shadow 0.2s ease;
+}
+
+.card:active { box-shadow:0 1px 4px rgba(17,34,68,0.06); }
+
+.card-bar { position:absolute; left:0; top:0; bottom:0; width:4px; }
+.cb-scam    { background:var(--bad); }
+.cb-trap    { background:var(--trap); }
+.cb-tour    { background:var(--tour); }
+.cb-mistake { background:var(--mistake); }
+
+.card-body { padding:0.88rem 1rem 0.88rem 1.3rem; }
+
+.card-place {
+  font-family: 'Oswald', sans-serif;
+  font-size: 0.58rem;
+  font-weight: 300;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 0.18rem;
+}
+
+.card-title {
+  font-family: 'Oswald', sans-serif;
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: var(--text);
+  letter-spacing: 0.02em;
+  margin-bottom: 0.3rem;
+  line-height: 1.2;
+}
+
+.card-text { font-size:0.85rem; color:var(--text-mid); line-height:1.58; }
+.card-text strong { color:var(--text); font-weight:700; }
+.card-text em { font-style:italic; color:var(--text-muted); }
+
+.signal {
+  margin-top: 0.65rem;
+  padding: 0.55rem 0.75rem;
+  border-radius: 6px;
+  font-size: 0.77rem;
+  line-height: 1.55;
+}
+
+.signal-label {
+  font-family: 'Oswald', sans-serif;
+  font-size: 0.58rem;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  display: block;
+  margin-bottom: 0.22rem;
+  opacity: 0.8;
+}
+
+.sig-trap    { background:var(--trap-pale);    color:var(--trap); }
+.sig-scam    { background:var(--bad-pale);     color:var(--bad); }
+.sig-warn    { background:var(--warn-pale);    color:var(--warn); }
+.sig-mistake { background:var(--mistake-pale); color:var(--mistake); }
+.sig-tour    { background:var(--tour-pale);    color:var(--tour); }
+
+footer { background:var(--navy); }
+
+.footer-gold {
+  background: var(--gold);
+  padding: 1.1rem 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.footer-brand {
+  font-family: 'Oswald', sans-serif;
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--navy);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  line-height: 1;
+}
+
+.footer-brand-sub {
+  font-family: 'Oswald', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--navy);
+  opacity: 0.85;
+  margin-top: 0.25rem;
+  text-align: center;
+}
+
+.footer-body { padding:2rem 1.5rem 3rem; text-align:center; }
+
+.footer-promise {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(245,200,66,0.2);
+  border-radius: 8px;
+  padding: 1rem 1.2rem;
+  font-size: 0.76rem;
+  color: rgba(255,255,255,0.58);
+  line-height: 1.7;
+  text-align: left;
+  margin-bottom: 1.6rem;
+  max-width: 360px;
+  display: inline-block;
+}
+
+.fp-title {
+  font-family: 'Oswald', sans-serif;
+  font-size: 0.62rem;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--gold);
+  display: block;
+  margin-bottom: 0.5rem;
+}
+
+.footer-hr { height:1px; background:rgba(255,255,255,0.07); margin:1.2rem 0; }
+
+.footer-contact { font-size:0.74rem; color:rgba(255,255,255,0.35); line-height:2; }
+.footer-contact a { color:var(--gold); text-decoration:none; }
+
+.footer-legal { font-size:0.63rem; color:rgba(255,255,255,0.16); line-height:1.9; }
+
+</style>
+</head>
+<body>
+
+<header class="header">
+  <div class="stamp">
+    <div class="stamp-inner">
+      <p class="stamp-eyebrow">No-Stress Guides · Bonus 3</p>
+      <p class="stamp-the">The No-Stress</p>
+      <p class="stamp-dest">Greece</p>
+      <p class="stamp-guide">Travel Guide</p>
+      <p class="stamp-blacklist">The Black List</p>
+      <div class="stamp-rule"></div>
+      <div class="stamp-footer">
+        <span class="stamp-footer-tag">Greece Edition · 2026</span>
+        <span class="stamp-year">2026</span>
+      </div>
+    </div>
+  </div>
+  <div class="header-sub">
+    <span class="bl-badge">⚑ Greece Edition — 2026</span>
+    <span class="header-note">What the other guides won't tell you</span>
+  </div>
+</header>
+
+<div class="intro-bar">
+  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+  <span>Every entry is based on documented complaints, verified reviews, or consistent first-hand reports. No competitor paid to be excluded. No business paid to be spared.</span>
+</div>
+
+<div class="disclaimer">
+  <span class="disclaimer-label">On named establishments</span>
+  Specific names appear only where evidence is substantial and consistent across multiple independent sources. Where evidence is mixed or limited, we describe the zone and the pattern — which is more useful anyway, since the problem is rarely one restaurant.
+</div>
+
+<main>
+
+  <div class="legend">
+    <div class="leg"><span class="leg-pip lp-trap"></span>Tourist trap</div>
+    <div class="leg"><span class="leg-pip lp-tour"></span>Overpriced tour</div>
+    <div class="leg"><span class="leg-pip lp-scam"></span>Active scam</div>
+    <div class="leg"><span class="leg-pip lp-mistake"></span>Classic mistake</div>
+  </div>
+
+  <!-- SECTION 1 — RESTAURANTS -->
+  <div class="section">
+    <div class="section-head">
+      <div class="sh-left">
+        <span class="sh-pip sp-trap"></span>
+        <h2 class="sh-title">Restaurants to avoid</h2>
+      </div>
+      <span class="sh-date">Updated 2026</span>
+    </div>
+
+    <div class="city"><span class="city-label">Athens</span><span class="city-line"></span></div>
+
+    <div class="card">
+      <div class="card-bar cb-trap"></div>
+      <div class="card-body">
+        <p class="card-place">Plaka — entire neighbourhood perimeter</p>
+        <p class="card-title">Staff standing outside waving menus</p>
+        <p class="card-text">A restaurant with someone at the door actively inviting you in is telling you something: the food cannot do the work itself. This pattern is endemic in Plaka, the most tourist-saturated neighbourhood in Athens. Multilingual menus, photos of every dish, and aggressive greeters are consistent signals of inflated prices and mediocre food. Walk past. Koukaki, Psirri, and the streets around the Central Market serve Athenians at honest prices a ten-minute walk away.</p>
+        <div class="signal sig-trap">
+          <span class="signal-label">Red flags</span>
+          Staff outside the door. Menu in six languages. Photos of every dish. "Traditional Greek cuisine" in large letters. Any of these alone warrants walking past.
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-bar cb-trap"></div>
+      <div class="card-body">
+        <p class="card-place">Athens — Monastiraki Square perimeter</p>
+        <p class="card-title">The square tax</p>
+        <p class="card-text">Restaurants directly facing Monastiraki Square charge a location premium with no quality justification. Two blocks in any direction from the square, the same meal costs less and tastes better. Monastiraki is excellent for souvlaki street food and gyros from standing counters — it is not a destination for sit-down meals.</p>
+        <div class="signal sig-trap">
+          <span class="signal-label">The rule</span>
+          In Athens, as in all Greek cities: if the restaurant has a view of the main tourist square, you are paying for the view, not the food. Eat elsewhere.
+        </div>
+      </div>
+    </div>
+
+    <div class="city"><span class="city-label">Santorini</span><span class="city-line"></span></div>
+
+    <div class="card">
+      <div class="card-bar cb-trap"></div>
+      <div class="card-body">
+        <p class="card-place">Oia and Fira — caldera-front restaurants</p>
+        <p class="card-title">The view is the product</p>
+        <p class="card-text">Caldera-view restaurants in Oia and Fira charge €15–25 above what equivalent food costs anywhere else on the island. This is not hidden — the premium is transparent. What is worth knowing: the food at caldera-front restaurants is rarely exceptional. The kitchen knows you are there for the view, not the cooking. <strong>Have one sunset drink with the view, then walk inland and eat well.</strong> The best tavernas in Santorini are in villages like Pyrgos and Megalochori, away from the caldera entirely.</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-bar cb-trap"></div>
+      <div class="card-body">
+        <p class="card-place">Santorini — fish priced by the kilogram</p>
+        <p class="card-title">The weight surprise</p>
+        <p class="card-text">Fish in Greece is priced by the kilogram, typically €40–70 for common varieties and €80–120 for premium fish. A menu listing "grilled sea bass" without a price is giving you the option to be surprised at checkout. <strong>Always ask the weight and confirm the price before the kitchen prepares it.</strong> This applies everywhere in Greece, but caldera restaurants rely on distracted, view-struck customers not asking.</p>
+      </div>
+    </div>
+
+    <div class="city"><span class="city-label">Mykonos</span><span class="city-line"></span></div>
+
+    <div class="card">
+      <div class="card-bar cb-trap"></div>
+      <div class="card-body">
+        <p class="card-place">Mykonos Town — tourist-facing tavernas near the port</p>
+        <p class="card-title">The most expensive average food in Greece</p>
+        <p class="card-text">Mykonos has some of the best food in the Cyclades and some of the worst value dining in Greece, sometimes within the same street. Tavernas near the Old Port and the main waterfront promenade consistently deliver mediocre food at Mykonos's already-elevated prices. Walk uphill into the alleys of Chora — the further from the port, the better the quality-to-price ratio. Budget €35–50 per person for a quality dinner anywhere on the island.</p>
+      </div>
+    </div>
+
+    <div class="city"><span class="city-label">Crete — Heraklion port area</span><span class="city-line"></span></div>
+
+    <div class="card">
+      <div class="card-bar cb-trap"></div>
+      <div class="card-body">
+        <p class="card-place">Heraklion — port and Knossos approach restaurants</p>
+        <p class="card-title">The cruise circuit</p>
+        <p class="card-text">Heraklion port receives thousands of cruise passengers daily in summer who eat within walking distance of the dock. Restaurants that rely on this foot traffic do not need to be good — the customers are one-visit. Avoid the restaurant strip along the port promenade and any taverna on the Knossos road that advertises "traditional Cretan cooking" in a sign larger than the door.</p>
+        <div class="signal sig-trap">
+          <span class="signal-label">Where to go instead</span>
+          The covered market (1866 Square) and the streets behind the Morosini Fountain serve Herakliots at honest prices. Twenty minutes from the port on foot.
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- SECTION 2 — TOURS -->
+  <div class="section">
+    <div class="section-head">
+      <div class="sh-left">
+        <span class="sh-pip sp-tour"></span>
+        <h2 class="sh-title">Tours not worth the price</h2>
+      </div>
+      <span class="sh-date">Updated 2026</span>
+    </div>
+
+    <div class="city"><span class="city-label">Athens</span><span class="city-line"></span></div>
+
+    <div class="card">
+      <div class="card-bar cb-tour"></div>
+      <div class="card-body">
+        <p class="card-place">Athens — all open-top bus tours</p>
+        <p class="card-title">The city you came to see is walkable</p>
+        <p class="card-text">Athens is one of the most walkable tourist cities in Europe. The Acropolis, Plaka, Monastiraki, Syntagma, and the Ancient Agora are all within a 20-minute stroll of each other. The metro handles everything beyond walking distance for €1.20. Paying €20–30 to ride a double-decker between stops you could easily walk — while missing the atmospheric neighbourhoods that make Athens interesting — does not add up. Use the money for a good meal or a private guide at the Acropolis, where the investment genuinely repays itself.</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-bar cb-tour"></div>
+      <div class="card-body">
+        <p class="card-place">Athens — Delphi by organised day tour</p>
+        <p class="card-title">A bus seat to an exhausting non-experience</p>
+        <p class="card-text">Organised Delphi day tours from Athens (€80–120 per person) typically give you 2–3 hours at the site and an included lunch at a mediocre roadside restaurant. Delphi deserves 4–5 hours minimum. The KTEL bus from Liossion terminal does the same journey for €17–20 return, departs regularly, and leaves you free to spend as long as you want. Staying overnight in Delphi town gives you the site at dawn, before tour groups arrive — a fundamentally different experience.</p>
+        <div class="signal sig-tour">
+          <span class="signal-label">Better approach</span>
+          KTEL bus from Athens: €17–20 return. Consider an overnight stay in Delphi village. The site at 8 AM, before tours arrive, is worth every extra hour of planning.
+        </div>
+      </div>
+    </div>
+
+    <div class="city"><span class="city-label">Santorini</span><span class="city-line"></span></div>
+
+    <div class="card">
+      <div class="card-bar cb-tour"></div>
+      <div class="card-body">
+        <p class="card-place">Santorini — organised sunset catamaran tours</p>
+        <p class="card-title">€100–180 for the same sunset everyone else is watching</p>
+        <p class="card-text">Santorini sunset catamarans carry 20–40 people on a standardised route with an included dinner and open bar. The sunset is genuinely stunning from the water. But the experience is shared with dozens of strangers on a fixed schedule, the included food is functional at best, and the "open bar" is heavily watered. Smaller private sailings (4–8 people) cost more but deliver a genuinely different experience. The large-group catamaran cruise is priced as premium and delivered as package tourism.</p>
+      </div>
+    </div>
+
+    <div class="city"><span class="city-label">All islands</span><span class="city-line"></span></div>
+
+    <div class="card">
+      <div class="card-bar cb-tour"></div>
+      <div class="card-body">
+        <p class="card-place">All islands — "Traditional cooking class" packages</p>
+        <p class="card-title">€70–120 for a scripted experience</p>
+        <p class="card-text">The proliferation of cooking classes across Greek islands has produced a predictable format: a market visit, a 90-minute guided preparation of three dishes, a group meal, a certificate. The classes are not fraudulent, but they have become formulaic and the price premium over actual Greek cooking — which you can experience at any honest taverna for €20–30 — is not justified by what you learn. The exception: genuine private classes with family-run operations away from the main tourist circuits, where you can often arrange something smaller and more authentic directly.</p>
+      </div>
+    </div>
+
+    <div class="city"><span class="city-label">Mykonos</span><span class="city-line"></span></div>
+
+    <div class="card">
+      <div class="card-bar cb-tour"></div>
+      <div class="card-body">
+        <p class="card-place">Mykonos — beach club sunbed packages</p>
+        <p class="card-title">€50–100 to lie on sand that costs nothing</p>
+        <p class="card-text">Mykonos beach clubs charge €50–100 per sunbed with a minimum food and drink spend on top. Paradise and Super Paradise beaches operate almost exclusively on this model. The sand itself is free, and the same clear water is available from a towel. <strong>Budget travelers should know that Agios Sostis beach on the north coast has no sunbeds, no organised facilities, and is consistently rated among the best beaches on the island</strong> — a 15-minute taxi ride from Mykonos Town and costs nothing to use.</p>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- SECTION 3 — TOURIST TRAPS -->
+  <div class="section">
+    <div class="section-head">
+      <div class="sh-left">
+        <span class="sh-pip sp-trap"></span>
+        <h2 class="sh-title">Tourist traps & overrated experiences</h2>
+      </div>
+      <span class="sh-date">Updated 2026</span>
+    </div>
+
+    <div class="city"><span class="city-label">Athens</span><span class="city-line"></span></div>
+
+    <div class="card">
+      <div class="card-bar cb-trap"></div>
+      <div class="card-body">
+        <p class="card-place">Athens — Changing of the Guard at Parliament</p>
+        <p class="card-title">Mildly interesting once, not worth planning around</p>
+        <p class="card-text">The Evzone guards change hourly at Syntagma, with an elaborate ceremony on Sundays at 11 AM. The elaborate Sunday ceremony draws significant crowds and requires early positioning for a good view. It is mildly interesting if you happen to be at Syntagma at the right time. It is not worth restructuring a morning in Athens to see it, and the Sunday crowds make the surrounding area unpleasant for the two hours around the ceremony.</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-bar cb-trap"></div>
+      <div class="card-body">
+        <p class="card-place">Athens — Hadrian's Arch</p>
+        <p class="card-title">A Roman gate beside a busy road</p>
+        <p class="card-text">Hadrian's Arch is a well-preserved Roman triumphal gate. It stands on a traffic island beside a major road. Worth glancing at if you pass — not worth seeking out as a destination. The Athens combined ticket does not include it anyway. The Temple of Olympian Zeus directly behind it is more impressive, though the same assessment applies: worth 15 minutes if nearby, not a destination in itself.</p>
+      </div>
+    </div>
+
+    <div class="city"><span class="city-label">Santorini</span><span class="city-line"></span></div>
+
+    <div class="card">
+      <div class="card-bar cb-trap"></div>
+      <div class="card-body">
+        <p class="card-place">Santorini — Oia sunset in July and August</p>
+        <p class="card-title">The most crowded sunset in Greece</p>
+        <p class="card-text">The Oia sunset is one of the most photographed images in travel. In peak season it is also watched by hundreds of people jostling for position along the castle walls, with raised phones and selfie sticks in every direction. Arrive two hours early to secure space, then stand wedged until the light finally fails. <strong>The identical sunset is visible from any point on the caldera rim with a fraction of the crowd.</strong> Imerovigli and the path between Fira and Imerovigli offer the same view without the performance.</p>
+        <div class="signal sig-trap">
+          <span class="signal-label">Better alternative</span>
+          The caldera path between Fira and Imerovigli at sunset: same view, far fewer people, you can move freely. No positioning required.
+        </div>
+      </div>
+    </div>
+
+    <div class="city"><span class="city-label">All islands</span><span class="city-line"></span></div>
+
+    <div class="card">
+      <div class="card-bar cb-trap"></div>
+      <div class="card-body">
+        <p class="card-place">All islands — olive oil and honey "direct from the producer"</p>
+        <p class="card-title">The tasting table premium</p>
+        <p class="card-text">Shops selling olive oil, honey, and herbs "straight from our family farm" operate throughout the islands at a 200–300% markup over supermarket equivalents. The free tasting is a sales technique. The products are not bad — but excellent Greek olive oil is available in every supermarket at honest prices. The narrative of provenance sold in these shops rarely corresponds to what is actually in the bottle. If you want genuinely traceable Greek olive oil, buy from a cooperative shop run by a regional agricultural union, where the traceability is documented rather than narrated.</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-bar cb-trap"></div>
+      <div class="card-body">
+        <p class="card-place">All islands — airport souvenir shops</p>
+        <p class="card-title">Last-minute premium, minimum quality</p>
+        <p class="card-text">Souvenir shops inside Greek airports charge 40–80% more than identical items in town. This is not unique to Greece, but the gap is particularly wide at island airports (Santorini, Mykonos, Heraklion) where captive-audience pricing is standard practice. Any souvenir worth buying should be bought in town, ideally from a shop with actual local production — ceramics, textiles, food products — rather than the mass-produced replica antiquities and printed t-shirts that fill airport retail.</p>
+      </div>
+    </div>
+
+    <div class="city"><span class="city-label">Zakynthos</span><span class="city-line"></span></div>
+
+    <div class="card">
+      <div class="card-bar cb-trap"></div>
+      <div class="card-body">
+        <p class="card-place">Zakynthos — Laganas strip</p>
+        <p class="card-title">The wrong kind of tourism</p>
+        <p class="card-text">Laganas is a resort strip of bars, clubs, and package hotels catering primarily to young British tourists seeking a cheap beach party holiday. It is one of the noisiest and most developed strips in the Ionian Islands. It also borders the National Marine Park where endangered loggerhead sea turtles nest on protected beaches. <strong>Everyone except dedicated nightlife seekers should avoid Laganas.</strong> Zakynthos has genuinely beautiful coastline — Navagio Beach, the Blue Caves, the Vasilikos peninsula — that exists in a completely different register from what Laganas offers.</p>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- SECTION 4 — ACTIVE SCAMS -->
+  <div class="section">
+    <div class="section-head">
+      <div class="sh-left">
+        <span class="sh-pip sp-scam"></span>
+        <h2 class="sh-title">Active scams — 2026</h2>
+      </div>
+      <span class="sh-date">Verified Mar 2026</span>
+    </div>
+
+    <div class="city"><span class="city-label">Athens</span><span class="city-line"></span></div>
+
+    <div class="card">
+      <div class="card-bar cb-scam"></div>
+      <div class="card-body">
+        <p class="card-place">Athens metro — Pickpocket groups</p>
+        <p class="card-title">Organised on crowded lines</p>
+        <p class="card-text">Pickpocket groups operate on crowded metro lines, particularly at Monastiraki and Syntagma stations and increasingly on the airport line (Line 3) during peak arrival times. The technique: one person creates a distraction or stands unusually close while an accomplice lifts your wallet or phone. <strong>Before boarding: move wallet and phone to front pockets, wear bags across the body.</strong> Do not wait until you notice suspicious behaviour — adjust before you enter the carriage.</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-bar cb-scam"></div>
+      <div class="card-body">
+        <p class="card-place">Athens — "Helpful stranger" at metro ticket machines</p>
+        <p class="card-title">Assistance with an invoice</p>
+        <p class="card-text">Someone approaches at the ticket machine offering to help navigate it, then expects cash payment for the service. Ticket machines have full English-language menus and accept contactless cards. <strong>Use them yourself.</strong> No legitimate staff member at an OASA station solicits payment for helping buy tickets. If someone persists, ignore them and complete your purchase.</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-bar cb-scam"></div>
+      <div class="card-body">
+        <p class="card-place">Athens & all destinations — Euronet ATMs</p>
+        <p class="card-title">€3–5 fee plus bad exchange rate</p>
+        <p class="card-text">Euronet standalone ATMs appear throughout tourist areas with English-language screens and convenient locations. They charge €3–5 per transaction plus unfavourable exchange rates — total cost can reach 8–10% of your withdrawal. <strong>Walk past them to find a bank ATM.</strong> Alpha Bank, Eurobank, Piraeus Bank, and National Bank of Greece machines charge no additional fee beyond your home bank's standard rate. The extra two minutes walking is always worth it.</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-bar cb-scam"></div>
+      <div class="card-body">
+        <p class="card-place">All destinations — Dynamic currency conversion</p>
+        <p class="card-title">"Pay in USD/GBP/AUD for your convenience"</p>
+        <p class="card-text">At ATMs and card terminals across Greece, a screen offers to charge you in your home currency instead of euros. <strong>Always refuse. Always select euros.</strong> The conversion rate offered is 3–7% worse than your bank's interbank rate. Restaurants, hotels, and shops also trigger this — always confirm you are paying in euros when you hand over your card. This is the single most common financial error travellers make in Greece.</p>
+      </div>
+    </div>
+
+    <div class="city"><span class="city-label">Cruise ports</span><span class="city-line"></span></div>
+
+    <div class="card">
+      <div class="card-bar cb-scam"></div>
+      <div class="card-body">
+        <p class="card-place">Santorini, Mykonos, Crete, Rhodes — cruise port taxis</p>
+        <p class="card-title">Inflated quotes to uninformed passengers</p>
+        <p class="card-text">Fixed taxi rates exist for all major cruise terminal transfers. Drivers routinely quote inflated fares to passengers disembarking without knowledge of the actual rates. In Santorini, the cable car (€6) or donkeys are the standard options from the old port to Fira — not taxis. In Heraklion, the bus to the centre costs €2. <strong>Know the fixed rate before you disembark.</strong> If a driver quotes significantly above the posted rate, walk to the official taxi rank and queue.</p>
+      </div>
+    </div>
+
+    <div class="city"><span class="city-label">All islands</span><span class="city-line"></span></div>
+
+    <div class="card">
+      <div class="card-bar cb-scam"></div>
+      <div class="card-body">
+        <p class="card-place">All island airports — taxi fare games</p>
+        <p class="card-title">Meters not running, tariff set wrong</p>
+        <p class="card-text">On islands with fixed airport transfer rates, some drivers quote a fare without running the meter — the quote is often higher than the regulated rate. On islands where meters are required, some drivers set Tariff 2 (night rate) during daytime. <strong>Before any island taxi journey: confirm the fare in advance or confirm the meter is running on Tariff 1.</strong> Use apps (Uber operates in Athens; Beat in Athens and Thessaloniki) for transparent pricing where available. On islands without apps, fixed rates should be posted at the taxi rank.</p>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- SECTION 5 — MISTAKES -->
+  <div class="section">
+    <div class="section-head">
+      <div class="sh-left">
+        <span class="sh-pip sp-mistake"></span>
+        <h2 class="sh-title">Classic first-timer mistakes</h2>
+      </div>
+      <span class="sh-date">Greece-wide</span>
+    </div>
+
+    <div class="card">
+      <div class="card-bar cb-mistake"></div>
+      <div class="card-body">
+        <p class="card-title">Treating Santorini and Mykonos as "Greece"</p>
+        <p class="card-text">Santorini and Mykonos are Greek islands. They are not representative of Greece. Both are exceptionally beautiful. Both have been so thoroughly shaped by international tourism that the food, prices, and atmosphere have more in common with a luxury resort destination than with the Greece that exists 30 minutes away by ferry. Naxos, Folegandros, Sifnos, the Peloponnese, the northern mainland — these are also Greece, at half the cost and with food and culture that Santorini and Mykonos largely cannot offer.</p>
+        <div class="signal sig-mistake">
+          <span class="signal-label">The honest trade-off</span>
+          Santorini and Mykonos deliver extraordinary visual beauty and justify the cost for that alone. Go in knowing what you're buying. Don't mistake it for the whole of Greece.
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-bar cb-mistake"></div>
+      <div class="card-body">
+        <p class="card-title">Renting a scooter or ATV without motorcycle experience</p>
+        <p class="card-text">Scooter and ATV rentals are ubiquitous on Greek islands. Rental contracts require a valid motorcycle licence for scooters over 50cc — your car licence does not qualify. Without proper licensing, your rental insurance is void and your travel insurance will not cover injuries. Greek hospitals see a steady stream of tourist scooter injuries every summer. Island roads are narrow, surfaces can be loose or sandy, and other drivers know them better than you do. <strong>If you don't have motorcycle experience and proper licensing, use buses and taxis.</strong> The savings are not worth the risk.</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-bar cb-mistake"></div>
+      <div class="card-body">
+        <p class="card-title">Skipping the Peloponnese for more island time</p>
+        <p class="card-text">Most first-time visitors to Greece skip the Peloponnese. They fly into Athens, see the Acropolis, take a ferry to the islands, and fly home. The Peloponnese contains Mycenae, Epidaurus, ancient Olympia, the Byzantine city of Mystras, and some of the most dramatic coastline in Greece — at a fraction of island prices, without the crowds, and with food that reflects how Greeks actually eat. A two-day Peloponnese loop from Athens — Nafplio, Epidaurus, Mycenae — is achievable and consistently outperforms another island night in traveller value.</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-bar cb-mistake"></div>
+      <div class="card-body">
+        <p class="card-title">Visiting the Acropolis at midday in July and August</p>
+        <p class="card-text">The Acropolis at 1 PM in August is 38–40°C on exposed white marble with no shade, long queues even with a reserved ticket, and thousands of people in every direction. The same site at 8 AM opening is quiet, cool, and the light is better for photographs. The guide's advice — arrive at opening or after 5 PM in summer — is not a preference. It is the difference between a memorable experience and an endurance test. Timed-entry tickets book out weeks ahead in peak season; plan accordingly.</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-bar cb-mistake"></div>
+      <div class="card-body">
+        <p class="card-title">Eating dinner at 7 PM</p>
+        <p class="card-text">Greeks eat dinner late. Tavernas open around 8 PM. Greek diners arrive at 9 or 10 PM. Arriving at 7 PM means eating alone in an empty room with staff watching you and a kitchen that is not yet at full operation. The energy, the noise, the communal atmosphere that makes a Greek taverna dinner what it is — all of it appears after 9 PM. Adjusting your dinner time by two hours is one of the most impactful changes a first-time visitor to Greece can make.</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-bar cb-mistake"></div>
+      <div class="card-body">
+        <p class="card-title">Booking only July and August on the islands</p>
+        <p class="card-text">July and August in the Cyclades means maximum heat (35–38°C daily), maximum crowds, maximum prices, and the meltemi wind that makes exposed beaches uncomfortable and rough-weather ferries possible. The same islands in late September and October offer 25–28°C water, empty beaches, 20–30% lower accommodation prices, and restaurants still fully open. June is similarly excellent. The Greek islands did not become famous in August — they became famous despite it.</p>
+        <div class="signal sig-mistake">
+          <span class="signal-label">Best timing</span>
+          Late May–June or September–October: warm water, manageable crowds, lower prices, calmer ferries. The islands at their best.
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+</main>
+
+<footer>
+  <div class="footer-gold">
+    <div>
+      <div class="footer-brand">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="display:inline;vertical-align:middle;margin-right:5px"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg>
+        No-Stress Guides
+      </div>
+      <div class="footer-brand-sub">Greece · The Black List 2026</div>
+    </div>
+  </div>
+
+  <div class="footer-body">
+    <div class="footer-promise">
+      <strong class="fp-title">On this page</strong>
+      No business paid to be excluded or included. Named establishments cited only where evidence is substantial and consistent. This page is updated alongside the Yearly Updates companion — same schedule, same standards.
+    </div>
+
+    <div class="footer-hr"></div>
+
+    <div class="footer-contact">
+      Something on this list is wrong or outdated?<br>
+      Found a new trap we should know about?<br>
+      <a href="mailto:info@nostressguides.com">info@nostressguides.com</a><br><br>
+      Verified reports added within 30 days.
+    </div>
+
+    <div class="footer-hr"></div>
+
+    <p class="footer-legal">
+      No business paid to be excluded or included on this page.<br>
+      Named establishments cited only where evidence is substantial and consistent.<br>
+      © 2026 No-Stress Guides. For personal travel planning only.
+    </p>
+  </div>
+</footer>
+
+<script>
+  const sections = document.querySelectorAll('.section');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry, i) => {
+      if (entry.isIntersecting) {
+        setTimeout(() => entry.target.classList.add('visible'), i * 80);
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.08 });
+  sections.forEach(s => observer.observe(s));
+</script>
+
+</body>
+</html>
