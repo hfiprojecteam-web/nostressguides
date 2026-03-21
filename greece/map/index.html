@@ -334,6 +334,11 @@ var CITIES = {
     meteora:      { name:'Meteora',          lat:39.7219, lng:21.6306 },
     kalambaka:    { name:'Kalambaka',        lat:39.7044, lng:21.6272 },
     patras:       { name:'Patras',           lat:38.2466, lng:21.7346 },
+    argos:        { name:'Argos',             lat:37.6312, lng:22.7204 },
+    tripoli:      { name:'Tripoli',           lat:37.5100, lng:22.3797 },
+    megalopolis:  { name:'Megalopolis',       lat:37.4008, lng:22.1408 },
+    lamia:        { name:'Lamia',             lat:38.8981, lng:22.4346 },
+    trikala:      { name:'Trikala',           lat:39.5553, lng:21.7682 },
     // Cyclades
     santorini:    { name:'Santorini',        lat:36.3932, lng:25.4615 },
     mykonos:      { name:'Mykonos',          lat:37.4467, lng:25.3289 },
@@ -425,9 +430,9 @@ var ITINERARIES = [
         ],
         routes: [
             { from:'nafplio',   to:'mycenae',   type:'car',  time:'30 min' },
-            { from:'mycenae',   to:'epidaurus', type:'car',  time:'45 min' },
-            { from:'epidaurus', to:'mystras',   type:'car',  time:'2h 30m', waypoints:['sparta'] },
-            { from:'mystras',   to:'olympia',   type:'car',  time:'3h' }
+            { from:'mycenae',   to:'epidaurus', type:'car',  time:'45 min', waypoints:['nafplio'] },
+            { from:'epidaurus', to:'mystras',   type:'car',  time:'2h 30m', waypoints:['argos','tripoli','sparta'] },
+            { from:'mystras',   to:'olympia',   type:'car',  time:'3h',     waypoints:['megalopolis'] }
         ]
     },
     {
@@ -500,9 +505,9 @@ var ITINERARIES = [
             { city:'thessaloniki',nights:1, highlights:'Byzantine churches, Modiano market, food capital of Greece' }
         ],
         routes: [
-            { from:'athens',      to:'delphi',       type:'bus',  time:'3h' },
-            { from:'delphi',      to:'meteora',      type:'car',  time:'3h', waypoints:['kalambaka'] },
-            { from:'meteora',     to:'thessaloniki', type:'train',time:'2h 30m' }
+            { from:'athens',      to:'delphi',       type:'bus',   time:'3h' },
+            { from:'delphi',      to:'meteora',      type:'car',   time:'3h', waypoints:['lamia','trikala','kalambaka'] },
+            { from:'meteora',     to:'thessaloniki', type:'train', time:'2h 30m' }
         ]
     },
     {
@@ -718,26 +723,48 @@ function drawRoutes(it) {
         var fromCity = CITIES[route.from];
         var toCity   = CITIES[route.to];
         if(!fromCity || !toCity) return;
-        
-        var path = [[fromCity.lat, fromCity.lng]];
-        if(route.waypoints && route.waypoints.length){
-            route.waypoints.forEach(function(wp){
-                var w = CITIES[wp];
-                if(w) path.push([w.lat, w.lng]);
-            });
+
+        var path, color, dash, weight;
+
+        if(route.type === 'ferry'){
+            // Use sea waypoints to avoid cutting land
+            var fk = ferryId(route.from), tk = ferryId(route.to);
+            var fcity = CITIES[fk] || fromCity;
+            var tcity = CITIES[tk] || toCity;
+            path = buildFerryPath(fk, tk, fcity, tcity);
+            color = '#1a5c8c'; dash = '12,5'; weight = 6;
+        } else if(route.type === 'flight'){
+            // Curved arc
+            path = buildFlightArc(fromCity, toCity);
+            color = '#c43a9c'; dash = null; weight = 3;
+        } else if(route.type === 'car'){
+            // Land path with any explicit waypoints
+            var landPath = [[fromCity.lat, fromCity.lng]];
+            if(route.waypoints && route.waypoints.length){
+                route.waypoints.forEach(function(wp){
+                    var w = CITIES[wp];
+                    if(w) landPath.push([w.lat, w.lng]);
+                });
+            }
+            landPath.push([toCity.lat, toCity.lng]);
+            path = landPath;
+            color = '#1a3a5c'; dash = null; weight = 5;
+        } else {
+            // bus/train — green
+            var buspath = [[fromCity.lat, fromCity.lng]];
+            if(route.waypoints && route.waypoints.length){
+                route.waypoints.forEach(function(wp){
+                    var w = CITIES[wp];
+                    if(w) buspath.push([w.lat, w.lng]);
+                });
+            }
+            buspath.push([toCity.lat, toCity.lng]);
+            path = buspath;
+            color = '#4a7c59'; dash = null; weight = 5;
         }
-        path.push([toCity.lat, toCity.lng]);
-        
-        var color = '#c4533a';
-        var dash  = null;
-        if(route.type === 'ferry'){   color = '#1a5c8c'; dash = '8,6'; }
-        if(route.type === 'flight'){  color = '#7c3a9c'; dash = null; }
-        if(route.type === 'car'){     color = '#1a3a5c'; dash = null; }
-        if(route.type === 'bus'){     color = '#4a7c59'; dash = null; }
-        if(route.type === 'train'){   color = '#4a7c59'; dash = null; }
-        
+
         var line = L.polyline(path, {
-            color:color, weight:6, opacity:1,
+            color:color, weight:weight, opacity:1,
             dashArray:dash, lineCap:'round', lineJoin:'round'
         }).addTo(map);
         activeRouteLines.push(line);
@@ -973,7 +1000,9 @@ var FERRY_WAYPOINTS = {
     // Patras to Kefalonia
     'patras-kefalonia':   [[38.2,21.5],[38.2,20.8]],
     // Kefalonia-Zakynthos
-    'kefalonia-zakynthos':[[38.0,20.7],[37.9,20.9]]
+    'kefalonia-zakynthos':[[38.0,20.7],[37.9,20.9]],
+    'lefkada-kefalonia':  [[38.7,20.5],[38.5,20.5],[38.2,20.6]],
+    'lesbos-athens':      [[38.5,26.0],[37.8,25.0],[37.7,24.2],[37.6,23.8]]
 };
 
 function buildFerryPath(fk, tk, fromC, toC) {
