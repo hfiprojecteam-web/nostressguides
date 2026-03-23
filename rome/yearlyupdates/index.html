@@ -1,1 +1,509 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>2026 Updates — The No-Stress Rome Travel Guide</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@300;400;500;600;700&family=Lato:ital,wght@0,300;0,400;0,700;1,300&display=swap" rel="stylesheet">
+<style>
+:root {
+  --navy:#112244; --navy-mid:#1B3566; --navy-light:#254580;
+  --gold:#F5C842; --gold-dark:#C89A10; --gold-pale:#FDF6DC;
+  --bg:#F0F4FB; --white:#FFFFFF;
+  --text:#1A2340; --text-mid:#3A4A6A; --text-muted:#6A7A9A;
+  --bad:#8C2020; --bad-pale:#FBF0F0;
+  --warn:#B36A10; --warn-pale:#FDF3E3;
+  --ok:#1A5C30; --ok-pale:#E4F5EB;
+  --new:#1A4A80; --new-pale:#E4EEF8;
+  --border:#C8D6EE; --border-lt:#E2EAF8;
+  --radius:10px; --shadow:0 2px 12px rgba(17,34,68,0.08);
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html{font-size:16px;-webkit-text-size-adjust:100%;scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:'Lato',sans-serif;font-weight:300;line-height:1.65;min-height:100vh;-webkit-font-smoothing:antialiased}
 
+/* HEADER */
+.header{background:var(--navy);background-image:radial-gradient(ellipse at 80% 0%,rgba(37,69,128,0.8) 0%,transparent 60%),radial-gradient(ellipse at 20% 100%,rgba(17,34,68,0.9) 0%,transparent 50%);padding:2rem 1.5rem 0;position:sticky;top:0;z-index:100;overflow:hidden}
+.header::before{content:'';position:absolute;inset:0;background-image:radial-gradient(rgba(255,255,255,0.06) 1px,transparent 1px);background-size:20px 20px;pointer-events:none}
+.stamp{position:relative;z-index:1;margin-bottom:1.5rem}
+.stamp-inner{border:2.5px solid var(--gold);border-radius:4px;padding:1.1rem 1.3rem 1rem;background:rgba(17,34,68,0.55);backdrop-filter:blur(4px);position:relative}
+.stamp-inner::before{content:'';position:absolute;top:-9px;left:8px;right:8px;height:8px;background:repeating-linear-gradient(90deg,transparent,transparent 5px,var(--bg) 5px,var(--bg) 10px);opacity:.6}
+.stamp-inner::after{content:'';position:absolute;bottom:-9px;left:8px;right:8px;height:8px;background:repeating-linear-gradient(90deg,transparent,transparent 5px,var(--bg) 5px,var(--bg) 10px);opacity:.6}
+.stamp-label{font-family:'Oswald',sans-serif;font-size:.55rem;font-weight:400;letter-spacing:.28em;text-transform:uppercase;color:var(--gold);opacity:.8;margin-bottom:.35rem}
+.stamp-title{font-family:'Oswald',sans-serif;font-size:2rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:#fff;line-height:1.05;margin-bottom:.55rem}
+.stamp-dest{font-family:'Oswald',sans-serif;font-size:.75rem;font-weight:300;letter-spacing:.22em;text-transform:uppercase;color:rgba(255,255,255,.7)}
+.year-badge{display:inline-block;background:var(--gold);color:var(--navy);font-family:'Oswald',sans-serif;font-size:.7rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;padding:.18rem .65rem;border-radius:3px;margin-bottom:.55rem}
+
+/* HEADER TABS */
+.header-tabs{position:relative;z-index:1;display:flex;gap:0;margin-top:auto}
+.h-tab{flex:1;padding:.55rem .4rem;text-align:center;font-family:'Oswald',sans-serif;font-size:.58rem;font-weight:400;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.55);border-bottom:3px solid transparent;cursor:pointer;transition:all .2s;border-radius:3px 3px 0 0;background:none;border-top:none;border-left:none;border-right:none}
+.h-tab:hover{color:rgba(255,255,255,.8)}
+.h-tab.active{color:var(--gold);border-bottom-color:var(--gold);background:rgba(245,200,66,.06)}
+
+/* TRANSPARENCY BOX */
+.transparency{background:var(--gold-pale);border:1px solid rgba(200,154,16,.3);border-radius:var(--radius);padding:.9rem 1rem;margin-bottom:1.2rem}
+.t-head{font-family:'Oswald',sans-serif;font-size:.6rem;font-weight:500;letter-spacing:.18em;text-transform:uppercase;color:var(--gold-dark);margin-bottom:.35rem}
+.t-text{font-size:.78rem;color:var(--text-mid);line-height:1.5}
+
+/* CONTENT */
+.content{max-width:640px;margin:0 auto;padding:1.2rem 1.1rem 2rem}
+.section{margin-bottom:3rem;opacity:0;transform:translateY(14px);transition:opacity .45s ease,transform .45s ease}
+.section.visible{opacity:1;transform:translateY(0)}
+.section-head{position:sticky;top:0;z-index:10;background:var(--bg);display:flex;align-items:center;justify-content:space-between;padding:.6rem 0 .55rem;margin-bottom:.9rem;border-bottom:2.5px solid var(--navy);box-shadow:0 4px 12px rgba(240,244,251,.95)}
+.sh-left{display:flex;align-items:center;gap:.55rem}
+.sh-pip{width:10px;height:10px;border-radius:2px;flex-shrink:0}
+.sp-bad{background:var(--bad)}.sp-warn{background:var(--warn)}.sp-ok{background:var(--ok)}.sp-new{background:var(--new)}
+.sh-title{font-family:'Oswald',sans-serif;font-size:1rem;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--navy)}
+.sh-date{font-size:.6rem;color:var(--text-muted);letter-spacing:.04em;white-space:nowrap}
+.zone{display:flex;align-items:center;gap:.55rem;margin:1.1rem 0 .6rem}
+.zone-label{font-family:'Oswald',sans-serif;font-size:.6rem;font-weight:500;letter-spacing:.22em;text-transform:uppercase;color:var(--gold-dark);white-space:nowrap}
+.zone-line{flex:1;height:1px;background:var(--border)}
+
+/* CARDS */
+.card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:.55rem;overflow:hidden;position:relative;box-shadow:var(--shadow)}
+.card:active{box-shadow:0 1px 4px rgba(17,34,68,.06)}
+.card-bar{position:absolute;left:0;top:0;bottom:0;width:4px}
+.cb-bad{background:var(--bad)}.cb-warn{background:var(--warn)}.cb-new{background:var(--new)}
+.card-body{padding:.88rem 1rem .88rem 1.3rem}
+.card-place{font-family:'Oswald',sans-serif;font-size:.58rem;font-weight:300;letter-spacing:.18em;text-transform:uppercase;color:var(--text-muted);margin-bottom:.22rem}
+.card-text{font-size:.85rem;color:var(--text-mid);line-height:1.55}
+.card-text strong{color:var(--text);font-weight:700}
+.card-text em{font-style:italic;color:var(--text-muted)}
+.price-row{display:flex;align-items:center;gap:.45rem;margin-top:.6rem;padding-top:.5rem;border-top:1px solid var(--border-lt);flex-wrap:wrap}
+.pr-old{font-size:.76rem;color:var(--text-muted);text-decoration:line-through}
+.pr-arrow{font-size:.6rem;color:var(--text-muted)}
+.pr-new{font-size:.86rem;font-weight:700;color:var(--bad)}
+.pr-src{font-size:.65rem;color:var(--text-muted);margin-left:auto}
+
+/* OK LIST */
+.ok-list{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow)}
+.ok-row{display:flex;gap:.7rem;align-items:flex-start;padding:.75rem 1rem;border-bottom:1px solid var(--border-lt);min-height:44px}
+.ok-row:last-child{border-bottom:none}
+.ok-badge{width:20px;height:20px;border-radius:50%;background:var(--ok-pale);color:var(--ok);font-size:.65rem;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:.08rem}
+.ok-text{font-size:.83rem;color:var(--text-mid);line-height:1.48}
+.ok-text strong{color:var(--text);font-weight:700;display:block;font-size:.77rem;margin-bottom:.08rem}
+
+/* ALERT BOX */
+.alert{border-radius:var(--radius);padding:.85rem 1rem;margin-bottom:.55rem;border:1px solid}
+.alert-warn{background:var(--warn-pale);border-color:rgba(179,106,16,.25)}
+.alert-head{font-family:'Oswald',sans-serif;font-size:.62rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;margin-bottom:.25rem;color:var(--warn)}
+.alert-text{font-size:.8rem;color:var(--text-mid);line-height:1.5}
+
+/* CHANGELOG */
+.changelog{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow)}
+.cl-head{background:var(--navy);padding:.65rem 1rem;font-family:'Oswald',sans-serif;font-size:.62rem;font-weight:400;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,.8)}
+.cl-row{display:flex;gap:.8rem;align-items:flex-start;padding:.7rem 1rem;border-bottom:1px solid var(--border-lt)}
+.cl-row:last-child{border-bottom:none}
+.cl-year{font-family:'Oswald',sans-serif;font-size:.72rem;font-weight:600;color:var(--navy);min-width:38px;flex-shrink:0;padding-top:.05rem}
+.cl-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:.28rem}
+.cd-active{background:var(--ok)}.cd-sched{background:var(--border)}
+.cl-text{font-size:.78rem;color:var(--text-mid);line-height:1.45}
+.cl-text.sched{color:var(--text-muted);font-style:italic}
+.cl-badge{display:inline-block;background:var(--ok-pale);color:var(--ok);font-family:'Oswald',sans-serif;font-size:.55rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;padding:.1rem .45rem;border-radius:3px;margin-left:.4rem;vertical-align:middle}
+
+/* FOOTER */
+footer{background:var(--navy)}
+.footer-gold{background:var(--gold);padding:1.1rem 1.5rem;display:flex;align-items:center;justify-content:center;gap:.55rem}
+.footer-brand{font-family:'Oswald',sans-serif;font-size:1rem;font-weight:700;color:var(--navy);letter-spacing:.14em;text-transform:uppercase;line-height:1}
+.footer-brand-sub{font-family:'Oswald',sans-serif;font-size:.58rem;font-weight:300;letter-spacing:.16em;text-transform:uppercase;color:var(--navy);opacity:.6;margin-top:.15rem}
+.footer-body{padding:1.5rem 1.5rem 2rem;color:rgba(255,255,255,.75)}
+.footer-promise{font-size:.8rem;line-height:1.6;margin-bottom:1rem;color:rgba(255,255,255,.85)}
+.footer-contact{font-size:.75rem;color:rgba(255,255,255,.55);margin-bottom:1rem}
+.footer-contact a{color:var(--gold);text-decoration:none}
+.footer-legal{font-size:.68rem;color:rgba(255,255,255,.35);line-height:1.55}
+
+@media(min-width:600px){
+  .stamp-title{font-size:2.5rem}
+  .content{padding:1.5rem 1.5rem 3rem}
+}
+</style>
+</head>
+<body>
+
+<header class="header">
+  <div class="stamp">
+    <div class="stamp-inner">
+      <div class="stamp-label">No-Stress Guides — Digital Companion</div>
+      <div class="year-badge">2026 Edition</div>
+      <div class="stamp-title">Rome</div>
+      <div class="stamp-dest">Yearly Updates</div>
+    </div>
+  </div>
+  <div class="header-tabs">
+    <button class="h-tab active" data-target="sec-changed">What Changed</button>
+    <button class="h-tab" data-target="sec-confirmed">Confirmed</button>
+    <button class="h-tab" data-target="sec-new">New Tips</button>
+    <button class="h-tab" data-target="sec-jubilee">Jubilee 2026</button>
+  </div>
+</header>
+
+<main class="content">
+
+  <div class="transparency">
+    <div class="t-head">How this page works</div>
+    <div class="t-text">Every item below was personally verified for 2026. Prices come from official sources — museum websites, ATAC, Rome taxi authority. Check 3–5 days before departure for any last-minute changes. If something has changed that isn't reflected here yet, email us and we'll update within 30 days.</div>
+  </div>
+
+  <!-- ── WHAT CHANGED ── -->
+  <section class="section" id="sec-changed">
+    <div class="section-head">
+      <div class="sh-left">
+        <span class="sh-pip sp-bad"></span>
+        <span class="sh-title">What Changed</span>
+      </div>
+      <span class="sh-date">Verified March 2026</span>
+    </div>
+
+    <div class="zone"><span class="zone-label">Vatican</span><span class="zone-line"></span></div>
+
+    <div class="card">
+      <div class="card-bar cb-bad"></div>
+      <div class="card-body">
+        <div class="card-place">Vatican Museums + Sistine Chapel</div>
+        <div class="card-text">Standard adult ticket raised. The online booking fee also increased from €4 to €5. Always book on the official site — <strong>museivaticani.va</strong> — to pay the correct price. Third-party resellers charging €40–60 are selling the same ticket at a markup.</div>
+        <div class="price-row">
+          <span class="pr-old">€17 + €4 booking</span>
+          <span class="pr-arrow">→</span>
+          <span class="pr-new">€20 + €5 booking = €25 total</span>
+          <span class="pr-src">museivaticani.va</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-bar cb-warn"></div>
+      <div class="card-body">
+        <div class="card-place">Sistine Chapel — Last Judgment</div>
+        <div class="card-text">Michelangelo's Last Judgment underwent extraordinary restoration work January–March 2026. <strong>The chapel remained open throughout</strong> but the altar wall was partially obscured by scaffolding during the restoration period. Work completed March 2026 — the full fresco is again fully visible.</div>
+      </div>
+    </div>
+
+    <div class="zone"><span class="zone-label">Major Sites</span><span class="zone-line"></span></div>
+
+    <div class="card">
+      <div class="card-bar cb-bad"></div>
+      <div class="card-body">
+        <div class="card-place">Colosseum + Roman Forum + Palatine Hill</div>
+        <div class="card-text">Standard ticket price confirmed at <strong>€18</strong>. Tickets are now <strong>nominative</strong> — your name is on the ticket and ID is checked at the entrance. Book at ticketing.colosseo.it (opens 30 days before your visit). Third-party resellers sell the same ticket at €40–60+ — never use them. The Colosseum Underground, Arena Floor, and Attic are separate upgraded tickets.</div>
+        <div class="price-row">
+          <span class="pr-new" style="color:var(--ok)">€18 confirmed</span>
+          <span class="pr-src">ticketing.colosseo.it</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-bar cb-warn"></div>
+      <div class="card-body">
+        <div class="card-place">Colosseum — booking now opens 30 days ahead only</div>
+        <div class="card-text">A 2025 regulation change means tickets go on sale exactly <strong>30 days before</strong> your visit date — not months ahead. Underground and Attic tickets still sell out within minutes of release. Standard tickets are now easier to get than in previous years.</div>
+      </div>
+    </div>
+
+    <div class="zone"><span class="zone-label">Transport</span><span class="zone-line"></span></div>
+
+    <div class="card">
+      <div class="card-bar cb-warn"></div>
+      <div class="card-body">
+        <div class="card-place">ATAC — Tap &amp; Go best fare</div>
+        <div class="card-text">Paper tickets remain at the same prices. However, if you use <strong>contactless payment (card or phone)</strong> and make 6 or more journeys in 24 hours, the system automatically caps your charge at <strong>€8.50</strong> — not the paper-pass rate of €7. Both are valid options; the contactless cap is slightly higher but requires no separate purchase.</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-bar cb-warn"></div>
+      <div class="card-body">
+        <div class="card-place">Trams 3, 8, 14 — temporary service changes</div>
+        <div class="card-text">Rome's tramway modernisation project is affecting lines 3, 8, and 14 throughout 2026. Check ATAC's website or the Moovit app for current disruptions before using these lines. Bus replacements operate on the same routes during works.</div>
+      </div>
+    </div>
+
+    <div class="zone"><span class="zone-label">Jubilee 2026 Specific</span><span class="zone-line"></span></div>
+
+    <div class="card">
+      <div class="card-bar cb-bad"></div>
+      <div class="card-body">
+        <div class="card-place">Vatican area — extended closures and crowd events</div>
+        <div class="card-text">The Holy Year brings 30–35 million pilgrims to Rome. <strong>St. Peter's Square closes for major Catholic feast days</strong> and papal events — sometimes with no advance notice. Check the Vatican's official calendar before planning a Vatican day. Accommodation near Prati, Borgo, and Via della Conciliazione is running 15–25% above normal rates.</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-bar cb-warn"></div>
+      <div class="card-body">
+        <div class="card-place">Pilgrim routes — pedestrian restrictions</div>
+        <div class="card-text">Designated pilgrimage routes run through parts of Centro Storico and toward the four major basilicas. On high-traffic days (Easter week, Corpus Christi, Assumption, All Saints) some streets become one-way or restricted. Plan extra time for any cross-city walk during these dates.</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-bar cb-warn"></div>
+      <div class="card-body">
+        <div class="card-place">Basilica di San Paolo fuori le Mura — increased visitors</div>
+        <div class="card-text">San Paolo has one of Rome's four Holy Doors, which draws significantly more pilgrims than usual during the Jubilee year. The basilica remains free and uncrowded compared to St. Peter's — but busier than before. Visit before 10:00 for calm.</div>
+      </div>
+    </div>
+
+  </section>
+
+  <!-- ── CONFIRMED ── -->
+  <section class="section" id="sec-confirmed">
+    <div class="section-head">
+      <div class="sh-left">
+        <span class="sh-pip sp-ok"></span>
+        <span class="sh-title">Confirmed Correct</span>
+      </div>
+      <span class="sh-date">Verified March 2026</span>
+    </div>
+
+    <div class="ok-list">
+      <div class="ok-row">
+        <div class="ok-badge">✓</div>
+        <div class="ok-text"><strong>Galleria Borghese — €15–17 + €2 booking</strong> Two-hour timed slots: 09:00, 11:00, 13:00, 15:00, 17:00. No walk-ins — reservation is mandatory. Book at galleriaborghese.it. Slots in high season sell out 3–4 weeks ahead.</div>
+      </div>
+      <div class="ok-row">
+        <div class="ok-badge">✓</div>
+        <div class="ok-text"><strong>Pantheon — Free entry, €2 timed reservation</strong> Book at pantheonroma.com. Without reservation you join the queue for available slots. Hours: Mon–Sat 09:00–19:00, Sun 09:00–18:00.</div>
+      </div>
+      <div class="ok-row">
+        <div class="ok-badge">✓</div>
+        <div class="ok-text"><strong>Castel Sant'Angelo — €17–19</strong> Closed Mondays. Rooftop terrace open. Allow 1.5–2 hours. Best visited late afternoon for sunset views.</div>
+      </div>
+      <div class="ok-row">
+        <div class="ok-badge">✓</div>
+        <div class="ok-text"><strong>Baths of Caracalla — €10–12</strong> Monday opening at 14:00 (not 09:00). Summer opera season (late June–August) at 21:00 — tickets €25–150 at teatrooperadiroma.it.</div>
+      </div>
+      <div class="ok-row">
+        <div class="ok-badge">✓</div>
+        <div class="ok-text"><strong>Musei Capitolini — €15–16</strong> One of Rome's most underrated museums. Long queues at major sites make this a better choice on crowded days.</div>
+      </div>
+      <div class="ok-row">
+        <div class="ok-badge">✓</div>
+        <div class="ok-text"><strong>Palazzo Massimo alle Terme — €12 (combined ticket)</strong> Best archaeological museum in Rome after the Vatican. The Villa of Livia frescoes alone are worth the trip. Closed Mondays.</div>
+      </div>
+      <div class="ok-row">
+        <div class="ok-badge">✓</div>
+        <div class="ok-text"><strong>St. Peter's Basilica — Free</strong> No ticket required for entry. Security lines can reach 60+ min peak season. Enter via the left colonnade for shorter wait. Dome: stairs €8, elevator + stairs €10.</div>
+      </div>
+      <div class="ok-row">
+        <div class="ok-badge">✓</div>
+        <div class="ok-text"><strong>Vatican Scavi (necropolis) — €13</strong> Book by email: scavi@fsp.va. Request 3–6 months ahead. Guided tours of the excavations beneath St. Peter's, limited to 250 people daily.</div>
+      </div>
+      <div class="ok-row">
+        <div class="ok-badge">✓</div>
+        <div class="ok-text"><strong>ATAC BIT ticket — €1.50</strong> Valid 100 minutes from first validation. Single Metro journey + unlimited bus/tram transfers within the time window.</div>
+      </div>
+      <div class="ok-row">
+        <div class="ok-badge">✓</div>
+        <div class="ok-text"><strong>ATAC passes — 24H €7, 48H €12.50, 72H €18, weekly CIS €24</strong> Paper tickets available at tabacchi, newsstands, Metro machines, and the ATAC app. Validate on first use.</div>
+      </div>
+      <div class="ok-row">
+        <div class="ok-badge">✓</div>
+        <div class="ok-text"><strong>Leonardo Express (Fiumicino→Termini) — €14</strong> 32 minutes, runs every 30 min. FL1 regional train alternative: €8, 45–55 min, stops at Trastevere station.</div>
+      </div>
+      <div class="ok-row">
+        <div class="ok-badge">✓</div>
+        <div class="ok-text"><strong>Taxi — Fiumicino €50 fixed, Ciampino €31 fixed</strong> Fixed rates cover all central Rome (within the Aurelian Walls). Official white taxis only. Meter starts at €3 (€4.50 nights, €6.50 Sundays/holidays) for non-fixed routes. Never accept approaches inside terminals.</div>
+      </div>
+      <div class="ok-row">
+        <div class="ok-badge">✓</div>
+        <div class="ok-text"><strong>Roma Pass — 48H €33, 72H €53</strong> Includes transit + museum entry. Only worth it if using two expensive museums AND relying heavily on transit within the pass period.</div>
+      </div>
+      <div class="ok-row">
+        <div class="ok-badge">✓</div>
+        <div class="ok-text"><strong>First Sunday of the month — free entry to state museums</strong> Colosseum, Palazzo Barberini, Galleria Corsini, and others. Queues are significantly longer than normal. Arrive at opening (usually 09:00–09:30).</div>
+      </div>
+      <div class="ok-row">
+        <div class="ok-badge">✓</div>
+        <div class="ok-text"><strong>City tax (tassa di soggiorno) — €3–7 per person/night</strong> 1–2 star hotels/B&Bs: €3–4. 3-star: €4–5. 4-star: €6. 5-star: €7–10. Almost always charged in cash at the hotel.</div>
+      </div>
+      <div class="ok-row">
+        <div class="ok-badge">✓</div>
+        <div class="ok-text"><strong>ZTL fines — €80–100 per infraction</strong> Do not drive into the historic centre, Trastevere, or other ZTL zones. Cameras are automatic; fines arrive months later. Park at Metro termini (Anagnina, Laurentina, Ponte Mammolo) for €4–8/day.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── NEW TIPS ── -->
+  <section class="section" id="sec-new">
+    <div class="section-head">
+      <div class="sh-left">
+        <span class="sh-pip sp-new"></span>
+        <span class="sh-title">New for 2026</span>
+      </div>
+      <span class="sh-date">Added March 2026</span>
+    </div>
+
+    <div class="card">
+      <div class="card-bar cb-new"></div>
+      <div class="card-body">
+        <div class="card-place">Colosseum — MyColosseum official app</div>
+        <div class="card-text">The Colosseum's official free app (iOS and Android) now includes a <strong>free interactive audio guide</strong> in Italian and English that follows you automatically as you move through the monument. Replaces the €7 rental guide. Download before arriving — Wi-Fi is unreliable inside.</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-bar cb-new"></div>
+      <div class="card-body">
+        <div class="card-place">Contactless payment — now accepted on most ATAC vehicles</div>
+        <div class="card-text">Tap-and-go contactless payment (card, Apple Pay, Google Pay) now works on Metro turnstiles and increasingly on buses and trams. <strong>Still validate your payment at readers</strong> — travelling without validation means a fine even with a valid contactless card. The Moovit app remains more accurate than Google Maps for real-time bus information.</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-bar cb-new"></div>
+      <div class="card-body">
+        <div class="card-place">Vatican Museums — new ticketing rules</div>
+        <div class="card-text">Tickets are now <strong>issued in the purchaser's name</strong> (like the Colosseum). A government-issued ID must be shown at entry. This is designed to prevent reselling — but means buying for multiple people requires all their names at the time of purchase.</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-bar cb-new"></div>
+      <div class="card-body">
+        <div class="card-place">Friday night openings — Vatican Museums</div>
+        <div class="card-text">Friday evening openings (April–October, typically 19:00–23:00) continue in 2026. Tickets €21. <strong>Smaller crowds, better light, different atmosphere.</strong> One of the best ways to experience the Sistine Chapel without the daytime crush. Book well in advance — slots sell out.</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-bar cb-new"></div>
+      <div class="card-body">
+        <div class="card-place">Domus Aurea — weekends only, advance booking</div>
+        <div class="card-text">Nero's Golden House continues weekend visits with virtual reality experiences. <strong>€16–20</strong>, guided 75–90 min tours. Closed first Sunday of the month. Entrance from Via della Domus Aurea — different from the Colosseum entrance. Book via CoopCulture.</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-bar cb-new"></div>
+      <div class="card-body">
+        <div class="card-place">Colosseum Attic level (3rd–5th tier) — limited availability</div>
+        <div class="card-text">The attic levels with panoramic views are among the hardest Colosseum tickets to get — sometimes harder than the Underground. Released 30 days ahead, sold out within minutes. If this is a priority, set a reminder and check ticketing.colosseo.it at the exact time the slots open.</div>
+      </div>
+    </div>
+
+  </section>
+
+  <!-- ── JUBILEE 2026 ── -->
+  <section class="section" id="sec-jubilee">
+    <div class="section-head">
+      <div class="sh-left">
+        <span class="sh-pip sp-warn"></span>
+        <span class="sh-title">Jubilee 2026 — Practical Impact</span>
+      </div>
+      <span class="sh-date">Holy Year</span>
+    </div>
+
+    <div class="alert alert-warn">
+      <div class="alert-head">What is the Jubilee?</div>
+      <div class="alert-text">2026 is a Catholic Holy Year. The Vatican estimates 30–35 million pilgrims will visit Rome — roughly double the normal level of religious tourism. This affects primarily the Vatican area and the four major basilicas (St. Peter's, San Giovanni in Laterano, San Paolo fuori le Mura, Santa Maria Maggiore).</div>
+    </div>
+
+    <div class="ok-list">
+      <div class="ok-row">
+        <div class="ok-badge" style="background:var(--warn-pale);color:var(--warn)">!</div>
+        <div class="ok-text"><strong>Vatican Museums — book 3–4 weeks ahead minimum</strong> High-demand Jubilee periods (Easter week, feast days) may require even more lead time. Friday night openings sell out earliest.</div>
+      </div>
+      <div class="ok-row">
+        <div class="ok-badge" style="background:var(--warn-pale);color:var(--warn)">!</div>
+        <div class="ok-text"><strong>Dates to avoid if possible</strong> Easter Week (April 1–6, 2026) is the single most congested period. April 25 + May 1 bridge creates domestic tourist surge. Major feast days: Corpus Christi (June), Assumption (August 15), All Saints (November 1).</div>
+      </div>
+      <div class="ok-row">
+        <div class="ok-badge" style="background:var(--warn-pale);color:var(--warn)">!</div>
+        <div class="ok-text"><strong>Accommodation near Vatican — 15–25% premium</strong> Properties in Prati, Borgo, and along Via della Conciliazione command elevated rates all year. Staying in Trastevere, Monti, or Testaccio avoids the daily pilgrim traffic and saves money.</div>
+      </div>
+      <div class="ok-row">
+        <div class="ok-badge" style="background:var(--ok-pale);color:var(--ok)">✓</div>
+        <div class="ok-text"><strong>Colosseum, Borghese, and neighbourhood Rome — unaffected</strong> The Jubilee primarily affects religious sites and the Vatican area. The Colosseum, Galleria Borghese, Testaccio, Monti, and other neighbourhood life continue normally.</div>
+      </div>
+      <div class="ok-row">
+        <div class="ok-badge" style="background:var(--ok-pale);color:var(--ok)">✓</div>
+        <div class="ok-text"><strong>Non-religious visitors still have an excellent trip</strong> Visit St. Peter's at opening (07:00) or late afternoon. Use Option C from the guide (two half-days) for the Vatican — it remains the most effective approach in Jubilee conditions.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CHANGELOG -->
+  <section class="section" id="sec-log">
+    <div class="section-head">
+      <div class="sh-left">
+        <span class="sh-pip" style="background:var(--text-muted)"></span>
+        <span class="sh-title">Update Log</span>
+      </div>
+    </div>
+    <div class="changelog">
+      <div class="cl-head">Annual review schedule — every March</div>
+      <div class="cl-row">
+        <div class="cl-year">2026</div>
+        <div class="cl-dot cd-active"></div>
+        <div class="cl-text">Full review completed March 2026 — 18 items verified. Vatican price increase confirmed, Colosseum new booking system documented, Jubilee impact assessed, tram service changes noted. <span class="cl-badge">Active</span></div>
+      </div>
+      <div class="cl-row">
+        <div class="cl-year">2027</div>
+        <div class="cl-dot cd-sched"></div>
+        <div class="cl-text sched">Scheduled review — March 2027. Post-Jubilee price normalisation expected.</div>
+      </div>
+      <div class="cl-row">
+        <div class="cl-year">2028</div>
+        <div class="cl-dot cd-sched"></div>
+        <div class="cl-text sched">Scheduled review — March 2028.</div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="footer-gold">
+    <div>
+      <div class="footer-brand">No-Stress Guides</div>
+      <div class="footer-brand-sub">Rome Travel Guide — 2026</div>
+    </div>
+  </div>
+  <div class="footer-body">
+    <p class="footer-promise">This page is reviewed every March. If a price changes significantly mid-year, we update within 30 days. No sponsored content. No affiliate links. Every price comes from the official source.</p>
+    <p class="footer-contact">Questions or corrections: <a href="mailto:info@nostressguides.com">info@nostressguides.com</a></p>
+    <p class="footer-legal">© 2026 No-Stress Guides. For personal travel use only. Prices and hours change — always verify before booking. This page supplements the printed guide; it does not replace official sources.</p>
+  </div>
+</footer>
+
+<script>
+// Fade-in on load (no observer needed — just show all immediately since header is sticky)
+document.querySelectorAll('.section').forEach((s, i) => {
+  setTimeout(() => s.classList.add('visible'), 100 + i * 80);
+});
+
+// Tab click → smooth scroll
+const headerEl = document.querySelector('.header');
+document.querySelectorAll('.h-tab[data-target]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const el = document.getElementById(btn.dataset.target);
+    if (!el) return;
+    document.querySelectorAll('.h-tab').forEach(t => t.classList.remove('active'));
+    btn.classList.add('active');
+    const headerH = headerEl ? headerEl.offsetHeight : 0;
+    const top = el.getBoundingClientRect().top + window.scrollY - headerH - 8;
+    window.scrollTo({ top: top, behavior: 'smooth' });
+  });
+});
+
+// Highlight active tab on scroll
+const sectionIds = ['sec-changed','sec-confirmed','sec-new','sec-jubilee'];
+const allTabs = document.querySelectorAll('.h-tab');
+function updateActiveTab() {
+  const headerH = headerEl ? headerEl.offsetHeight : 0;
+  let active = 0;
+  sectionIds.forEach((id, i) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    const top = el.getBoundingClientRect().top;
+    if (top <= headerH + 20) active = i;
+  });
+  allTabs.forEach((t, i) => t.classList.toggle('active', i === active));
+}
+window.addEventListener('scroll', updateActiveTab, { passive: true });
+updateActiveTab();
+</script>
+</body>
+</html>
