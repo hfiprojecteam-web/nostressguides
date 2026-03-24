@@ -1,1 +1,1005 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Tuscany No-Stress -- Interactive Map</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Serif+Display&display=swap" rel="stylesheet">
+<style>
+:root{--p:#1a3a5c;--r:#c4533a;--a:#e8a838;--l:#f5f1eb;--d:#2c2c2c;--g:#4a7c59;--bd:#e0d8cc}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'DM Sans',sans-serif;background:var(--l);color:var(--d);overflow:hidden}
+.hdr{position:fixed;top:0;left:0;right:0;height:50px;background:var(--p);color:#fff;display:flex;align-items:center;justify-content:space-between;padding:0 16px;z-index:1001;box-shadow:0 2px 12px rgba(0,0,0,.15)}
+.hdr-logo{display:flex;align-items:baseline;gap:8px}
+.hdr-main{font-family:'DM Serif Display',serif;font-size:1.3rem}
+.hdr-sub{font-size:.65rem;font-weight:500;opacity:.8;text-transform:uppercase;letter-spacing:.1em}
+.hdr-badge{background:var(--r);padding:4px 10px;border-radius:20px;font-size:.7rem;font-weight:600}
+#map{position:fixed;top:50px;left:0;right:0;bottom:0;z-index:1}
+.fab{display:none;position:fixed;bottom:20px;right:20px;width:56px;height:56px;background:var(--r);color:#fff;border:none;border-radius:50%;font-size:1.4rem;cursor:pointer;z-index:1002;box-shadow:0 4px 12px rgba(0,0,0,.3);align-items:center;justify-content:center}
+.panel{position:fixed;top:70px;left:20px;width:360px;background:#fff;border-radius:12px;box-shadow:0 4px 24px rgba(0,0,0,.12);z-index:1000;overflow:hidden;max-height:calc(100vh - 100px);display:flex;flex-direction:column}
+.tabs{display:flex;background:var(--p);flex-shrink:0}
+.tbtn{flex:1;padding:10px 4px;text-align:center;font-size:.65rem;font-weight:600;color:rgba(255,255,255,.6);cursor:pointer;border:none;background:none;transition:all .2s}
+.tbtn.on{color:#fff;background:rgba(255,255,255,.15)}
+.tbtn:hover{color:#fff}
+.px{background:none;border:none;color:#fff;font-size:1.4rem;cursor:pointer;padding:0 12px;display:none}
+.pane{display:none;overflow-y:auto;flex:1;padding:12px}
+.pane.on{display:block}
+.itin-card{background:var(--l);border-radius:10px;padding:12px;margin-bottom:8px;cursor:pointer;border:2px solid transparent;transition:all .2s}
+.itin-card:hover{border-color:var(--p)}
+.itin-card.on{border-color:var(--r);background:#fff}
+.itin-card h3{font-family:'DM Serif Display',serif;font-size:.95rem;color:var(--p);margin-bottom:3px}
+.imeta{font-size:.72rem;color:#666;margin-bottom:4px}
+.idesc{font-size:.76rem;color:#555;line-height:1.4}
+.dtabs{display:none;flex-wrap:wrap;gap:4px;margin-top:10px}
+.dtabs.on{display:flex}
+.dbtn{padding:5px 10px;border-radius:20px;font-size:.64rem;font-weight:600;border:1.5px solid var(--bd);background:#fff;color:var(--p);cursor:pointer;transition:all .15s}
+.dbtn:hover{border-color:var(--p)}
+.dbtn.on{background:var(--r);border-color:var(--r);color:#fff}
+.sec-ttl{font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#666;margin-bottom:8px;border-bottom:1px solid var(--bd);padding-bottom:4px}
+.rt-label{font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#888;display:block;margin-bottom:4px}
+.rt-sel{width:100%;padding:9px 10px;border:1.5px solid var(--bd);border-radius:8px;font-size:.78rem;color:var(--p);background:#fff;cursor:pointer;font-family:'DM Sans',sans-serif;margin-bottom:8px}
+.rt-sel.on{border-color:var(--r)}
+.rt-result{background:var(--l);border-radius:8px;padding:12px;margin-top:2px;display:none}
+.rt-result.on{display:block}
+.rt-main{font-family:'DM Serif Display',serif;font-size:1.05rem;color:var(--p);margin-bottom:4px}
+.rt-detail{font-size:.77rem;color:#555;line-height:1.5;margin-bottom:4px}
+.rt-tip{font-size:.71rem;color:#6b5a00;background:#fff8e6;border-left:3px solid var(--a);padding:5px 8px;border-radius:0 4px 4px 0}
+.dtable{width:100%;border-collapse:collapse;font-size:.73rem;margin-top:8px}
+.dtable th{background:var(--p);color:#fff;padding:6px 8px;text-align:left;font-weight:600}
+.dtable td{padding:6px 8px;border-bottom:1px solid var(--bd);color:#555}
+.dtable tr:last-child td{border-bottom:none}
+.dtable tbody tr{cursor:pointer}
+.dtable tbody tr:hover td{background:var(--l)}
+.ga-row{display:flex;gap:8px;font-size:.77rem;color:#555;margin-bottom:6px;line-height:1.5}
+.ga-row b{color:var(--p);min-width:68px;flex-shrink:0;font-size:.71rem}
+.bld-intro{font-size:.76rem;color:#666;margin-bottom:10px;padding:8px 10px;background:var(--l);border-radius:8px;line-height:1.5}
+.bld-stops{display:flex;flex-direction:column;gap:6px;margin-bottom:8px}
+.bld-stop{display:flex;align-items:center;gap:6px;padding:8px 10px;background:#fff;border:1.5px solid var(--bd);border-radius:8px;transition:all .2s}
+.bld-stop:hover{border-color:var(--p)}
+.bld-handle{cursor:grab;color:#bbb;font-size:.95rem;flex-shrink:0}
+.bld-handle:active{cursor:grabbing}
+.bld-num{width:20px;height:20px;border-radius:50%;background:var(--r);color:#fff;display:flex;align-items:center;justify-content:center;font-size:.65rem;font-weight:700;flex-shrink:0}
+.bld-sel{flex:1;padding:6px 8px;border:1px solid #ddd;border-radius:6px;font-size:.78rem;background:#fff;font-family:'DM Sans',sans-serif}
+.bld-sel:focus{outline:none;border-color:var(--p)}
+.bld-rm{width:22px;height:22px;border:none;background:#f5f5f5;border-radius:50%;cursor:pointer;color:#999;font-size:1rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;padding:0}
+.bld-rm:hover{background:#ffebee;color:var(--r)}
+.bld-add{width:100%;padding:9px;border:2px dashed #ccc;background:transparent;border-radius:8px;cursor:pointer;font-size:.8rem;color:#666;transition:all .2s;font-family:'DM Sans',sans-serif;margin-bottom:8px}
+.bld-add:hover{border-color:var(--p);color:var(--p)}
+.bld-actions{display:flex;gap:8px;margin-bottom:4px}
+.bld-calc{flex:1;padding:10px;background:var(--r);color:#fff;border:none;border-radius:8px;font-weight:600;cursor:pointer;font-size:.82rem;font-family:'DM Sans',sans-serif;transition:opacity .2s}
+.bld-calc:disabled{opacity:.45;cursor:not-allowed}
+.bld-clear{padding:10px 14px;background:#f5f5f5;color:#666;border:none;border-radius:8px;cursor:pointer;font-size:.78rem;font-family:'DM Sans',sans-serif}
+.bld-clear:hover{background:#eee}
+.bld-results{margin-top:10px}
+.bld-summary{background:var(--l);padding:12px;border-radius:10px;margin-bottom:8px}
+.bld-summary h4{font-family:'DM Serif Display',serif;font-size:.9rem;color:var(--p);margin-bottom:6px}
+.bld-summary-row{display:flex;justify-content:space-between;font-size:.76rem;color:#555;margin-bottom:3px}
+.bld-summary-row b{color:var(--d)}
+.bld-leg{background:#fff;border:1px solid var(--bd);border-radius:8px;padding:10px 12px;margin-bottom:6px}
+.bld-leg-head{font-weight:700;font-size:.82rem;color:var(--p);margin-bottom:3px}
+.bld-leg-detail{font-size:.74rem;color:#555;line-height:1.5}
+.bld-leg-tip{font-size:.69rem;color:#6b5a00;background:#fff8e6;border-left:2px solid var(--a);padding:4px 7px;margin-top:5px;border-radius:0 3px 3px 0}
+.bld-stop.dragging{opacity:.5;border-style:dashed}
+.bld-stop.drag-over{border-color:var(--r);background:#fff5f3}
+.stops{position:fixed;bottom:20px;left:20px;width:360px;background:#fff;border-radius:12px;box-shadow:0 4px 24px rgba(0,0,0,.12);z-index:1000;display:none;overflow:hidden;max-height:44vh}
+.stops.on{display:block;animation:up .25s ease}
+@keyframes up{from{transform:translateY(16px);opacity:0}to{transform:translateY(0);opacity:1}}
+.stops-hd{background:var(--g);color:#fff;padding:11px 14px;display:flex;align-items:center;justify-content:space-between}
+.stops-hd h3{font-family:'DM Serif Display',serif;font-size:.95rem;font-weight:400}
+.sx{background:none;border:none;color:#fff;font-size:1.3rem;cursor:pointer;line-height:1}
+.stops-bd{overflow-y:auto;max-height:calc(44vh - 46px)}
+.srow{padding:11px 14px;border-bottom:1px solid #eee}
+.srow:last-child{border-bottom:none}
+.snum{display:inline-flex;align-items:center;justify-content:center;width:21px;height:21px;border-radius:50%;background:var(--r);color:#fff;font-size:.7rem;font-weight:700;margin-right:7px;vertical-align:middle;flex-shrink:0}
+.sname{font-weight:600;font-size:.88rem;vertical-align:middle}
+.stime{font-size:.7rem;color:var(--p);margin-left:6px;font-weight:600}
+.stip{font-size:.73rem;color:#666;margin-top:3px;padding-left:28px}
+.legend{position:fixed;bottom:20px;right:20px;background:#fff;padding:12px 15px;border-radius:10px;box-shadow:0 4px 16px rgba(0,0,0,.1);z-index:1000}
+.legend h4{font-size:.66rem;font-weight:700;text-transform:uppercase;color:#888;margin-bottom:7px;letter-spacing:.04em}
+.legr{display:flex;align-items:center;gap:7px;margin-bottom:5px;font-size:.75rem;color:#555}
+.legr:last-child{margin-bottom:0}
+.legdot{width:12px;height:12px;border-radius:50%;flex-shrink:0}
+.stop-dot{width:22px;height:22px;border-radius:50%;background:var(--r);border:3px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,.3);display:flex;align-items:center;justify-content:center;color:#fff;font-size:10px;font-weight:700;margin:0 auto}
+.stop-lbl{margin-top:2px;font-size:10px;font-weight:600;color:#222;text-shadow:1px 1px 2px #fff,-1px -1px 2px #fff;white-space:nowrap;text-align:center}
+.leaflet-popup-content-wrapper{border-radius:10px;padding:0}
+.leaflet-popup-content{margin:0}
+.pu{padding:12px 14px;min-width:185px}
+.pu-name{font-family:'DM Serif Display',serif;font-size:.98rem;color:var(--p);margin-bottom:2px}
+.pu-sub{font-size:.65rem;text-transform:uppercase;letter-spacing:.07em;color:#999;margin-bottom:6px}
+.pu-row{font-size:.74rem;color:#555;margin-bottom:3px;line-height:1.4}
+.pu-tip{background:var(--l);border-radius:4px;padding:5px 7px;font-size:.7rem;color:#6b5a00;margin-top:5px}
+@media(max-width:768px){
+  .panel{position:fixed;top:auto;bottom:0;left:0;right:0;width:100%;border-radius:16px 16px 0 0;transform:translateY(100%);max-height:75vh;transition:transform .3s ease}
+  .panel.open{transform:translateY(0)}
+  .px{display:block}
+  .stops{bottom:0;left:0;right:0;width:100%;border-radius:16px 16px 0 0;max-height:50vh}
+  .legend{display:none}
+  .fab{display:flex}
+}
+</style>
+</head>
+<body>
+<header class="hdr">
+  <div class="hdr-logo">
+    <span class="hdr-main">Tuscany</span>
+    <span class="hdr-sub">No-Stress Travel Guide</span>
+  </div>
+  <span class="hdr-badge">Interactive Map</span>
+</header>
+<div id="map"></div>
+<button class="fab" id="fab">&#9776;</button>
 
+<div class="panel" id="panel">
+  <div class="tabs">
+    <button class="tbtn on"  onclick="showPane('itin',this)">&#128197; Itineraries</button>
+    <button class="tbtn"     onclick="showPane('routes',this)">&#128506; Routes</button>
+    <button class="tbtn"     onclick="showPane('byt',this)">&#128664; Build Your Trip</button>
+    <button class="px" id="px">&#215;</button>
+  </div>
+
+  <div class="pane on" id="pane-itin">
+    <div id="itinList"></div>
+  </div>
+
+  <div class="pane" id="pane-routes">
+    <div style="margin-bottom:16px">
+      <div class="sec-ttl">Select Route</div>
+      <p style="font-size:.74rem;color:#666;margin-bottom:10px;line-height:1.5">Select start and end to draw the route on the map.</p>
+      <label class="rt-label">From</label>
+      <select class="rt-sel" id="selFrom">
+        <option value="">Select departure...</option>
+      </select>
+      <label class="rt-label">To</label>
+      <select class="rt-sel" id="selTo">
+        <option value="">Select destination...</option>
+      </select>
+      <div class="rt-result" id="rtResult">
+        <div class="rt-main" id="rtMain"></div>
+        <div class="rt-detail" id="rtDetail"></div>
+        <div class="rt-tip" id="rtTip"></div>
+      </div>
+    </div>
+    <div>
+      <div class="sec-ttl">Key Routes from Florence</div>
+      <table class="dtable" id="flTable">
+        <thead><tr><th>To</th><th>Drive</th><th>Train / Bus</th></tr></thead>
+        <tbody id="flTableBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="pane" id="pane-byt">
+    <div class="bld-intro">Build your custom route. Add stops in order, then calculate to see drive times and tips for each leg.</div>
+    <div class="bld-stops" id="bldStops">
+      <div class="bld-stop" data-index="0">
+        <span class="bld-handle">&#9776;</span>
+        <span class="bld-num">1</span>
+        <select class="bld-sel" data-index="0"><option value="">Add first stop...</option></select>
+        <button class="bld-rm" data-index="0">&#215;</button>
+      </div>
+    </div>
+    <button class="bld-add" id="bldAdd">+ Add Stop</button>
+    <div class="bld-actions">
+      <button class="bld-calc" id="bldCalc" disabled>Calculate Route</button>
+      <button class="bld-clear" id="bldClear">Clear</button>
+    </div>
+    <div class="bld-results" id="bldResults"></div>
+  </div>
+</div>
+
+<div class="stops" id="stops">
+  <div class="stops-hd">
+    <h3 id="stopsTitle">Itinerary</h3>
+    <button class="sx" onclick="document.getElementById('stops').classList.remove('on')">&#215;</button>
+  </div>
+  <div class="stops-bd" id="stopsBd"></div>
+</div>
+
+<div class="legend">
+  <h4>Destinations</h4>
+  <div class="legr"><div class="legdot" style="background:#1a3a5c"></div>City / Town</div>
+  <div class="legr"><div class="legdot" style="background:#4a7c59"></div>Countryside</div>
+  <div class="legr"><div class="legdot" style="background:#7a2a4a"></div>Wine zone</div>
+  <div class="legr"><div class="legdot" style="background:#e8a838"></div>Hub</div>
+  <h4 style="margin-top:8px">Routes</h4>
+  <div class="legr"><div style="width:22px;height:0;border-top:3px dashed #4a7c59"></div>Itinerary</div>
+  <div class="legr"><div style="width:22px;height:3px;background:#c4533a;border-radius:2px"></div>Selected route</div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script>
+// ── GLOBALS ──────────────────────────────────────────────────
+var nsMap, markersLayer, activeRouteObjs, activeRing;
+activeRouteObjs = [];
+activeRing = null;
+
+// ── ICON SVGs ────────────────────────────────────────────────
+var ISVG = {
+  city:    {bg:'#1a3a5c',p:'<rect x="5" y="10" w="4" h="6" fill="white"/><rect x="9" y="7" w="4" h="9" fill="white"/><rect x="13" y="10" w="4" h="6" fill="white"/><rect x="4" y="16" w="14" h="2" fill="white"/>'},
+  country: {bg:'#4a7c59',p:'<path d="M11 3 L5 11h4v2h4v-2h4z" fill="white"/><rect x="9" y="13" w="4" h="4" fill="white"/>'},
+  wine:    {bg:'#7a2a4a',p:'<path d="M8 3h6l1 5c0 3-2 5-4 5s-4-2-4-5z" fill="white"/><rect x="10" y="13" w="2" h="5" fill="white"/><rect x="8" y="17" w="6" h="2" fill="white"/>'},
+  hub:     {bg:'#e8a838',p:'<circle cx="11" cy="9" r="5" fill="none" stroke="white" stroke-width="2"/><line x1="8" y1="14" x2="6" y2="19" stroke="white" stroke-width="1.5"/><line x1="11" y1="14" x2="11" y2="19" stroke="white" stroke-width="1.5"/><line x1="14" y1="14" x2="16" y2="19" stroke="white" stroke-width="1.5"/>'}
+};
+
+function mkIcon(type) {
+  var ic = ISVG[type] || ISVG.city;
+  var h = '<div style="width:30px;height:30px;border-radius:50%;background:' + ic.bg + ';border:2.5px solid white;box-shadow:0 2px 8px rgba(0,0,0,.4);">'
+        + '<svg viewBox="0 0 22 22" width="22" height="22" style="display:block;margin:2px auto;">' + ic.p + '</svg></div>';
+  return L.divIcon({html:h, iconSize:[30,30], iconAnchor:[15,15], popupAnchor:[0,-18], className:''});
+}
+
+// ── DESTINATIONS ─────────────────────────────────────────────
+var DESTS = [
+  {id:'florence',   n:'Florence',              lat:43.7696, lng:11.2558, type:'hub',
+   tag:'Art capital and Tuscany hub', best:'April-May or September-October',
+   days:'2-3 days', eat:'Oltrarno, Sant Ambrogio. Avoid within sight of Duomo.',
+   tip:'No car in Florence. ZTL covers entire historic centre. Pick up rental at Fortezza da Basso.'},
+  {id:'siena',      n:'Siena',                 lat:43.3186, lng:11.3307, type:'city',
+   tag:'Medieval city and southern gateway', best:'Shoulder season. Avoid Palio dates July 2 and Aug 16.',
+   days:'2 days', eat:'Via di Camollia, Stalloreggi. Off the Campo.',
+   tip:'Bus from Florence 75 min EUR 8.50 faster than train. Stadio parking EUR 2/h max EUR 15/day.'},
+  {id:'chianti',    n:'Chianti',               lat:43.4500, lng:11.3000, type:'wine',
+   tag:'Wine country, car essential', best:'Harvest September-October. Spring for green hills.',
+   days:'2-3 days', eat:'Agriturismo farm dinners. Greve, Panzano, Castellina trattorias.',
+   tip:'Drive SR222 Chiantigiana. Mix one prestigious estate with one small producer.'},
+  {id:'valdorcia',  n:'Val dOrcia',            lat:43.0700, lng:11.6500, type:'country',
+   tag:'UNESCO landscape, car essential', best:'Late April wildflowers. Late October harvest mist.',
+   days:'2-3 days', eat:'Agriturismo fixed menus. Pecorino in Pienza. Brunello at Montalcino estates.',
+   tip:'SP146 is the main scenic road. San Quirico good base. Saturnia free hot springs 1h south.'},
+  {id:'lucca',      n:'Lucca',                 lat:43.8430, lng:10.5050, type:'city',
+   tag:'Walled city, train accessible', best:'Any season. Avoid Lucca Comics (late Oct / early Nov).',
+   days:'1-2 days', eat:'Avoid Piazza dellAnfiteatro. Two blocks away quality rises.',
+   tip:'Rent a bike on arrival. Circuit the walls at sunset. Torre Guinigi EUR 5.'},
+  {id:'sangim',     n:'San Gimignano',         lat:43.4677, lng:11.0431, type:'city',
+   tag:'Medieval towers, arrive early or stay over', best:'Before 10:00 or after 17:00. Overnight transforms it.',
+   days:'Half day or overnight', eat:'Via San Matteo and Piazza Sant Agostino lanes. Skip Via San Giovanni.',
+   tip:'Gelateria Dondoli world-class gelato. Torre Grossa climb worth it.'},
+  {id:'volterra',   n:'Volterra',              lat:43.4018, lng:10.8606, type:'city',
+   tag:'Etruscan hill town, underrated', best:'Any time. Morning before heat builds.',
+   days:'Half to full day', eat:'Around Piazza dei Priori. Truffle dishes in autumn.',
+   tip:'Combine with San Gimignano in one day, 30 min apart. Alabaster workshops genuine.'},
+  {id:'pisa',       n:'Pisa and Versilia',     lat:43.7228, lng:10.4017, type:'city',
+   tag:'Tower city, easy train access', best:'Pisa year-round. Versilia coast June-September.',
+   days:'Half day Pisa, 2-3 days coast', eat:'10 min from tower toward river. Viareggio for seafood.',
+   tip:'Tower tickets opapisa.it open 20 days ahead only. Set a reminder. Children under 8 not admitted.'},
+  {id:'cortona',    n:'Cortona',               lat:43.2760, lng:11.9885, type:'city',
+   tag:'Hilltop gem, east Tuscany', best:'Morning before heat. Combine with Arezzo.',
+   days:'Half day', eat:'Via Nazionale and steeper streets above main piazzas.',
+   tip:'600m above the Valdichiana plain. Views to Lake Trasimeno. Frances Mayes country.'},
+  {id:'arezzo',     n:'Arezzo and East Tuscany',lat:43.4637, lng:11.8796, type:'city',
+   tag:'Piero della Francesca country', best:'First weekend monthly for antique market. Avoid if crowds bother you.',
+   days:'1-2 days', eat:'Behind San Francesco church. Authentic local prices.',
+   tip:'Piero frescoes require advance booking, max 25 people 30 min. Book at museiarezzo.it.'},
+  {id:'maremma',    n:'The Maremma',           lat:42.7500, lng:11.1500, type:'country',
+   tag:'Wild Tuscany, car essential', best:'Spring and autumn. Coast swimmable May-October.',
+   days:'3-4 days', eat:'Cinghiale wild boar everywhere. Morellino di Scansano wine.',
+   tip:'Saturnia cascades free 24/7. Drive the vie cave Etruscan pathways. Parco della Maremma for wild coast.'},
+  {id:'garfagnana', n:'The Garfagnana',        lat:44.1000, lng:10.4800, type:'country',
+   tag:'Mountain Tuscany, total escape', best:'July-August cooler than Florence. Autumn for mushrooms.',
+   days:'2-3 days', eat:'Farro dishes, porcini in season. Lowest prices in Tuscany.',
+   tip:'Barga is the most beautiful village. No public transport, car essential.'}
+];
+
+// ── ROUTES ───────────────────────────────────────────────────
+var ROUTES = {
+  'florence-siena':    {t:'1h 15min', d:'75 km', m:'Drive or Bus', tip:'Bus EUR 8.50 direct, 75 min. Faster than train.'},
+  'florence-chianti':  {t:'40-60min', d:'30-50 km', m:'Drive only', tip:'Exit south on SR222 Chiantigiana toward Greve.'},
+  'florence-pisa':     {t:'1h',       d:'80 km', m:'Drive or Train', tip:'Train every 15-30 min, EUR 8.70. No car needed.'},
+  'florence-lucca':    {t:'1h 15min', d:'75 km', m:'Drive or Train', tip:'Train 1h20, EUR 7.90 via Pisa. No car needed.'},
+  'florence-sangim':   {t:'1h',       d:'57 km', m:'Drive or Bus', tip:'Bus via Poggibonsi 1h30. Car more flexible.'},
+  'florence-arezzo':   {t:'1h',       d:'80 km', m:'Drive or Train', tip:'Train 40-80 min, EUR 9.30. No car needed.'},
+  'florence-valdorcia':{t:'1h 45min', d:'120 km', m:'Drive', tip:'Head toward Siena then south on SR2 Via Cassia.'},
+  'florence-maremma':  {t:'2h 30min', d:'170 km', m:'Drive', tip:'Car essential. Long drive but very different Tuscany.'},
+  'florence-garfagnana':{t:'1h 30min',d:'100 km', m:'Drive', tip:'A11 toward Lucca then north up the Serchio valley.'},
+  'florence-volterra': {t:'1h 15min', d:'78 km', m:'Drive', tip:'No convenient public transport to Volterra.'},
+  'siena-valdorcia':   {t:'45min',    d:'40 km', m:'Drive', tip:'SR2 south. San Quirico first stop.'},
+  'siena-chianti':     {t:'20-40min', d:'20-40 km', m:'Drive', tip:'North on SR222. Castellina and Radda closest.'},
+  'siena-sangim':      {t:'45min',    d:'38 km', m:'Drive or Bus', tip:'Bus 60-75 min via Poggibonsi. Easy day trip.'},
+  'siena-maremma':     {t:'1h 15min', d:'85 km', m:'Drive', tip:'South on SR2 past Montalcino, then west.'},
+  'pisa-lucca':        {t:'30min',    d:'22 km', m:'Drive or Train', tip:'Train every 30 min, EUR 3.60. Easiest connection.'},
+  'pisa-volterra':     {t:'1h',       d:'55 km', m:'Drive', tip:'No convenient public transport for Volterra.'},
+  'lucca-garfagnana':  {t:'45min',    d:'40 km', m:'Drive', tip:'North from Lucca up the Serchio valley. Barga 45-60 min.'},
+  'arezzo-valdorcia':  {t:'1h',       d:'70 km', m:'Drive', tip:'South toward Cortona then Montepulciano.'},
+  'valdorcia-maremma': {t:'1h',       d:'70 km', m:'Drive', tip:'Continue south from Montalcino or Montepulciano.'},
+  'sangim-volterra':   {t:'30min',    d:'28 km', m:'Drive', tip:'Easy combination. One in morning, other in afternoon.'}
+};
+
+// ── ITINERARIES ───────────────────────────────────────────────
+var ITINS = [
+  { id:'highlights', n:'The Highlights Tour', days:'5-7 days', transport:'Train then Car from Day 3',
+    desc:'Florence, Siena, Chianti, Val dOrcia. The essential Tuscany in one week.',
+    dl:[
+      { lbl:'Days 1-2',
+        stops:[{loc:'florence',n:'Uffizi Gallery',time:'Day 1 morning',tip:'Book 08:15 slot. 3 hours inside.'},
+               {loc:'florence',n:'Galleria Accademia',time:'Day 1 afternoon',tip:'David. 1.5 hours max.'},
+               {loc:'florence',n:'Duomo and Oltrarno',time:'Day 2',tip:'Dome climb morning. Pitti or Boboli afternoon.'}],
+        routes:[]},
+      { lbl:'Day 3',
+        stops:[{loc:'florence',n:'Pick up rental car',time:'Morning',lat:43.785,lng:11.236,tip:'Fortezza da Basso. Outside ZTL.'},
+               {loc:'chianti',n:'First winery visit',time:'11:00',tip:'Pre-booked tasting near Greve or Panzano.'},
+               {loc:'chianti',n:'Agriturismo check-in',time:'Afternoon',tip:'Two nights in Chianti. Dinner at the farm.'}],
+        routes:[{f:'florence',t:'chianti'}]},
+      { lbl:'Days 4-5',
+        stops:[{loc:'chianti',n:'Second winery',time:'Morning Day 4',tip:'Different profile from Day 3.'},
+               {loc:'siena',n:'Siena arrival',time:'Afternoon Day 4',tip:'1h drive from Chianti. Evening on the Campo.'},
+               {loc:'siena',n:'Duomo complex',time:'Day 5 morning',tip:'Opa Si Pass EUR 15. 3 hours.'}],
+        routes:[{f:'chianti',t:'siena'}]},
+      { lbl:'Days 6-7',
+        stops:[{loc:'valdorcia',n:'Pienza',time:'Morning',tip:'Arrive early. Piazza Piccolomini, pecorino shops.'},
+               {loc:'valdorcia',n:'Montalcino Brunello',time:'Afternoon',tip:'Pre-booked estate tasting.'},
+               {loc:'valdorcia',n:'Val dOrcia viewpoints',time:'Dawn and dusk',tip:'SP146 between San Quirico and Pienza.'}],
+        routes:[{f:'siena',t:'valdorcia'}]}
+    ]
+  },
+  { id:'longweekend', n:'Long Weekend -- Florence Base', days:'3-4 days', transport:'Train only',
+    desc:'Florence base with two day trips. No car required.',
+    dl:[
+      { lbl:'Days 1-2',
+        stops:[{loc:'florence',n:'Florence -- Uffizi and Accademia',time:'Days 1-2',tip:'Afternoon discount ticket EUR 16 after 16:00. Book both in advance.'}],
+        routes:[]},
+      { lbl:'Day 3',
+        stops:[{loc:'florence',n:'Florence depart',time:'Morning',tip:'Bus from SMN, 09:00 departure.'},
+               {loc:'siena',n:'Siena day trip',time:'09:00-20:00',tip:'Opa Si Pass on arrival EUR 15. Bus back EUR 8.50.'}],
+        routes:[{f:'florence',t:'siena'}]},
+      { lbl:'Day 4',
+        stops:[{loc:'florence',n:'Florence depart',time:'Morning',tip:'Bus via Poggibonsi.'},
+               {loc:'sangim',n:'San Gimignano',time:'09:30-17:00',tip:'Arrive before 10:00. Torre Grossa and Collegiata frescoes.'}],
+        routes:[{f:'florence',t:'sangim'}]}
+    ]
+  },
+  { id:'longweekend_siena', n:'Long Weekend -- Siena Base', days:'3-4 days', transport:'Bus then local buses',
+    desc:'Siena as base with day trips. Slower pace, more atmosphere.',
+    dl:[
+      { lbl:'Day 1',
+        stops:[{loc:'florence',n:'Florence -- depart by bus',time:'Morning',tip:'Direct bus 75 min, EUR 8.50.'},
+               {loc:'siena',n:'Siena arrival and Campo evening',time:'Afternoon',tip:'Check in. First evening on the Campo.'}],
+        routes:[{f:'florence',t:'siena'}]},
+      { lbl:'Day 2',
+        stops:[{loc:'siena',n:'Siena -- Duomo complex',time:'Morning',tip:'Opa Si Pass EUR 15. Piccolomini Library essential.'},
+               {loc:'sangim',n:'San Gimignano day trip',time:'Afternoon',tip:'Bus 60-75 min. Arrive before crowds.'},
+               {loc:'siena',n:'Siena -- return',time:'Evening',tip:'Bus back for dinner in Siena.'}],
+        routes:[{f:'siena',t:'sangim'},{f:'sangim',t:'siena'}]},
+      { lbl:'Day 3',
+        stops:[{loc:'siena',n:'Siena free morning',time:'Morning',tip:'Pinacoteca Nazionale. Contrade walks. No schedule.'},
+               {loc:'florence',n:'Return to Florence',time:'Afternoon',tip:'Bus 75 min.'}],
+        routes:[{f:'siena',t:'florence'}]}
+    ]
+  },
+  { id:'winetour', n:'The Wine Trail', days:'5 days', transport:'Car throughout',
+    desc:'Chianti Classico, Brunello di Montalcino, Vino Nobile di Montepulciano.',
+    dl:[
+      { lbl:'Day 1',
+        stops:[{loc:'florence',n:'Pick up car',time:'Morning',lat:43.785,lng:11.236,tip:'Fortezza da Basso. Drive south on SR222.'},
+               {loc:'chianti',n:'Chianti estate tour and tasting',time:'10:00-12:30',tip:'Pre-booked. Fontodi, Castello di Ama or similar.'},
+               {loc:'chianti',n:'Agriturismo',time:'Afternoon',tip:'Two nights in Chianti vineyards.'}],
+        routes:[{f:'florence',t:'chianti'}]},
+      { lbl:'Day 2',
+        stops:[{loc:'chianti',n:'Small family estate',time:'Morning',tip:'Personal attention. Ask about their story.'},
+               {loc:'chianti',n:'Village lunch in Greve or Radda',time:'Midday',tip:'Butcher Dario Cecchini in Panzano legendary.'},
+               {loc:'chianti',n:'Third winery or olive oil producer',time:'Afternoon',tip:'November: olio nuovo tasting.'}],
+        routes:[]},
+      { lbl:'Day 3',
+        stops:[{loc:'valdorcia',n:'Montalcino Brunello estate',time:'Afternoon',tip:'Pre-booked. Mid-sized quality producer best first visit.'},
+               {loc:'valdorcia',n:'La Fortezza enoteca',time:'Late afternoon',tip:'EUR 6 entry. Rampart views. Taste Brunello without winery.'}],
+        routes:[{f:'chianti',t:'valdorcia'}]},
+      { lbl:'Day 4',
+        stops:[{loc:'valdorcia',n:'Pienza',time:'Morning',tip:'Arrive before 10:00. Pecorino and Palazzo Piccolomini.'},
+               {loc:'valdorcia',n:'Montepulciano Vino Nobile',time:'Afternoon',tip:'Cellars carved into tufa beneath the streets.'},
+               {loc:'valdorcia',n:'Val dOrcia viewpoint',time:'Dusk',tip:'SP146 toward San Quirico. Best light of the trip.'}],
+        routes:[]},
+      { lbl:'Day 5',
+        stops:[{loc:'valdorcia',n:'Final winery',time:'Morning',tip:'Avignonesi or Poliziano outside Montepulciano.'},
+               {loc:'florence',n:'Return car',time:'Afternoon',tip:'Florence airport 90 min. Pisa 2h. Siena 70 min.'}],
+        routes:[{f:'valdorcia',t:'florence'}]}
+    ]
+  },
+  { id:'hilltowns', n:'Hill Towns Circuit', days:'4-5 days', transport:'Car throughout',
+    desc:'Siena, San Gimignano, Volterra, Arezzo and the Piero della Francesca trail.',
+    dl:[
+      { lbl:'Day 1',
+        stops:[{loc:'siena',n:'Arrive Siena',time:'Morning',tip:'Bus 1h15 from Florence EUR 8.50, or car.'},
+               {loc:'siena',n:'Campo and Palazzo Pubblico',time:'Afternoon',tip:'Museo Civico with Simone Martini frescoes.'}],
+        routes:[{f:'florence',t:'siena'}]},
+      { lbl:'Day 2',
+        stops:[{loc:'siena',n:'Duomo complex',time:'Morning',tip:'Opa Si Pass EUR 15. Piccolomini Library essential.'},
+               {loc:'sangim',n:'San Gimignano',time:'Afternoon',tip:'45 min drive. Torre Grossa and Collegiata frescoes.'}],
+        routes:[{f:'siena',t:'sangim'}]},
+      { lbl:'Day 3',
+        stops:[{loc:'volterra',n:'Volterra',time:'All day',tip:'30 min from San Gimignano. Teatro Romano, Etruscan museum.'},
+               {loc:'volterra',n:'Dinner in Volterra',time:'Evening',tip:'Stay overnight. Lower prices than San Gimignano.'}],
+        routes:[{f:'sangim',t:'volterra'}]},
+      { lbl:'Day 4',
+        stops:[{loc:'arezzo',n:'Basilica di San Francesco',time:'Morning',tip:'Piero della Francesca frescoes. Book ahead max 25 people.'},
+               {loc:'arezzo',n:'Piazza Grande',time:'Afternoon',tip:'Beautiful sloping piazza. Antique market first weekend monthly.'}],
+        routes:[{f:'volterra',t:'arezzo'}]},
+      { lbl:'Day 5',
+        stops:[{loc:'cortona',n:'Cortona',time:'Morning',tip:'30 min south. Museo Diocesano with Beato Angelico.'},
+               {loc:'florence',n:'Return to Florence',time:'Afternoon',tip:'1h from Arezzo.'}],
+        routes:[{f:'arezzo',t:'florence'}]}
+    ]
+  },
+  { id:'complete', n:'Complete Tuscany', days:'10-14 days', transport:'Train then Car from Day 4',
+    desc:'The full picture. Florence, Chianti, Val dOrcia, Maremma, Siena, hill towns.',
+    dl:[
+      { lbl:'Days 1-3',
+        stops:[{loc:'florence',n:'Florence full programme',time:'Days 1-3',tip:'Uffizi, Accademia, Oltrarno, day at slower pace.'}],
+        routes:[]},
+      { lbl:'Days 4-5',
+        stops:[{loc:'chianti',n:'Chianti two wineries',time:'Days 4-5',tip:'Pick up car Day 4. Two winery visits.'}],
+        routes:[{f:'florence',t:'chianti'}]},
+      { lbl:'Days 6-8',
+        stops:[{loc:'valdorcia',n:'Pienza, Montalcino, Montepulciano',time:'Days 6-7',tip:'Base in Pienza or agriturismo.'},
+               {loc:'maremma',n:'Drive to Maremma',time:'Day 8',tip:'Saturnia free springs. Pitigliano approach.'}],
+        routes:[{f:'chianti',t:'valdorcia'},{f:'valdorcia',t:'maremma'}]},
+      { lbl:'Days 9-10',
+        stops:[{loc:'maremma',n:'Pitigliano and tufa towns',time:'Day 9',tip:'Sorano and Sovana within 30 min.'},
+               {loc:'maremma',n:'Maremma coast',time:'Day 10',tip:'Parco della Maremma or Argentario.'}],
+        routes:[]},
+      { lbl:'Days 11-14',
+        stops:[{loc:'siena',n:'Siena two full days',time:'Days 11-12',tip:'Drive north from Maremma 1h30.'},
+               {loc:'sangim',n:'San Gimignano',time:'Day 13',tip:'Overnight for the evening transformation.'},
+               {loc:'florence',n:'Return Florence',time:'Day 14',tip:'Drop car. Train or plane departure.'}],
+        routes:[{f:'maremma',t:'siena'},{f:'siena',t:'sangim'},{f:'sangim',t:'florence'}]}
+    ]
+  },
+  { id:'kids', n:'Tuscany with Kids', days:'7 days', transport:'Train then Car from Day 3',
+    desc:'Agriturismo with pool is non-optional. One museum per day maximum.',
+    dl:[
+      { lbl:'Days 1-2',
+        stops:[{loc:'florence',n:'Palazzo Vecchio family tour',time:'Day 1',tip:'Secret passages and costumes. Book in advance.'},
+               {loc:'florence',n:'Uffizi or Boboli',time:'Day 2',tip:'90 min max Uffizi. Or Boboli Gardens for more space.'}],
+        routes:[]},
+      { lbl:'Day 3',
+        stops:[{loc:'chianti',n:'Agriturismo with pool',time:'Day 3+',lat:43.45,lng:11.30,tip:'Non-optional with children. Pool transforms afternoons.'}],
+        routes:[{f:'florence',t:'chianti'}]},
+      { lbl:'Days 4-5',
+        stops:[{loc:'siena',n:'Piazza del Campo',time:'Day 4',tip:'Space to run on the sloped brick. Torre del Mangia if 6+.'},
+               {loc:'valdorcia',n:'Val dOrcia scenic drive',time:'Day 5',tip:'SP146. Pienza pecorino tasting. Back by 16:00.'}],
+        routes:[{f:'chianti',t:'siena'},{f:'siena',t:'valdorcia'}]},
+      { lbl:'Day 6',
+        stops:[{loc:'lucca',n:'Lucca walls by bike',time:'Morning',tip:'Child seats available. Flat car-free circuit. All ages.'},
+               {loc:'lucca',n:'Piazza dellAnfiteatro',time:'Afternoon',tip:'Open space, gelato, relax.'}],
+        routes:[{f:'siena',t:'lucca'}]},
+      { lbl:'Day 7',
+        stops:[{loc:'florence',n:'Return car and depart',time:'Morning',tip:'Never book flight before 15:00 with children.'}],
+        routes:[{f:'lucca',t:'florence'}]}
+    ]
+  }
+];
+
+// ── MAP INIT ─────────────────────────────────────────────────
+window.onload = function() {
+  nsMap = L.map('map', {zoomControl:true}).setView([43.5, 11.0], 8);
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+    attribution:'&copy; OpenStreetMap &copy; CARTO', subdomains:'abcd', maxZoom:19
+  }).addTo(nsMap);
+  markersLayer = L.layerGroup().addTo(nsMap);
+  placeLandmarkMarkers();
+  buildItinList();
+  fillSelects();
+  buildFlTable();
+  initBuilder();
+  document.getElementById('px').addEventListener('click', function(){
+    document.getElementById('panel').classList.remove('open');
+  });
+  document.getElementById('fab').addEventListener('click', function(){
+    document.getElementById('panel').classList.toggle('open');
+  });
+};
+
+// ── PLACE MARKERS ────────────────────────────────────────────
+function placeLandmarkMarkers() {
+  markersLayer.clearLayers();
+  DESTS.forEach(function(d) {
+    var icon = mkIcon(d.type);
+    var popup = '<div class="pu"><div class="pu-name">' + d.n + '</div>'
+              + '<div class="pu-sub">' + d.tag + '</div>'
+              + '<div class="pu-row"><b>Best time:</b> ' + d.best + '</div>'
+              + '<div class="pu-row"><b>Days:</b> ' + d.days + '</div>'
+              + '<div class="pu-tip">' + d.tip + '</div></div>';
+    L.marker([d.lat, d.lng], {icon:icon}).bindPopup(popup, {maxWidth:260}).addTo(markersLayer);
+  });
+}
+
+// ── ITINERARY LIST ───────────────────────────────────────────
+function buildItinList() {
+  var container = document.getElementById('itinList');
+  if (!container) return;
+  ITINS.forEach(function(it) {
+    var card = document.createElement('div');
+    card.className = 'itin-card';
+    var btnHtml = it.dl.map(function(day, i) {
+      var lbl = day.lbl;
+      var cls = i === 0 ? 'dbtn on' : 'dbtn';
+      return '<button class="' + cls + '" data-itin="' + it.id + '" data-idx="' + i + '">' + lbl + '</button>';
+    }).join('');
+    card.innerHTML =
+      '<h3>' + it.n + '</h3>' +
+      '<div class="imeta">&#128197; ' + it.days + ' &nbsp; &#128664; ' + it.transport + '</div>' +
+      '<div class="idesc">' + it.desc + '</div>' +
+      '<div class="dtabs" id="dtabs-' + it.id + '">' + btnHtml + '</div>';
+    card.addEventListener('click', function(e) {
+      var btn = e.target.closest('[data-itin]');
+      if (btn) return; // handled by delegation below
+      var isOn = card.classList.contains('on');
+      document.querySelectorAll('.itin-card').forEach(function(c){ c.classList.remove('on'); });
+      document.querySelectorAll('.dtabs').forEach(function(t){ t.classList.remove('on'); });
+      clearRoutes();
+      if (!isOn) {
+        card.classList.add('on');
+        document.getElementById('dtabs-' + it.id).classList.add('on');
+        currentGlobalStops = buildGlobalStops(it);
+        currentGlobalStops.itId = it.id;
+        drawDay(it, 0);
+        document.querySelectorAll('#dtabs-' + it.id + ' .dbtn').forEach(function(b,i){ b.classList.toggle('on', i===0); });
+      }
+    });
+    container.appendChild(card);
+  });
+
+  // Day button delegation
+  container.addEventListener('click', function(e) {
+    var btn = e.target.closest('[data-itin]');
+    if (!btn) return;
+    e.stopPropagation();
+    var itId = btn.getAttribute('data-itin');
+    var idx  = parseInt(btn.getAttribute('data-idx'));
+    var it2  = null;
+    for (var i=0; i<ITINS.length; i++) { if (ITINS[i].id===itId) { it2=ITINS[i]; break; } }
+    if (!it2) return;
+    if (!currentGlobalStops.itId || currentGlobalStops.itId !== itId) {
+      currentGlobalStops = buildGlobalStops(it2);
+      currentGlobalStops.itId = itId;
+    }
+    document.querySelectorAll('#dtabs-' + itId + ' .dbtn').forEach(function(b){ b.classList.remove('on'); });
+    btn.classList.add('on');
+    drawDay(it2, idx);
+  });
+}
+
+// ── FILL SELECTS ─────────────────────────────────────────────
+function fillSelects() {
+  var ids = ['selFrom','selTo'];
+  ids.forEach(function(sid) {
+    var sel = document.getElementById(sid);
+    if (!sel) return;
+    DESTS.forEach(function(d) {
+      var opt = document.createElement('option');
+      opt.value = d.id;
+      opt.textContent = d.n;
+      sel.appendChild(opt);
+    });
+  });
+  document.getElementById('selFrom').addEventListener('change', liveRoute);
+  document.getElementById('selTo').addEventListener('change', liveRoute);
+}
+
+function fillBldSelect(sel) {
+  DESTS.forEach(function(d) {
+    var opt = document.createElement('option');
+    opt.value = d.id;
+    opt.textContent = d.n;
+    sel.appendChild(opt);
+  });
+  sel.addEventListener('change', updateBldState);
+}
+
+// ── ROUTES TAB ────────────────────────────────────────────────
+function liveRoute() {
+  var from = document.getElementById('selFrom').value;
+  var to   = document.getElementById('selTo').value;
+  if (!from || !to || from === to) return;
+  showRoute(from, to, 'rtResult', 'rtMain', 'rtDetail', 'rtTip', true);
+}
+
+function getDestById(id) {
+  for (var i=0; i<DESTS.length; i++) { if (DESTS[i].id===id) return DESTS[i]; }
+  return null;
+}
+
+function getRoute(from, to) {
+  return ROUTES[from+'-'+to] || ROUTES[to+'-'+from] || null;
+}
+
+function showRoute(from, to, resId, mainId, detId, tipId, drawOnMap) {
+  var A = getDestById(from), B = getDestById(to);
+  if (!A || !B) return;
+  var r = getRoute(from, to);
+  var result = document.getElementById(resId);
+  document.getElementById(mainId).textContent = A.n + '  →  ' + B.n + (r ? '   —   ' + r.t : '');
+  document.getElementById(detId).innerHTML = r
+    ? '<b>Distance:</b> ' + r.d + '  &middot;  <b>Mode:</b> ' + r.m
+    : 'Check Google Maps or Trenitalia for current times.';
+  document.getElementById(tipId).textContent = r ? r.tip : '';
+  result.classList.add('on');
+
+  if (drawOnMap) {
+    clearRoutes();
+    var iA = L.divIcon({html:'<div style="background:#1a3a5c;color:#fff;border-radius:50%;width:24px;height:24px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:11px;border:2px solid white;box-shadow:0 2px 6px rgba(0,0,0,.3)">A</div>',iconSize:[24,24],iconAnchor:[12,12],className:''});
+    var iB = L.divIcon({html:'<div style="background:#c4533a;color:#fff;border-radius:50%;width:24px;height:24px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:11px;border:2px solid white;box-shadow:0 2px 6px rgba(0,0,0,.3)">B</div>',iconSize:[24,24],iconAnchor:[12,12],className:''});
+    activeRouteObjs.push(L.marker([A.lat,A.lng],{icon:iA}).addTo(nsMap));
+    activeRouteObjs.push(L.marker([B.lat,B.lng],{icon:iB}).addTo(nsMap));
+    var line = L.polyline([[A.lat,A.lng],[B.lat,B.lng]],{color:'#c4533a',weight:4,opacity:.9,dashArray:'7,5'}).addTo(nsMap);
+    activeRouteObjs.push(line);
+    nsMap.fitBounds([[A.lat,A.lng],[B.lat,B.lng]],{padding:[80,80],animate:true});
+  }
+}
+
+// ── FLORENCE TABLE ────────────────────────────────────────────
+function buildFlTable() {
+  var tbody = document.getElementById('flTableBody');
+  if (!tbody) return;
+  var flKeys = Object.keys(ROUTES).filter(function(k){ return k.indexOf('florence-')===0; });
+  flKeys.forEach(function(k) {
+    var r = ROUTES[k];
+    var toId = k.replace('florence-','');
+    var dest = getDestById(toId);
+    if (!dest) return;
+    var byTransit = r.m.indexOf('Train')!==-1 ? 'Train' : r.m.indexOf('Bus')!==-1 ? 'Bus' : '--';
+    var tr = document.createElement('tr');
+    tr.innerHTML = '<td><b>' + dest.n + '</b></td><td>' + r.t + '</td><td>' + byTransit + '</td>';
+    tr.addEventListener('click', function() {
+      document.getElementById('selFrom').value = 'florence';
+      document.getElementById('selTo').value = toId;
+      liveRoute();
+    });
+    tbody.appendChild(tr);
+  });
+}
+
+// ── BUILD YOUR TRIP ──────────────────────────────────────────
+function initBuilder() {
+  var addBtn  = document.getElementById('bldAdd');
+  var calcBtn = document.getElementById('bldCalc');
+  var clrBtn  = document.getElementById('bldClear');
+  if (!addBtn) return;
+  // Populate first stop
+  var firstSel = document.querySelector('.bld-sel[data-index="0"]');
+  if (firstSel && firstSel.options.length <= 1) fillBldSelect(firstSel);
+  var firstRm = document.querySelector('.bld-rm[data-index="0"]');
+  if (firstRm) firstRm.addEventListener('click', function(){ removeBldStop(0); });
+  setupBldDrag();
+  updateBldState();
+  addBtn.addEventListener('click', addBldStop);
+  calcBtn.addEventListener('click', calcBldRoute);
+  clrBtn.addEventListener('click', clearBld);
+}
+
+function addBldStop() {
+  var container = document.getElementById('bldStops');
+  var idx = container.querySelectorAll('.bld-stop').length;
+  var div = document.createElement('div');
+  div.className = 'bld-stop';
+  div.setAttribute('data-index', idx);
+  div.innerHTML =
+    '<span class="bld-handle">&#9776;</span>' +
+    '<span class="bld-num">'+(idx+1)+'</span>' +
+    '<select class="bld-sel" data-index="'+idx+'"><option value="">Select destination...</option></select>' +
+    '<button class="bld-rm" data-index="'+idx+'">&#215;</button>';
+  container.appendChild(div);
+  fillBldSelect(div.querySelector('.bld-sel'));
+  div.querySelector('.bld-rm').addEventListener('click', function(){ removeBldStop(parseInt(this.getAttribute('data-index'))); });
+  setupBldDrag();
+  updateBldState();
+}
+
+function removeBldStop(idx) {
+  var container = document.getElementById('bldStops');
+  if (container.querySelectorAll('.bld-stop').length <= 1) return;
+  var el = container.querySelector('.bld-stop[data-index="'+idx+'"]');
+  if (el) el.remove();
+  renumberBld();
+  updateBldState();
+}
+
+function renumberBld() {
+  document.querySelectorAll('.bld-stop').forEach(function(s, i) {
+    s.setAttribute('data-index', i);
+    s.querySelector('.bld-num').textContent = i+1;
+    var sel = s.querySelector('.bld-sel'); if (sel) sel.setAttribute('data-index', i);
+    var rm  = s.querySelector('.bld-rm');  if (rm)  rm.setAttribute('data-index', i);
+  });
+}
+
+function updateBldState() {
+  var vals = Array.from(document.querySelectorAll('.bld-sel')).map(function(s){ return s.value; }).filter(Boolean);
+  document.getElementById('bldCalc').disabled = vals.length < 2;
+}
+
+function setupBldDrag() {
+  var stops = document.querySelectorAll('.bld-stop');
+  stops.forEach(function(s) {
+    s.setAttribute('draggable','true');
+    s.ondragstart = function(e){ this.classList.add('dragging'); e.dataTransfer.setData('text/plain', this.getAttribute('data-index')); };
+    s.ondragend   = function(){ this.classList.remove('dragging'); document.querySelectorAll('.bld-stop').forEach(function(x){ x.classList.remove('drag-over'); }); };
+    s.ondragover  = function(e){ e.preventDefault(); this.classList.add('drag-over'); };
+    s.ondragleave = function(){ this.classList.remove('drag-over'); };
+    s.ondrop = function(e) {
+      e.preventDefault();
+      this.classList.remove('drag-over');
+      var fromIdx = parseInt(e.dataTransfer.getData('text/plain'));
+      var toIdx   = parseInt(this.getAttribute('data-index'));
+      if (fromIdx === toIdx) return;
+      var container = document.getElementById('bldStops');
+      var allStops = Array.from(container.querySelectorAll('.bld-stop'));
+      var moved = allStops.splice(fromIdx, 1)[0];
+      allStops.splice(toIdx, 0, moved);
+      allStops.forEach(function(s){ container.appendChild(s); });
+      renumberBld();
+      updateBldState();
+    };
+  });
+}
+
+function clearBld() {
+  var container = document.getElementById('bldStops');
+  container.innerHTML =
+    '<div class="bld-stop" data-index="0">' +
+    '<span class="bld-handle">&#9776;</span>' +
+    '<span class="bld-num">1</span>' +
+    '<select class="bld-sel" data-index="0"><option value="">Add first stop...</option></select>' +
+    '<button class="bld-rm" data-index="0">&#215;</button>' +
+    '</div>';
+  fillBldSelect(container.querySelector('.bld-sel'));
+  container.querySelector('.bld-rm').addEventListener('click', function(){ removeBldStop(0); });
+  setupBldDrag();
+  document.getElementById('bldResults').innerHTML = '';
+  document.getElementById('bldCalc').disabled = true;
+  clearRoutes();
+  placeLandmarkMarkers();
+}
+
+function calcBldRoute() {
+  var stops = Array.from(document.querySelectorAll('.bld-sel')).map(function(s){ return s.value; }).filter(Boolean);
+  if (stops.length < 2) return;
+  clearRoutes();
+  placeLandmarkMarkers();
+
+  var legs = [];
+  var totalMins = 0;
+  var coords = [];
+
+  for (var i=0; i<stops.length-1; i++) {
+    var A = getDestById(stops[i]), B = getDestById(stops[i+1]);
+    if (!A || !B) continue;
+    var r = getRoute(stops[i], stops[i+1]);
+    legs.push({A:A, B:B, r:r});
+    // Draw leg line
+    var line = L.polyline([[A.lat,A.lng],[B.lat,B.lng]], {color:'#c4533a',weight:4,opacity:.9,dashArray:'7,5',lineCap:'round'}).addTo(nsMap);
+    activeRouteObjs.push(line);
+    coords.push([A.lat,A.lng]);
+  }
+  // Add last stop
+  var last = getDestById(stops[stops.length-1]);
+  if (last) coords.push([last.lat,last.lng]);
+
+  // Place numbered markers
+  stops.forEach(function(id, i) {
+    var d = getDestById(id); if (!d) return;
+    var icon = L.divIcon({
+      className:'',
+      html:'<div style="text-align:center;"><div class="stop-dot">'+(i+1)+'</div><div class="stop-lbl">'+d.n+'</div></div>',
+      iconSize:[120,38], iconAnchor:[60,11]
+    });
+    activeRouteObjs.push(L.marker([d.lat,d.lng],{icon:icon,zIndexOffset:500}).addTo(nsMap));
+  });
+
+  if (coords.length > 1) nsMap.fitBounds(L.latLngBounds(coords),{padding:[80,80],animate:true});
+
+  // Build results
+  var html = '<div class="bld-summary"><h4>Your Route</h4>';
+  html += '<div class="bld-summary-row"><span>Stops:</span><b>'+stops.length+'</b></div>';
+  var knownLegs = legs.filter(function(l){ return l.r; });
+  if (knownLegs.length > 0) {
+    html += '<div class="bld-summary-row"><span>Legs with data:</span><b>'+knownLegs.length+' of '+legs.length+'</b></div>';
+  }
+  html += '</div>';
+  legs.forEach(function(leg, i) {
+    html += '<div class="bld-leg">';
+    html += '<div class="bld-leg-head">'+leg.A.n+' &rarr; '+leg.B.n+(leg.r?' &mdash; '+leg.r.t:'')+'</div>';
+    if (leg.r) {
+      html += '<div class="bld-leg-detail"><b>Distance:</b> '+leg.r.d+' &nbsp;&middot;&nbsp; <b>Mode:</b> '+leg.r.m+'</div>';
+      html += '<div class="bld-leg-tip">'+leg.r.tip+'</div>';
+    } else {
+      html += '<div class="bld-leg-detail">No pre-calculated data. Check Google Maps or Trenitalia.</div>';
+    }
+    html += '</div>';
+  });
+  document.getElementById('bldResults').innerHTML = html;
+}
+
+// ── DRAW DAY ──────────────────────────────────────────────────
+function clearRoutes() {
+  activeRouteObjs.forEach(function(o){ nsMap.removeLayer(o); });
+  activeRouteObjs = [];
+  document.getElementById('stops').classList.remove('on');
+}
+
+function getCoords(locId, stopOverride) {
+  if (stopOverride && stopOverride.lat) return [stopOverride.lat, stopOverride.lng];
+  var d = getDestById(locId);
+  return d ? [d.lat, d.lng] : null;
+}
+
+// Pre-compute global numbered stops across ALL days of an itinerary
+// Returns array of {locId, coords, label, globalNum, dayIdx}
+function buildGlobalStops(it) {
+  var globalStops = [];
+  var num = 1;
+  it.dl.forEach(function(day, dayIdx) {
+    // Deduplicate consecutive same-loc within this day
+    var prevLoc = null;
+    day.stops.forEach(function(s) {
+      var coords = getCoords(s.loc, s);
+      if (!coords) return;
+      // Same loc as previous stop in same day → merge label, don't add new number
+      if (s.loc === prevLoc && globalStops.length > 0) {
+        var last = globalStops[globalStops.length - 1];
+        if (last.label.indexOf(s.n) === -1) {
+          last.label += ' / ' + s.n;
+        }
+        return;
+      }
+      prevLoc = s.loc;
+      globalStops.push({
+        locId: s.loc,
+        coords: coords,
+        label: s.n,
+        globalNum: num++,
+        dayIdx: dayIdx
+      });
+    });
+  });
+  return globalStops;
+}
+
+// Store global stops when itinerary is selected
+var currentGlobalStops = [];
+
+function drawItinerary(it) {
+  currentGlobalStops = buildGlobalStops(it);
+}
+
+function drawDay(it, dayIdx) {
+  clearRoutes();
+
+  var day = it.dl[dayIdx];
+  if (!day) return;
+
+  // Recompute global stops (in case itinerary changed)
+  if (currentGlobalStops.length === 0 || 
+      (currentGlobalStops[0] && currentGlobalStops[0].itId !== it.id)) {
+    currentGlobalStops = buildGlobalStops(it);
+    currentGlobalStops.itId = it.id;
+  }
+
+  // ── 1. Grey context dots for all destinations ──────────────
+  DESTS.forEach(function(d) {
+    var dot = L.circleMarker([d.lat, d.lng], {
+      radius:5, color:'#fff', fillColor:'#99a8bb', fillOpacity:.45, weight:1.5, interactive:false
+    });
+    activeRouteObjs.push(dot.addTo(nsMap));
+  });
+
+  // ── 2. Get this day's global stops in order ─────────────────
+  var dayStops = currentGlobalStops.filter(function(gs) { return gs.dayIdx === dayIdx; });
+
+  if (dayStops.length === 0) {
+    nsMap.setView([43.5, 11.0], 8, {animate:true});
+    return;
+  }
+
+  // ── 3. Draw lines connecting stops in chronological order ───
+  // Connect each stop to the next IN ORDER (using global numbers)
+  // Also connect last stop of previous day to first stop of this day
+  // to show continuity
+  var prevDayLastStop = null;
+  if (dayIdx > 0) {
+    var prevDayStops = currentGlobalStops.filter(function(gs){ return gs.dayIdx === dayIdx - 1; });
+    if (prevDayStops.length > 0) prevDayLastStop = prevDayStops[prevDayStops.length - 1];
+  }
+
+  // Draw connecting line from previous day's last stop (grey, thinner)
+  // Only if different location
+  if (prevDayLastStop && dayStops.length > 0 && prevDayLastStop.locId !== dayStops[0].locId) {
+    var connLine = L.polyline([prevDayLastStop.coords, dayStops[0].coords], {
+      color:'#99a8bb', weight:3, opacity:.6, dashArray:'6,5', lineCap:'round'
+    }).addTo(nsMap);
+    activeRouteObjs.push(connLine);
+  }
+
+  // Draw lines between this day's stops
+  for (var i = 0; i < dayStops.length - 1; i++) {
+    var A = dayStops[i].coords;
+    var B = dayStops[i+1].coords;
+    var sameLoc = dayStops[i].locId === dayStops[i+1].locId;
+    if (!sameLoc) {
+      var line = L.polyline([A, B], {
+        color:'#4a7c59', weight:5, opacity:.95, dashArray:'10,7', lineCap:'round', lineJoin:'round'
+      }).addTo(nsMap);
+      activeRouteObjs.push(line);
+    }
+  }
+
+  // ── 4. Place numbered markers (global numbers) ─────────────
+  var allCoords = [];
+  dayStops.forEach(function(gs) {
+    allCoords.push(gs.coords);
+    var label = gs.label.length > 26 ? gs.label.substring(0,24)+'...' : gs.label;
+    var icon = L.divIcon({
+      className:'',
+      html:'<div style="text-align:center;width:120px;">'
+         + '<div style="width:28px;height:28px;border-radius:50%;background:#c4533a;'
+         + 'border:3px solid white;box-shadow:0 2px 10px rgba(0,0,0,.35);'
+         + 'display:flex;align-items:center;justify-content:center;'
+         + 'color:white;font-size:11px;font-weight:700;margin:0 auto;">'+gs.globalNum+'</div>'
+         + '<div style="margin-top:3px;font-size:10px;font-weight:700;color:#112244;'
+         + 'background:rgba(255,255,255,.88);border-radius:3px;padding:1px 4px;'
+         + 'white-space:nowrap;overflow:hidden;text-overflow:ellipsis;'
+         + 'max-width:120px;display:inline-block;">'+label+'</div>'
+         + '</div>',
+      iconSize:[120,46], iconAnchor:[60,14], zIndexOffset:600
+    });
+    activeRouteObjs.push(L.marker(gs.coords, {icon:icon, zIndexOffset:600}).addTo(nsMap));
+  });
+
+  // Show ghost for previous day last stop ONLY if it's a different location
+  // (skip if same city as first stop of this day — would overlap)
+  var firstDayLoc = dayStops.length > 0 ? dayStops[0].locId : null;
+  var showGhost   = prevDayLastStop && prevDayLastStop.locId !== firstDayLoc;
+  if (showGhost) {
+    var ghostIcon = L.divIcon({
+      className:'',
+      html:'<div style="width:22px;height:22px;border-radius:50%;background:#99a8bb;'
+         + 'border:2px solid white;box-shadow:0 1px 5px rgba(0,0,0,.2);'
+         + 'display:flex;align-items:center;justify-content:center;'
+         + 'color:white;font-size:10px;font-weight:600;">'+prevDayLastStop.globalNum+'</div>',
+      iconSize:[22,22], iconAnchor:[11,11], zIndexOffset:400
+    });
+    activeRouteObjs.push(L.marker(prevDayLastStop.coords, {icon:ghostIcon, zIndexOffset:400}).addTo(nsMap));
+    allCoords.push(prevDayLastStop.coords);
+  }
+
+  // ── 5. fitBounds ────────────────────────────────────────────
+  var uniqueCoords = [];
+  var seen = {};
+  allCoords.forEach(function(xy) {
+    var key = Math.round(xy[0]*100)+','+Math.round(xy[1]*100);
+    if (!seen[key]) { seen[key]=true; uniqueCoords.push(xy); }
+  });
+
+  if (uniqueCoords.length > 1) {
+    nsMap.fitBounds(L.latLngBounds(uniqueCoords), {
+      paddingTopLeft:[380, 70], paddingBottomRight:[80, 90], animate:true, maxZoom:11
+    });
+  } else {
+    nsMap.setView(uniqueCoords[0] || [43.5,11.0], 9, {animate:true});
+  }
+
+
+  document.getElementById('stopsTitle').textContent = it.n + ' -- ' + day.lbl;
+  document.getElementById('stopsBd').innerHTML = day.stops.map(function(s,i){
+    return '<div class="srow"><span class="snum">'+(i+1)+'</span><span class="sname">'+s.n+'</span>'
+          +(s.time?'<span class="stime">'+s.time+'</span>':'')
+          +(s.tip?'<div class="stip">'+s.tip+'</div>':'')+'</div>';
+  }).join('');
+  document.getElementById('stops').classList.add('on');
+  if (window.innerWidth<=768) document.getElementById('panel').classList.remove('open');
+}
+
+// ── TAB SWITCHING ─────────────────────────────────────────────
+function showPane(id, btn) {
+  clearRoutes();
+  document.querySelectorAll('.itin-card').forEach(function(c){ c.classList.remove('on'); });
+  document.querySelectorAll('.dtabs').forEach(function(t){ t.classList.remove('on'); });
+  var rtr = document.getElementById('rtResult'); if(rtr) rtr.classList.remove('on');
+  var bdr = document.getElementById('bldResults'); if(bdr) bdr.innerHTML = '';
+  document.querySelectorAll('.tbtn').forEach(function(b){ b.classList.remove('on'); });
+  document.querySelectorAll('.pane').forEach(function(p){ p.classList.remove('on'); });
+  btn.classList.add('on');
+  document.getElementById('pane-'+id).classList.add('on');
+}
+</script>
+</body>
+</html>
