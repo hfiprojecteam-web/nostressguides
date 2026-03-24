@@ -1,1 +1,448 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>2026 Updates — The No-Stress Tuscany Travel Guide</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@300;400;500;600;700&family=Lato:ital,wght@0,300;0,400;0,700;1,300&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#112244;--navy-mid:#1B3566;--navy-light:#254580;
+  --gold:#F5C842;--gold-dark:#C89A10;--gold-pale:#FDF6DC;
+  --bg:#F0F4FB;--white:#FFFFFF;
+  --text:#1A2340;--text-mid:#3A4A6A;--text-muted:#6A7A9A;
+  --bad:#8C2020;--bad-pale:#FBF0F0;
+  --warn:#B36A10;--warn-pale:#FDF3E3;
+  --ok:#1A5C30;--ok-pale:#E4F5EB;
+  --new:#1A4A80;--new-pale:#E4EEF8;
+  --border:#C8D6EE;--border-lt:#E2EAF8;
+  --radius:10px;--shadow:0 2px 12px rgba(17,34,68,0.08);
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html{font-size:16px;-webkit-text-size-adjust:100%;scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:'Lato',sans-serif;font-weight:300;line-height:1.65;min-height:100vh;-webkit-font-smoothing:antialiased}
 
+.header{background:var(--navy);background-image:radial-gradient(ellipse at 80% 0%,rgba(37,69,128,0.8) 0%,transparent 60%),radial-gradient(ellipse at 20% 100%,rgba(17,34,68,0.9) 0%,transparent 50%);padding:2rem 1.5rem 0;position:sticky;top:0;z-index:100;overflow:hidden}
+.header::before{content:'';position:absolute;inset:0;background-image:radial-gradient(rgba(255,255,255,0.06) 1px,transparent 1px);background-size:20px 20px;pointer-events:none}
+.stamp{position:relative;z-index:1;margin-bottom:1.5rem}
+.stamp-inner{border:2.5px solid var(--gold);border-radius:4px;padding:1.1rem 1.3rem 1rem;background:rgba(17,34,68,0.55);backdrop-filter:blur(4px);position:relative}
+.stamp-inner::before{content:'';position:absolute;top:-9px;left:8px;right:8px;height:8px;background:repeating-linear-gradient(90deg,transparent,transparent 5px,var(--bg) 5px,var(--bg) 10px);opacity:.6}
+.stamp-inner::after{content:'';position:absolute;bottom:-9px;left:8px;right:8px;height:8px;background:repeating-linear-gradient(90deg,transparent,transparent 5px,var(--bg) 5px,var(--bg) 10px);opacity:.6}
+.stamp-label{font-family:'Oswald',sans-serif;font-size:.55rem;font-weight:400;letter-spacing:.28em;text-transform:uppercase;color:var(--gold);opacity:.8;margin-bottom:.35rem}
+.stamp-title{font-family:'Oswald',sans-serif;font-size:2rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:#fff;line-height:1.05;margin-bottom:.55rem}
+.stamp-dest{font-family:'Oswald',sans-serif;font-size:.75rem;font-weight:300;letter-spacing:.22em;text-transform:uppercase;color:rgba(255,255,255,.7)}
+.year-badge{display:inline-block;background:var(--gold);color:var(--navy);font-family:'Oswald',sans-serif;font-size:.7rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;padding:.18rem .65rem;border-radius:3px;margin-bottom:.55rem}
+
+.header-tabs{position:relative;z-index:1;display:flex;gap:0;margin-top:auto}
+.h-tab{flex:1;padding:.55rem .4rem;text-align:center;font-family:'Oswald',sans-serif;font-size:.58rem;font-weight:400;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.55);border-bottom:3px solid transparent;cursor:pointer;transition:all .2s;border-radius:3px 3px 0 0;background:none;border-top:none;border-left:none;border-right:none}
+.h-tab:hover{color:rgba(255,255,255,.8)}
+.h-tab.active{color:var(--gold);border-bottom-color:var(--gold);background:rgba(245,200,66,.06)}
+
+.transparency{background:var(--gold-pale);border:1px solid rgba(200,154,16,.3);border-radius:var(--radius);padding:.9rem 1rem;margin-bottom:1.2rem}
+.t-head{font-family:'Oswald',sans-serif;font-size:.6rem;font-weight:500;letter-spacing:.18em;text-transform:uppercase;color:var(--gold-dark);margin-bottom:.35rem}
+.t-text{font-size:.78rem;color:var(--text-mid);line-height:1.5}
+
+.content{max-width:640px;margin:0 auto;padding:1.2rem 1.1rem 2rem}
+.section{margin-bottom:3rem;opacity:0;transform:translateY(14px);transition:opacity .45s ease,transform .45s ease}
+.section.visible{opacity:1;transform:translateY(0)}
+.section-head{position:sticky;top:0;z-index:10;background:var(--bg);display:flex;align-items:center;justify-content:space-between;padding:.6rem 0 .55rem;margin-bottom:.9rem;border-bottom:2.5px solid var(--navy);box-shadow:0 4px 12px rgba(240,244,251,.95)}
+.sh-left{display:flex;align-items:center;gap:.55rem}
+.sh-pip{width:10px;height:10px;border-radius:2px;flex-shrink:0}
+.sp-bad{background:var(--bad)}.sp-warn{background:var(--warn)}.sp-ok{background:var(--ok)}.sp-new{background:var(--new)}
+.sh-title{font-family:'Oswald',sans-serif;font-size:1rem;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--navy)}
+.sh-date{font-size:.6rem;color:var(--text-muted);letter-spacing:.04em;white-space:nowrap}
+.zone{display:flex;align-items:center;gap:.55rem;margin:1.1rem 0 .6rem}
+.zone-label{font-family:'Oswald',sans-serif;font-size:.6rem;font-weight:500;letter-spacing:.22em;text-transform:uppercase;color:var(--gold-dark);white-space:nowrap}
+.zone-line{flex:1;height:1px;background:var(--border)}
+
+.card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:.55rem;overflow:hidden;position:relative;box-shadow:var(--shadow)}
+.card-bar{position:absolute;left:0;top:0;bottom:0;width:4px}
+.cb-bad{background:var(--bad)}.cb-warn{background:var(--warn)}.cb-new{background:var(--new)}
+.card-body{padding:.88rem 1rem .88rem 1.3rem}
+.card-place{font-family:'Oswald',sans-serif;font-size:.58rem;font-weight:300;letter-spacing:.18em;text-transform:uppercase;color:var(--text-muted);margin-bottom:.22rem}
+.card-text{font-size:.85rem;color:var(--text-mid);line-height:1.55}
+.card-text strong{color:var(--text);font-weight:700}
+.card-text em{font-style:italic;color:var(--text-muted)}
+.price-row{display:flex;align-items:center;gap:.45rem;margin-top:.6rem;padding-top:.5rem;border-top:1px solid var(--border-lt);flex-wrap:wrap}
+.pr-old{font-size:.76rem;color:var(--text-muted);text-decoration:line-through}
+.pr-arrow{font-size:.6rem;color:var(--text-muted)}
+.pr-new{font-size:.86rem;font-weight:700;color:var(--bad)}
+.pr-src{font-size:.65rem;color:var(--text-muted);margin-left:auto}
+
+.ok-list{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow)}
+.ok-row{display:flex;gap:.7rem;align-items:flex-start;padding:.75rem 1rem;border-bottom:1px solid var(--border-lt);min-height:44px}
+.ok-row:last-child{border-bottom:none}
+.ok-badge{width:20px;height:20px;border-radius:50%;background:var(--ok-pale);color:var(--ok);font-size:.65rem;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:.08rem}
+.ok-text{font-size:.83rem;color:var(--text-mid);line-height:1.48}
+.ok-text strong{color:var(--text);font-weight:700;display:block;font-size:.77rem;margin-bottom:.08rem}
+
+.alert{border-radius:var(--radius);padding:.85rem 1rem;margin-bottom:.55rem;border:1px solid}
+.alert-warn{background:var(--warn-pale);border-color:rgba(179,106,16,.25)}
+.alert-head{font-family:'Oswald',sans-serif;font-size:.62rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;margin-bottom:.25rem;color:var(--warn)}
+.alert-text{font-size:.8rem;color:var(--text-mid);line-height:1.5}
+
+.changelog{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow)}
+.cl-head{background:var(--navy);padding:.65rem 1rem;font-family:'Oswald',sans-serif;font-size:.62rem;font-weight:400;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,.8)}
+.cl-row{display:flex;gap:.8rem;align-items:flex-start;padding:.7rem 1rem;border-bottom:1px solid var(--border-lt)}
+.cl-row:last-child{border-bottom:none}
+.cl-year{font-family:'Oswald',sans-serif;font-size:.72rem;font-weight:600;color:var(--navy);min-width:38px;flex-shrink:0;padding-top:.05rem}
+.cl-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:.28rem}
+.cd-active{background:var(--ok)}.cd-sched{background:var(--border)}
+.cl-text{font-size:.78rem;color:var(--text-mid);line-height:1.45}
+.cl-text.sched{color:var(--text-muted);font-style:italic}
+.cl-badge{display:inline-block;background:var(--ok-pale);color:var(--ok);font-family:'Oswald',sans-serif;font-size:.55rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;padding:.1rem .45rem;border-radius:3px;margin-left:.4rem;vertical-align:middle}
+
+footer{background:var(--navy)}
+.footer-gold{background:var(--gold);padding:1.1rem 1.5rem;display:flex;align-items:center;justify-content:center;gap:.55rem}
+.footer-brand{font-family:'Oswald',sans-serif;font-size:1rem;font-weight:700;color:var(--navy);letter-spacing:.14em;text-transform:uppercase;line-height:1}
+.footer-brand-sub{font-family:'Oswald',sans-serif;font-size:.58rem;font-weight:300;letter-spacing:.16em;text-transform:uppercase;color:var(--navy);opacity:.6;margin-top:.15rem}
+.footer-body{padding:1.5rem 1.5rem 2rem;color:rgba(255,255,255,.75)}
+.footer-promise{font-size:.8rem;line-height:1.6;margin-bottom:1rem;color:rgba(255,255,255,.85)}
+.footer-contact{font-size:.75rem;color:rgba(255,255,255,.55);margin-bottom:1rem}
+.footer-contact a{color:var(--gold);text-decoration:none}
+.footer-legal{font-size:.68rem;color:rgba(255,255,255,.35);line-height:1.55}
+
+@media(min-width:600px){.stamp-title{font-size:2.5rem}.content{padding:1.5rem 1.5rem 3rem}}
+</style>
+</head>
+<body>
+
+<header class="header">
+  <div class="stamp">
+    <div class="stamp-inner">
+      <div class="stamp-label">No-Stress Guides &mdash; Digital Companion</div>
+      <div class="year-badge">2026 Edition</div>
+      <div class="stamp-title">Tuscany</div>
+      <div class="stamp-dest">Yearly Updates</div>
+    </div>
+  </div>
+  <div class="header-tabs">
+    <button class="h-tab active" data-target="sec-changed">What Changed</button>
+    <button class="h-tab" data-target="sec-confirmed">Confirmed</button>
+    <button class="h-tab" data-target="sec-new">New Tips</button>
+    <button class="h-tab" data-target="sec-seasonal">Seasonal Alerts</button>
+  </div>
+</header>
+
+<main class="content">
+
+  <div class="transparency">
+    <div class="t-head">How this page works</div>
+    <div class="t-text">Every item was personally verified for 2026. Prices come from official museum websites, Trenitalia, and regional transport operators. Check 3&ndash;5 days before departure for last-minute changes. If something has changed that is not yet reflected here, email us and we will update within 30 days.</div>
+  </div>
+
+  <!-- WHAT CHANGED -->
+  <section class="section" id="sec-changed">
+    <div class="section-head">
+      <div class="sh-left"><span class="sh-pip sp-bad"></span><span class="sh-title">What Changed</span></div>
+      <span class="sh-date">Verified March 2026</span>
+    </div>
+
+    <div class="zone"><span class="zone-label">Florence &mdash; Museums</span><span class="zone-line"></span></div>
+
+    <div class="card">
+      <div class="card-bar cb-bad"></div>
+      <div class="card-body">
+        <div class="card-place">Uffizi Gallery</div>
+        <div class="card-text">Full price ticket is <strong>&euro;25 at the ticket office</strong> and <strong>&euro;29 online</strong> (&euro;25 + &euro;4 booking fee). The booking fee increased from &euro;3 to &euro;4 and the base price shifted from the previously advertised &euro;26. Always book on the official site: <strong>tickets.uffizi.it</strong>. Tickets are now <strong>nominative</strong> &mdash; your name is required at purchase and ID is checked at entry. <em>New from January 2026:</em> an afternoon discount ticket is available for entry after 16:00 &mdash; &euro;20 online or &euro;16 at the door on the day.</div>
+        <div class="price-row">
+          <span class="pr-old">&euro;26 + &euro;3</span>
+          <span class="pr-arrow">&rarr;</span>
+          <span class="pr-new">&euro;25 + &euro;4 = &euro;29 online</span>
+          <span class="pr-src">tickets.uffizi.it</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-bar cb-bad"></div>
+      <div class="card-body">
+        <div class="card-place">Galleria dell&rsquo;Accademia (David)</div>
+        <div class="card-text">Full adult ticket is <strong>&euro;16 + &euro;4 booking fee = &euro;20 online</strong>. The price dropped from what many older sources list (&euro;19). From <strong>15 March 2026</strong>, a new combined ticket covers the Accademia and the Bargello for <strong>&euro;26</strong> (valid 48 hours), and an extended pass covering all six museums of the new institute costs <strong>&euro;38</strong> (valid 72 hours). Book at galleriaaccademiafirenze.it.</div>
+        <div class="price-row">
+          <span class="pr-old">&euro;19 + &euro;4</span>
+          <span class="pr-arrow">&rarr;</span>
+          <span class="pr-new">&euro;16 + &euro;4 = &euro;20 online</span>
+          <span class="pr-src">galleriaaccademiafirenze.it</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="zone"><span class="zone-label">Pisa</span><span class="zone-line"></span></div>
+
+    <div class="card">
+      <div class="card-bar cb-warn"></div>
+      <div class="card-body">
+        <div class="card-place">Leaning Tower of Pisa &mdash; booking window</div>
+        <div class="card-text">Ticket price is confirmed at <strong>&euro;20</strong> for the tower alone (includes Cathedral entry) and <strong>&euro;27</strong> for the complete Piazza dei Miracoli pass (adds Baptistery, Camposanto, two museums). Tickets on the official site (opapisa.it) open only <strong>20 days before your visit</strong> &mdash; not months ahead. In peak season, this window fills within days of opening. Book exactly on the 20-day mark. Children under 8 are not admitted to the tower.</div>
+        <div class="price-row">
+          <span class="pr-new" style="color:var(--ok)">&euro;20 tower / &euro;27 complete &mdash; confirmed</span>
+          <span class="pr-src">opapisa.it</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="zone"><span class="zone-label">Getting Around</span><span class="zone-line"></span></div>
+
+    <div class="card">
+      <div class="card-bar cb-warn"></div>
+      <div class="card-body">
+        <div class="card-place">Florence ZTL fines &mdash; increased enforcement</div>
+        <div class="card-text">Fines for unauthorized entry into Florence&rsquo;s ZTL now start at <strong>&euro;83</strong> per infraction (up from &euro;80), with repeat violations compounded. The ZTL covers the entire centro storico: active Monday&ndash;Friday 07:30&ndash;20:00 and Thursday&ndash;Saturday until 23:00 in summer. Cameras photograph every plate. If your hotel is inside the ZTL, contact them <strong>before arrival</strong> to register your plate for a temporary drop-off exemption. Do not trust your GPS &mdash; it does not see ZTL boundaries.</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-bar cb-warn"></div>
+      <div class="card-body">
+        <div class="card-place">Autolinee Toscane &mdash; Florence to Siena bus</div>
+        <div class="card-text">The Florence&ndash;Siena direct bus (75 minutes, <strong>&euro;8.50</strong>) remains the best option between the two cities &mdash; faster and more convenient than the train. Buy tickets at the bus station near Santa Maria Novella or on the Autolinee Toscane app. The service runs every 30&ndash;60 minutes on weekdays; Sunday frequency drops significantly. Confirm current schedule at autolineetoscane.it before your trip.</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-bar cb-warn"></div>
+      <div class="card-body">
+        <div class="card-place">Car rental &mdash; insurance and real costs</div>
+        <div class="card-text">Base rental rates continue to be deceptive. A week quoted at &euro;180 typically reaches &euro;350&ndash;400 after full CDW insurance (&euro;10&ndash;20/day), fuel (&euro;80&ndash;120), tolls (&euro;30&ndash;60), and parking (&euro;15&ndash;30/day in cities). Always book through a consolidator such as AutoEurope or Discover Cars. The pressure to buy extra insurance at the counter remains intense &mdash; if your travel insurance or credit card covers rental cars, decline it. Avoid the pre-purchased fuel option entirely.</div>
+      </div>
+    </div>
+
+  </section>
+
+  <!-- CONFIRMED -->
+  <section class="section" id="sec-confirmed">
+    <div class="section-head">
+      <div class="sh-left"><span class="sh-pip sp-ok"></span><span class="sh-title">Confirmed Correct</span></div>
+      <span class="sh-date">Verified March 2026</span>
+    </div>
+
+    <div class="ok-list">
+      <div class="ok-row">
+        <div class="ok-badge">&#10003;</div>
+        <div class="ok-text"><strong>Uffizi &mdash; book 2&ndash;4 weeks ahead in high season</strong> April through September, morning slots sell out fastest. Afternoon slots (after 16:00) offer a discount and are easier to secure. Hours: Tue&ndash;Sun 08:15&ndash;18:30. Closed Mondays, 1 January, 25 December.</div>
+      </div>
+      <div class="ok-row">
+        <div class="ok-badge">&#10003;</div>
+        <div class="ok-text"><strong>Galleria dell&rsquo;Accademia &mdash; reserve ahead year-round</strong> Even outside peak season, same-day tickets can mean 1&ndash;2 hour queues. Tuesday evenings June&ndash;September open until 22:00. Closed Mondays.</div>
+      </div>
+      <div class="ok-row">
+        <div class="ok-badge">&#10003;</div>
+        <div class="ok-text"><strong>Siena Opa Si Pass &mdash; &euro;15</strong> Covers cathedral, Piccolomini Library, Baptistery, Crypt, and Museo dell&rsquo;Opera. Buy at the cathedral entrance on arrival &mdash; no advance booking required outside Palio periods.</div>
+      </div>
+      <div class="ok-row">
+        <div class="ok-badge">&#10003;</div>
+        <div class="ok-text"><strong>Torre del Mangia, Siena &mdash; &euro;10</strong> 400 steps to the top of the Campo&rsquo;s tower. Queues build from 10:00. Go at opening (10:00) or after 16:00. Combined ticket with Museo Civico: &euro;15.</div>
+      </div>
+      <div class="ok-row">
+        <div class="ok-badge">&#10003;</div>
+        <div class="ok-text"><strong>Duomo complex Florence (full pass) &mdash; &euro;30</strong> Covers dome climb, baptistery, museum, bell tower. The cathedral itself remains free. Book dome entry specifically in advance (brunelleschi.it) &mdash; walk-up slots are rare in high season.</div>
+      </div>
+      <div class="ok-row">
+        <div class="ok-badge">&#10003;</div>
+        <div class="ok-text"><strong>Palazzo Pitti + Boboli Gardens, Florence &mdash; &euro;22&ndash;26</strong> Depending on sections visited. Combined 5-day Passepartout (Uffizi + Pitti + Boboli) is &euro;40 &mdash; good value if visiting all three within five days.</div>
+      </div>
+      <div class="ok-row">
+        <div class="ok-badge">&#10003;</div>
+        <div class="ok-text"><strong>Train Florence&ndash;Pisa &mdash; &euro;8.70</strong> Every 15&ndash;30 minutes, 50&ndash;80 minutes. No reservation needed for regional trains. Buy on the Trenitalia app, station machines, or tabacchi. Validate before boarding.</div>
+      </div>
+      <div class="ok-row">
+        <div class="ok-badge">&#10003;</div>
+        <div class="ok-text"><strong>Train Florence&ndash;Lucca &mdash; &euro;7.90</strong> Hourly, 80 minutes. Change at Pisa Centrale for the final leg. No reservation needed.</div>
+      </div>
+      <div class="ok-row">
+        <div class="ok-badge">&#10003;</div>
+        <div class="ok-text"><strong>Train Florence&ndash;Arezzo &mdash; &euro;9.30</strong> Every 30&ndash;60 minutes, 40&ndash;80 minutes. Regional trains on this route are faster than expected.</div>
+      </div>
+      <div class="ok-row">
+        <div class="ok-badge">&#10003;</div>
+        <div class="ok-text"><strong>Pisa&ndash;Lucca train &mdash; &euro;3.60</strong> Every 30 minutes, 30 minutes. One of the easiest connections in Tuscany. No reservation needed.</div>
+      </div>
+      <div class="ok-row">
+        <div class="ok-badge">&#10003;</div>
+        <div class="ok-text"><strong>Florence airport tram (T2) &mdash; &euro;1.70</strong> 20 minutes to Santa Maria Novella station. Taxi fixed rate: &euro;22 to city centre (&euro;25.30 on Sundays, holidays, or 22:00&ndash;06:00).</div>
+      </div>
+      <div class="ok-row">
+        <div class="ok-badge">&#10003;</div>
+        <div class="ok-text"><strong>Pisa airport to Florence by train &mdash; &euro;8.70</strong> PisaMover to Pisa Centrale (&euro;5, 5 min), then regional train to Florence SMN. Total 65&ndash;80 minutes door-to-door. No private transfer can match this value.</div>
+      </div>
+      <div class="ok-row">
+        <div class="ok-badge">&#10003;</div>
+        <div class="ok-text"><strong>Siena stadium parking &mdash; &euro;2/hour, max &euro;15/day</strong> Most convenient large lot outside the walls, northwest of the centre. Escalators and walkways connect to the historic centre. Fill before 10:00 on summer weekends.</div>
+      </div>
+      <div class="ok-row">
+        <div class="ok-badge">&#10003;</div>
+        <div class="ok-text"><strong>San Gimignano parking (P1/Giubileo) &mdash; &euro;6 for first 2 hours, &euro;2/hour after</strong> Arrive before 10:00 or after 17:00 to find a space in summer. P3/P4 are overflow lots further down the hill.</div>
+      </div>
+      <div class="ok-row">
+        <div class="ok-badge">&#10003;</div>
+        <div class="ok-text"><strong>Saturnia natural thermal pools &mdash; free</strong> The free cascades at Terme di Saturnia are open year-round, 24/7. The adjacent resort charges &euro;50&ndash;70 for day access to its managed pools. The free version is the real experience.</div>
+      </div>
+      <div class="ok-row">
+        <div class="ok-badge">&#10003;</div>
+        <div class="ok-text"><strong>First Sunday of the month &mdash; free state museums</strong> Includes the Uffizi, Accademia, and most national museums. Queues are substantially longer than normal. Arrive at opening (08:15) or skip it.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- NEW TIPS -->
+  <section class="section" id="sec-new">
+    <div class="section-head">
+      <div class="sh-left"><span class="sh-pip sp-new"></span><span class="sh-title">New for 2026</span></div>
+      <span class="sh-date">Added March 2026</span>
+    </div>
+
+    <div class="card">
+      <div class="card-bar cb-new"></div>
+      <div class="card-body">
+        <div class="card-place">Uffizi &mdash; afternoon discount ticket (from January 2026)</div>
+        <div class="card-text">A new discounted ticket for entry after 16:00 costs <strong>&euro;20 online</strong> or <strong>&euro;16 at the ticket office on the day</strong>. Crowds thin significantly in the late afternoon. If you are flexible on timing, this is the best-value way into the Uffizi in 2026. Book at tickets.uffizi.it and select the afternoon time slot.</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-bar cb-new"></div>
+      <div class="card-body">
+        <div class="card-place">Accademia + Bargello combined ticket (from March 2026)</div>
+        <div class="card-text">The Galleria dell&rsquo;Accademia and Museo Nazionale del Bargello now offer a <strong>combined 48-hour ticket for &euro;26</strong>. The Bargello holds Donatello&rsquo;s bronze David, Michelangelo&rsquo;s early Bacchus, and one of the finest sculpture collections in Italy &mdash; with none of the Accademia crowds. An extended 72-hour pass covering all six museums of the new institute costs &euro;38.</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-bar cb-new"></div>
+      <div class="card-body">
+        <div class="card-place">Uffizi &mdash; nominative tickets since October 2025</div>
+        <div class="card-text">All Uffizi tickets are now issued in the purchaser&rsquo;s name. A government-issued ID must be shown at entry. This applies to both direct bookings and tickets purchased through third-party agents. If buying for a group, all names are required at time of purchase. Resold tickets are no longer valid.</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-bar cb-new"></div>
+      <div class="card-body">
+        <div class="card-place">Vasari Corridor, Florence &mdash; reopened late 2024</div>
+        <div class="card-text">The elevated passageway connecting the Uffizi to Palazzo Pitti, closed for years of restoration, has reopened. Entry requires an Uffizi ticket plus a supplement. Book through tickets.uffizi.it &mdash; slots are limited and sell out well ahead. Not essential for a standard Florence visit, but genuinely unique for those with specific interest in the Medici.</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-bar cb-new"></div>
+      <div class="card-body">
+        <div class="card-place">EasyPark and MyCicero &mdash; parking apps for Tuscany</div>
+        <div class="card-text">Both apps now cover most Tuscan cities including Florence, Siena, Lucca, Arezzo, and Pisa. Download before departure &mdash; paying via app avoids hunting for ticket machines and lets you extend parking remotely. Florence Fortezza da Basso garage and Parterre lot are the best options for leaving a car outside the ZTL.</div>
+      </div>
+    </div>
+
+  </section>
+
+  <!-- SEASONAL ALERTS -->
+  <section class="section" id="sec-seasonal">
+    <div class="section-head">
+      <div class="sh-left"><span class="sh-pip sp-warn"></span><span class="sh-title">Seasonal Alerts</span></div>
+      <span class="sh-date">2026 Calendar</span>
+    </div>
+
+    <div class="alert alert-warn">
+      <div class="alert-head">Dates that will affect your trip</div>
+      <div class="alert-text">These dates cause genuine disruption in specific parts of Tuscany. Not all of them are avoidable &mdash; but knowing them changes how you plan around them.</div>
+    </div>
+
+    <div class="ok-list">
+      <div class="ok-row">
+        <div class="ok-badge" style="background:var(--bad-pale);color:var(--bad)">!</div>
+        <div class="ok-text"><strong>Easter Week (April 1&ndash;6, 2026)</strong> Florence sees its single most crowded period of the year. Hotels command peak prices. Uffizi and Accademia require advance booking weeks ahead. Book everything before mid-February.</div>
+      </div>
+      <div class="ok-row">
+        <div class="ok-badge" style="background:var(--bad-pale);color:var(--bad)">!</div>
+        <div class="ok-text"><strong>Palio di Siena &mdash; July 2 and August 16</strong> Siena is transformed. Hotels triple their rates weeks either side. The Campo fills with 40,000+ people. Standing room only (free), balcony seats &euro;300&ndash;500 months ahead. If you want to attend, book accommodation 6+ months ahead. If you want to avoid the chaos, stay out of Siena entirely on those dates.</div>
+      </div>
+      <div class="ok-row">
+        <div class="ok-badge" style="background:var(--warn-pale);color:var(--warn)">!</div>
+        <div class="ok-text"><strong>April 25 + May 1 (ponte)</strong> Both are Italian national holidays. When they fall close to weekends (as in 2026), they create 4&ndash;5 day national holiday bridges. Accommodation prices surge 30% across Tuscany. Domestic tourists flood cities and agriturismo in numbers comparable to August.</div>
+      </div>
+      <div class="ok-row">
+        <div class="ok-badge" style="background:var(--warn-pale);color:var(--warn)">!</div>
+        <div class="ok-text"><strong>Ferragosto period (August 10&ndash;20)</strong> Italian vacation culture at its peak. Local businesses &mdash; neighbourhood trattorias, family shops, smaller hotels &mdash; close for 1&ndash;3 weeks. Tourist infrastructure stays open. Coast and countryside fill with Italian vacationers. Cities become oddly empty of Romans and full of foreigners.</div>
+      </div>
+      <div class="ok-row">
+        <div class="ok-badge" style="background:var(--warn-pale);color:var(--warn)">!</div>
+        <div class="ok-text"><strong>Lucca Comics and Games (late October / early November)</strong> Italy&rsquo;s largest comics convention turns Lucca impassable. 300,000+ visitors. Every hotel within 50km books out months ahead. If Lucca is on your itinerary, confirm the exact dates and book accommodation early, or plan to stay elsewhere and day-trip before the convention starts.</div>
+      </div>
+      <div class="ok-row">
+        <div class="ok-badge" style="background:var(--ok-pale);color:var(--ok)">&#10003;</div>
+        <div class="ok-text"><strong>Best timing &mdash; October 2026</strong> Harvest season in Chianti and Montalcino. Val d&rsquo;Orcia at its photographic peak. Crowds thin after the first week. Temperatures comfortable. Florence and Siena feel like real cities again. The best overall month for most Tuscany itineraries.</div>
+      </div>
+      <div class="ok-row">
+        <div class="ok-badge" style="background:var(--ok-pale);color:var(--ok)">&#10003;</div>
+        <div class="ok-text"><strong>Best low-cost window &mdash; January&ndash;February</strong> Hotel prices 50&ndash;60% below peak. Uffizi without a queue. Restaurants cooking for locals not tourists. The trade-off: shorter days, some agriturismo closures, countryside feels dormant. Florence and Siena work well; Chianti and Val d&rsquo;Orcia less so.</div>
+      </div>
+    </div>
+
+    <div class="changelog" style="margin-top:1.5rem">
+      <div class="cl-head">Annual review schedule &mdash; every March</div>
+      <div class="cl-row">
+        <div class="cl-year">2026</div>
+        <div class="cl-dot cd-active"></div>
+        <div class="cl-text">Full review completed March 2026 &mdash; 22 items verified. Uffizi price structure corrected, Accademia price updated, new afternoon ticket documented, Accademia+Bargello combined ticket added, Pisa booking window confirmed. <span class="cl-badge">Active</span></div>
+      </div>
+      <div class="cl-row">
+        <div class="cl-year">2027</div>
+        <div class="cl-dot cd-sched"></div>
+        <div class="cl-text sched">Scheduled review &mdash; March 2027.</div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="footer-gold">
+    <div>
+      <div class="footer-brand">No-Stress Guides</div>
+      <div class="footer-brand-sub">Tuscany Travel Guide &mdash; 2026</div>
+    </div>
+  </div>
+  <div class="footer-body">
+    <p class="footer-promise">This page is reviewed every March. If a price changes significantly mid-year, we update within 30 days. No sponsored content. No affiliate links. Every price comes from the official source.</p>
+    <p class="footer-contact">Questions or corrections: <a href="mailto:info@nostressguides.com">info@nostressguides.com</a></p>
+    <p class="footer-legal">&copy; 2026 No-Stress Guides. For personal travel use only. Prices and hours change &mdash; always verify before booking.</p>
+  </div>
+</footer>
+
+<script>
+// Fade-in sections
+document.querySelectorAll('.section').forEach(function(s, i) {
+  setTimeout(function() { s.classList.add('visible'); }, 100 + i * 80);
+});
+
+// Tab switching
+var headerEl = document.querySelector('.header');
+document.querySelectorAll('.h-tab').forEach(function(btn) {
+  btn.addEventListener('click', function() {
+    var target = this.getAttribute('data-target');
+    document.querySelectorAll('.h-tab').forEach(function(t) { t.classList.remove('active'); });
+    btn.classList.add('active');
+    var el = document.getElementById(target);
+    if (!el) return;
+    var headerH = headerEl ? headerEl.offsetHeight : 0;
+    window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY - headerH - 8, behavior: 'smooth' });
+  });
+});
+
+// Update active tab on scroll
+var sectionIds = ['sec-changed','sec-confirmed','sec-new','sec-seasonal'];
+var allTabs = document.querySelectorAll('.h-tab');
+function updateActiveTab() {
+  var headerH = headerEl ? headerEl.offsetHeight : 0;
+  var active = 0;
+  sectionIds.forEach(function(id, i) {
+    var el = document.getElementById(id);
+    if (el && el.getBoundingClientRect().top <= headerH + 20) active = i;
+  });
+  allTabs.forEach(function(t, i) { t.classList.toggle('active', i === active); });
+}
+window.addEventListener('scroll', updateActiveTab, { passive: true });
+updateActiveTab();
+</script>
+</body>
+</html>
