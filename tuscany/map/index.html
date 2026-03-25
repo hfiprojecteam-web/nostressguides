@@ -529,8 +529,7 @@ function buildItinList() {
       if (!isOn) {
         card.classList.add('on');
         document.getElementById('dtabs-' + it.id).classList.add('on');
-        currentGlobalStops = buildGlobalStops(it);
-        currentGlobalStops.itId = it.id;
+        activateItinerary(it);
         drawDay(it, 0);
         document.querySelectorAll('#dtabs-' + it.id + ' .dbtn').forEach(function(b,i){ b.classList.toggle('on', i===0); });
       }
@@ -548,9 +547,8 @@ function buildItinList() {
     var it2  = null;
     for (var i=0; i<ITINS.length; i++) { if (ITINS[i].id===itId) { it2=ITINS[i]; break; } }
     if (!it2) return;
-    if (!currentGlobalStops.itId || currentGlobalStops.itId !== itId) {
-      currentGlobalStops = buildGlobalStops(it2);
-      currentGlobalStops.itId = itId;
+    if (_activeItinId !== itId) {
+      activateItinerary(it2);
     }
     document.querySelectorAll('#dtabs-' + itId + ' .dbtn').forEach(function(b){ b.classList.remove('on'); });
     btn.classList.add('on');
@@ -816,165 +814,174 @@ function clearRoutes() {
   document.getElementById('stops').classList.remove('on');
 }
 
-function getCoords(locId, stopOverride) {
-  if (stopOverride && stopOverride.lat) return [stopOverride.lat, stopOverride.lng];
-  var d = getDestById(locId);
+function getCoords(stop) {
+  if (stop && stop.lat) return [stop.lat, stop.lng];
+  var d = getDestById(stop.loc || stop);
   return d ? [d.lat, d.lng] : null;
 }
 
-// Pre-compute global numbered stops across ALL days of an itinerary
-// Returns array of {locId, coords, label, globalNum, dayIdx}
 function buildGlobalStops(it) {
-  var globalStops = [];
-  var num = 1;
-  it.dl.forEach(function(day, dayIdx) {
-    // Deduplicate consecutive same-loc within this day
+  var result = [], n = 1;
+  it.dl.forEach(function(day, di) {
     var prevLoc = null;
     day.stops.forEach(function(s) {
-      var coords = getCoords(s.loc, s);
-      if (!coords) return;
-      // Same loc as previous stop in same day → merge label, don't add new number
-      if (s.loc === prevLoc && globalStops.length > 0) {
-        var last = globalStops[globalStops.length - 1];
-        if (last.label.indexOf(s.n) === -1) {
-          last.label += ' / ' + s.n;
-        }
+      var xy = s.lat ? [s.lat, s.lng] : (function(){ var d=getDestById(s.loc); return d?[d.lat,d.lng]:null; })();
+      if (!xy) return;
+      if (s.loc === prevLoc) {
+        if (result.length > 0 && result[result.length-1].dayIdx === di)
+          result[result.length-1].label += ' + ' + s.n;
         return;
       }
       prevLoc = s.loc;
-      globalStops.push({
-        locId: s.loc,
-        coords: coords,
-        label: s.n,
-        globalNum: num++,
-        dayIdx: dayIdx
-      });
+      result.push({ locId:s.loc, coords:xy, label:s.n, num:n++, dayIdx:di });
     });
   });
-  return globalStops;
+  return result;
 }
 
-// Store global stops when itinerary is selected
-var currentGlobalStops = [];
+var _activeItinId = null;
+var _globalStops  = [];
 
-function drawItinerary(it) {
-  currentGlobalStops = buildGlobalStops(it);
+function activateItinerary(it) {
+  _activeItinId = it.id;
+  _globalStops  = buildGlobalStops(it);
 }
 
 function drawDay(it, dayIdx) {
   clearRoutes();
 
+  if (_activeItinId !== it.id) activateItinerary(it);
+
   var day = it.dl[dayIdx];
   if (!day) return;
 
-  // Recompute global stops (in case itinerary changed)
-  if (currentGlobalStops.length === 0 || 
-      (currentGlobalStops[0] && currentGlobalStops[0].itId !== it.id)) {
-    currentGlobalStops = buildGlobalStops(it);
-    currentGlobalStops.itId = it.id;
-  }
+  // All stops grouped by day
+  var totalDays = it.dl.length;
 
-  // ── 1. Grey context dots for all destinations ──────────────
+  // ── 1. Background dest dots ──────────────────────────────────
   DESTS.forEach(function(d) {
-    var dot = L.circleMarker([d.lat, d.lng], {
-      radius:5, color:'#fff', fillColor:'#99a8bb', fillOpacity:.45, weight:1.5, interactive:false
-    });
-    activeRouteObjs.push(dot.addTo(nsMap));
+    activeRouteObjs.push(
+      L.circleMarker([d.lat,d.lng], {
+        radius:4, color:'#fff', fillColor:'#b0bccc',
+        fillOpacity:.35, weight:1, interactive:false
+      }).addTo(nsMap)
+    );
   });
 
-  // ── 2. Get this day's global stops in order ─────────────────
-  var dayStops = currentGlobalStops.filter(function(gs) { return gs.dayIdx === dayIdx; });
+  // ── 2. Draw ALL days dimmed first (full itinerary overview) ──
+  for (var di = 0; di < totalDays; di++) {
+    var stops_di = _globalStops.filter(function(s){ return s.dayIdx === di; });
+    if (di === dayIdx) continue; // selected day drawn later on top
 
-  if (dayStops.length === 0) {
-    nsMap.setView([43.5, 11.0], 8, {animate:true});
-    return;
-  }
+    // Dimmed markers for other days
+    stops_di.forEach(function(s) {
+      var icon = L.divIcon({
+        className:'',
+        html:'<div style="text-align:center;width:90px;">'
+           + '<div style="width:22px;height:22px;border-radius:50%;background:#a0aec0;'
+           + 'border:2px solid rgba(255,255,255,.7);box-shadow:0 1px 4px rgba(0,0,0,.15);'
+           + 'display:flex;align-items:center;justify-content:center;'
+           + 'color:white;font-size:9px;font-weight:600;margin:0 auto;opacity:.65;">'+s.num+'</div>'
+           + '<div style="margin-top:2px;font-size:9px;font-weight:600;color:#556;'
+           + 'background:rgba(255,255,255,.7);border-radius:2px;padding:0 3px;'
+           + 'white-space:nowrap;overflow:hidden;text-overflow:ellipsis;'
+           + 'max-width:90px;display:inline-block;opacity:.65;">'+s.label.substring(0,18)+'</div>'
+           + '</div>',
+        iconSize:[90,36], iconAnchor:[45,11], zIndexOffset:200
+      });
+      activeRouteObjs.push(L.marker(s.coords, {icon:icon, zIndexOffset:200}).addTo(nsMap));
+    });
 
-  // ── 3. Draw lines connecting stops in chronological order ───
-  // Connect each stop to the next IN ORDER (using global numbers)
-  // Also connect last stop of previous day to first stop of this day
-  // to show continuity
-  var prevDayLastStop = null;
-  if (dayIdx > 0) {
-    var prevDayStops = currentGlobalStops.filter(function(gs){ return gs.dayIdx === dayIdx - 1; });
-    if (prevDayStops.length > 0) prevDayLastStop = prevDayStops[prevDayStops.length - 1];
-  }
-
-  // Draw connecting line from previous day's last stop (grey, thinner)
-  // Only if different location
-  if (prevDayLastStop && dayStops.length > 0 && prevDayLastStop.locId !== dayStops[0].locId) {
-    var connLine = L.polyline([prevDayLastStop.coords, dayStops[0].coords], {
-      color:'#99a8bb', weight:3, opacity:.6, dashArray:'6,5', lineCap:'round'
-    }).addTo(nsMap);
-    activeRouteObjs.push(connLine);
-  }
-
-  // Draw lines between this day's stops
-  for (var i = 0; i < dayStops.length - 1; i++) {
-    var A = dayStops[i].coords;
-    var B = dayStops[i+1].coords;
-    var sameLoc = dayStops[i].locId === dayStops[i+1].locId;
-    if (!sameLoc) {
-      var line = L.polyline([A, B], {
-        color:'#4a7c59', weight:5, opacity:.95, dashArray:'10,7', lineCap:'round', lineJoin:'round'
-      }).addTo(nsMap);
-      activeRouteObjs.push(line);
+    // Dimmed lines between stops of this other day
+    for (var i = 0; i < stops_di.length - 1; i++) {
+      if (stops_di[i].locId === stops_di[i+1].locId) continue;
+      activeRouteObjs.push(
+        L.polyline([stops_di[i].coords, stops_di[i+1].coords], {
+          color:'#a0aec0', weight:2.5, opacity:.5, dashArray:'6,5', lineCap:'round'
+        }).addTo(nsMap)
+      );
     }
   }
 
-  // ── 4. Place numbered markers (global numbers) ─────────────
-  var allCoords = [];
-  dayStops.forEach(function(gs) {
-    allCoords.push(gs.coords);
-    var label = gs.label.length > 26 ? gs.label.substring(0,24)+'...' : gs.label;
-    var icon = L.divIcon({
-      className:'',
-      html:'<div style="text-align:center;width:120px;">'
-         + '<div style="width:28px;height:28px;border-radius:50%;background:#c4533a;'
-         + 'border:3px solid white;box-shadow:0 2px 10px rgba(0,0,0,.35);'
-         + 'display:flex;align-items:center;justify-content:center;'
-         + 'color:white;font-size:11px;font-weight:700;margin:0 auto;">'+gs.globalNum+'</div>'
-         + '<div style="margin-top:3px;font-size:10px;font-weight:700;color:#112244;'
-         + 'background:rgba(255,255,255,.88);border-radius:3px;padding:1px 4px;'
-         + 'white-space:nowrap;overflow:hidden;text-overflow:ellipsis;'
-         + 'max-width:120px;display:inline-block;">'+label+'</div>'
-         + '</div>',
-      iconSize:[120,46], iconAnchor:[60,14], zIndexOffset:600
-    });
-    activeRouteObjs.push(L.marker(gs.coords, {icon:icon, zIndexOffset:600}).addTo(nsMap));
-  });
-
-  // Show ghost for previous day last stop ONLY if it's a different location
-  // (skip if same city as first stop of this day — would overlap)
-  var firstDayLoc = dayStops.length > 0 ? dayStops[0].locId : null;
-  var showGhost   = prevDayLastStop && prevDayLastStop.locId !== firstDayLoc;
-  if (showGhost) {
-    var ghostIcon = L.divIcon({
-      className:'',
-      html:'<div style="width:22px;height:22px;border-radius:50%;background:#99a8bb;'
-         + 'border:2px solid white;box-shadow:0 1px 5px rgba(0,0,0,.2);'
-         + 'display:flex;align-items:center;justify-content:center;'
-         + 'color:white;font-size:10px;font-weight:600;">'+prevDayLastStop.globalNum+'</div>',
-      iconSize:[22,22], iconAnchor:[11,11], zIndexOffset:400
-    });
-    activeRouteObjs.push(L.marker(prevDayLastStop.coords, {icon:ghostIcon, zIndexOffset:400}).addTo(nsMap));
-    allCoords.push(prevDayLastStop.coords);
+  // Dimmed connecting lines between ALL consecutive global stops
+  // (shows the overall flow of the itinerary across days)
+  for (var gi = 0; gi < _globalStops.length - 1; gi++) {
+    var A = _globalStops[gi], B = _globalStops[gi+1];
+    if (A.locId === B.locId) continue;
+    if (A.dayIdx === dayIdx || B.dayIdx === dayIdx) continue; // skip if either stop is today
+    activeRouteObjs.push(
+      L.polyline([A.coords, B.coords], {
+        color:'#c8d4e0', weight:2, opacity:.4, lineCap:'round'
+      }).addTo(nsMap)
+    );
   }
 
-  // ── 5. fitBounds ────────────────────────────────────────────
-  var uniqueCoords = [];
-  var seen = {};
-  allCoords.forEach(function(xy) {
-    var key = Math.round(xy[0]*100)+','+Math.round(xy[1]*100);
-    if (!seen[key]) { seen[key]=true; uniqueCoords.push(xy); }
+  // ── 3. Selected day: full-color lines ────────────────────────
+  var dayStops = _globalStops.filter(function(s){ return s.dayIdx === dayIdx; });
+
+  // Connecting line from previous day's last stop to first of today
+  var prevLast = null;
+  if (dayIdx > 0) {
+    var prev = _globalStops.filter(function(s){ return s.dayIdx === dayIdx - 1; });
+    if (prev.length) prevLast = prev[prev.length-1];
+  }
+  if (prevLast && dayStops.length > 0 && prevLast.locId !== dayStops[0].locId) {
+    activeRouteObjs.push(
+      L.polyline([prevLast.coords, dayStops[0].coords], {
+        color:'#e8a838', weight:4, opacity:.85, dashArray:'8,5', lineCap:'round'
+      }).addTo(nsMap)
+    );
+  }
+
+  // Lines between today's stops
+  for (var j = 0; j < dayStops.length - 1; j++) {
+    if (dayStops[j].locId === dayStops[j+1].locId) continue;
+    activeRouteObjs.push(
+      L.polyline([dayStops[j].coords, dayStops[j+1].coords], {
+        color:'#2d6a4f', weight:5, opacity:1,
+        dashArray:'10,6', lineCap:'round', lineJoin:'round'
+      }).addTo(nsMap)
+    );
+  }
+
+  // ── 4. Selected day: full-color markers ──────────────────────
+  var boundsCoords = [];
+  dayStops.forEach(function(s) {
+    boundsCoords.push(s.coords);
+    var lbl = s.label.length > 24 ? s.label.substring(0,22)+'...' : s.label;
+    var icon = L.divIcon({
+      className:'',
+      html:'<div style="text-align:center;width:130px;">'
+         + '<div style="width:30px;height:30px;border-radius:50%;background:#c4533a;'
+         + 'border:3px solid white;box-shadow:0 2px 10px rgba(0,0,0,.4);'
+         + 'display:flex;align-items:center;justify-content:center;'
+         + 'color:white;font-size:12px;font-weight:700;margin:0 auto;">'+s.num+'</div>'
+         + '<div style="margin-top:3px;font-size:10px;font-weight:700;color:#112244;'
+         + 'background:rgba(255,255,255,.92);border-radius:3px;padding:1px 4px;'
+         + 'white-space:nowrap;overflow:hidden;text-overflow:ellipsis;'
+         + 'max-width:130px;display:inline-block;">'+lbl+'</div>'
+         + '</div>',
+      iconSize:[130,46], iconAnchor:[65,15], zIndexOffset:800
+    });
+    activeRouteObjs.push(L.marker(s.coords, {icon:icon, zIndexOffset:800}).addTo(nsMap));
   });
 
-  if (uniqueCoords.length > 1) {
-    nsMap.fitBounds(L.latLngBounds(uniqueCoords), {
-      paddingTopLeft:[380, 70], paddingBottomRight:[80, 90], animate:true, maxZoom:11
+  // ── 5. fitBounds on full itinerary (all stops) ───────────────
+  // Show the complete itinerary on first load, then maintain view on day switch
+  var allCoords = _globalStops.map(function(s){ return s.coords; });
+  var seen = {}, uniq = [];
+  allCoords.forEach(function(xy) {
+    var k = xy[0].toFixed(2)+','+xy[1].toFixed(2);
+    if (!seen[k]) { seen[k]=true; uniq.push(xy); }
+  });
+
+  if (uniq.length > 1) {
+    nsMap.fitBounds(L.latLngBounds(uniq), {
+      paddingTopLeft:[380,70], paddingBottomRight:[80,90],
+      animate:true, maxZoom:10
     });
-  } else {
-    nsMap.setView(uniqueCoords[0] || [43.5,11.0], 9, {animate:true});
+  } else if (uniq.length === 1) {
+    nsMap.setView(uniq[0], 9, {animate:true});
   }
 
 
