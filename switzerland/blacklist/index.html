@@ -1,1 +1,431 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>The Black List &mdash; The No-Stress Switzerland Travel Guide</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@300;400;500;600;700&family=Lato:ital,wght@0,300;0,400;0,700;1,300&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#112244;--navy-mid:#1B3566;
+  --gold:#F5C842;--gold-dark:#C89A10;
+  --bg:#F0F4FB;--white:#FFFFFF;
+  --text:#1A2340;--text-mid:#3A4A6A;--text-muted:#6A7A9A;
+  --bad:#8C2020;--bad-pale:#FBF0F0;
+  --warn:#B36A10;--warn-pale:#FDF3E3;
+  --trap:#1A6B5A;--trap-pale:#E3F5EE;
+  --tour:#8A5A10;--tour-pale:#FDF0DC;
+  --mistake:#5A3A8A;--mistake-pale:#EEEAF8;
+  --border:#C8D6EE;--border-lt:#E2EAF8;
+  --radius:10px;--shadow:0 2px 12px rgba(17,34,68,0.08);
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html{font-size:16px;-webkit-text-size-adjust:100%;scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:'Lato',sans-serif;font-weight:300;line-height:1.65;min-height:100vh;-webkit-font-smoothing:antialiased}
+.header{background:var(--navy);background-image:radial-gradient(ellipse at 80% 0%,rgba(37,69,128,0.8) 0%,transparent 60%),radial-gradient(ellipse at 20% 100%,rgba(17,34,68,0.9) 0%,transparent 50%);padding:2rem 1.5rem 0;position:relative;overflow:hidden}
+.header::before{content:'';position:absolute;inset:0;background-image:radial-gradient(rgba(255,255,255,0.06) 1px,transparent 1px);background-size:20px 20px;pointer-events:none}
+.stamp{position:relative;z-index:1;margin-bottom:1.5rem}
+.stamp-inner{border:2.5px solid var(--gold);border-radius:4px;padding:1.1rem 1.3rem 1rem;background:rgba(17,34,68,0.55);backdrop-filter:blur(4px);position:relative}
+.stamp-inner::before{content:'';position:absolute;top:-9px;left:8px;right:8px;height:8px;background:repeating-linear-gradient(90deg,transparent 0px,transparent 3px,var(--gold) 3px,var(--gold) 7px,transparent 7px,transparent 10px);opacity:.5}
+.stamp-inner::after{content:'';position:absolute;bottom:-9px;left:8px;right:8px;height:8px;background:repeating-linear-gradient(90deg,transparent 0px,transparent 3px,var(--gold) 3px,var(--gold) 7px,transparent 7px,transparent 10px);opacity:.5}
+.stamp-eyebrow{font-family:'Oswald',sans-serif;font-size:.56rem;font-weight:300;letter-spacing:.24em;text-transform:uppercase;color:rgba(245,200,66,.7);margin-bottom:.5rem}
+.stamp-the{font-family:'Oswald',sans-serif;font-size:.78rem;font-weight:300;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,.6);line-height:1}
+.stamp-city{font-family:'Oswald',sans-serif;font-size:3.6rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--white);line-height:.85}
+.stamp-guide{font-family:'Oswald',sans-serif;font-size:.82rem;font-weight:300;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,.6);margin-top:.15rem}
+.stamp-blacklist{font-family:'Oswald',sans-serif;font-size:2rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--gold);line-height:1;margin-top:.4rem}
+.stamp-rule{height:1px;background:linear-gradient(90deg,rgba(245,200,66,.5),transparent);margin:.85rem 0 .7rem}
+.stamp-footer{display:flex;align-items:center;justify-content:space-between}
+.stamp-footer-tag{font-family:'Oswald',sans-serif;font-size:.58rem;font-weight:400;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);opacity:.85}
+.stamp-year{font-family:'Oswald',sans-serif;font-size:1.2rem;font-weight:700;color:var(--gold);letter-spacing:.06em}
+.header-sub{position:relative;z-index:1;display:flex;align-items:center;gap:.75rem;padding-bottom:1.3rem;flex-wrap:wrap}
+.bl-badge{display:inline-flex;align-items:center;gap:.38rem;background:rgba(140,32,32,.18);border:1px solid rgba(140,32,32,.35);border-radius:2rem;padding:.3rem .8rem;font-family:'Oswald',sans-serif;font-size:.62rem;font-weight:400;letter-spacing:.12em;text-transform:uppercase;color:#E07A7A;min-height:44px}
+.header-note{font-size:.67rem;color:rgba(255,255,255,.28);letter-spacing:.02em}
+.intro-bar{background:var(--bad);color:#fff;padding:.85rem 1.4rem;display:flex;gap:.65rem;align-items:flex-start;font-size:.8rem;font-weight:400;line-height:1.55}
+.intro-bar svg{flex-shrink:0;margin-top:.12rem;opacity:.85}
+.disclaimer{background:var(--white);border-left:4px solid var(--navy-mid);padding:.9rem 1.4rem;font-size:.78rem;color:var(--text-mid);line-height:1.6}
+.disclaimer-label{font-family:'Oswald',sans-serif;font-size:.6rem;font-weight:500;letter-spacing:.18em;text-transform:uppercase;color:var(--navy-mid);display:block;margin-bottom:.35rem}
+main{padding:1.6rem 1.25rem 6rem;max-width:560px;margin:0 auto}
+.legend{display:flex;gap:.4rem;flex-wrap:wrap;margin-bottom:1.8rem}
+.leg{display:inline-flex;align-items:center;gap:.32rem;background:var(--white);border:1px solid var(--border);border-radius:2rem;padding:.3rem .7rem;font-family:'Oswald',sans-serif;font-size:.62rem;font-weight:400;letter-spacing:.1em;text-transform:uppercase;color:var(--text-mid);min-height:44px}
+.leg-pip{width:7px;height:7px;border-radius:2px;flex-shrink:0}
+.lp-scam{background:var(--bad)}.lp-trap{background:var(--trap)}.lp-tour{background:var(--tour)}.lp-mistake{background:var(--mistake)}
+.section{margin-bottom:3rem;opacity:0;transform:translateY(14px);transition:opacity .45s ease,transform .45s ease}
+.section.visible{opacity:1;transform:translateY(0)}
+.section-head{position:sticky;top:0;z-index:10;background:var(--bg);display:flex;align-items:center;justify-content:space-between;padding:.6rem 0 .55rem;margin-bottom:.9rem;border-bottom:2.5px solid var(--navy);box-shadow:0 4px 12px rgba(240,244,251,.95)}
+.sh-left{display:flex;align-items:center;gap:.55rem}
+.sh-pip{width:10px;height:10px;border-radius:2px;flex-shrink:0}
+.sp-scam{background:var(--bad)}.sp-trap{background:var(--trap)}.sp-tour{background:var(--tour)}.sp-mistake{background:var(--mistake)}
+.sh-title{font-family:'Oswald',sans-serif;font-size:1rem;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--navy)}
+.sh-count{font-size:.6rem;color:var(--text-muted);letter-spacing:.04em;white-space:nowrap}
+.zone{display:flex;align-items:center;gap:.55rem;margin:1.1rem 0 .6rem}
+.zone-label{font-family:'Oswald',sans-serif;font-size:.6rem;font-weight:500;letter-spacing:.22em;text-transform:uppercase;color:var(--gold-dark);white-space:nowrap}
+.zone-line{flex:1;height:1px;background:var(--border)}
+.card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:.55rem;overflow:hidden;position:relative;box-shadow:var(--shadow)}
+.card-bar{position:absolute;left:0;top:0;bottom:0;width:4px}
+.cb-scam{background:var(--bad)}.cb-trap{background:var(--trap)}.cb-tour{background:var(--tour)}.cb-mistake{background:var(--mistake)}
+.card-body{padding:.88rem 1rem .88rem 1.3rem}
+.card-place{font-family:'Oswald',sans-serif;font-size:.58rem;font-weight:300;letter-spacing:.18em;text-transform:uppercase;color:var(--text-muted);margin-bottom:.18rem}
+.card-title{font-family:'Oswald',sans-serif;font-size:.92rem;font-weight:600;color:var(--text);letter-spacing:.02em;margin-bottom:.3rem;line-height:1.2}
+.card-text{font-size:.85rem;color:var(--text-mid);line-height:1.58}
+.card-text strong{color:var(--text);font-weight:700}
+.card-text em{font-style:italic;color:var(--text-muted)}
+.signal{margin-top:.65rem;padding:.55rem .75rem;border-radius:6px;font-size:.77rem;line-height:1.55}
+.signal-label{font-family:'Oswald',sans-serif;font-size:.58rem;font-weight:500;letter-spacing:.16em;text-transform:uppercase;display:block;margin-bottom:.22rem;opacity:.8}
+.sig-trap{background:var(--trap-pale);color:var(--trap)}.sig-scam{background:var(--bad-pale);color:var(--bad)}.sig-warn{background:var(--warn-pale);color:var(--warn)}.sig-mistake{background:var(--mistake-pale);color:var(--mistake)}
+footer{background:var(--navy)}
+.footer-gold{background:var(--gold);padding:1.1rem 1.5rem;display:flex;align-items:center;justify-content:center;gap:.55rem}
+.footer-brand{font-family:'Oswald',sans-serif;font-size:1.4rem;font-weight:700;color:var(--navy);letter-spacing:.14em;text-transform:uppercase;line-height:1}
+.footer-brand-sub{font-family:'Oswald',sans-serif;font-size:.9rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--navy);opacity:.85;margin-top:.25rem;text-align:center}
+.footer-body{padding:2rem 1.5rem 3rem;text-align:center}
+.footer-promise{background:rgba(255,255,255,.04);border:1px solid rgba(245,200,66,.2);border-radius:8px;padding:1rem 1.2rem;font-size:.76rem;color:rgba(255,255,255,.58);line-height:1.7;text-align:left;margin-bottom:1.6rem;max-width:360px;display:inline-block}
+.fp-title{font-family:'Oswald',sans-serif;font-size:.62rem;font-weight:500;letter-spacing:.18em;text-transform:uppercase;color:rgba(245,200,66,.7);display:block;margin-bottom:.55rem}
+.footer-contact{font-size:.75rem;color:rgba(255,255,255,.4);margin-bottom:.5rem}
+.footer-contact a{color:var(--gold);text-decoration:none}
+.footer-legal{font-size:.65rem;color:rgba(255,255,255,.28);line-height:1.6}
+@media(min-width:600px){.stamp-city{font-size:4.5rem}main{padding:2rem 1.5rem 6rem}}
+</style>
+</head>
+<body>
+<header class="header">
+  <div class="stamp">
+    <div class="stamp-inner">
+      <div class="stamp-eyebrow">No-Stress Guides &mdash; Digital Companion</div>
+      <div class="stamp-the">The No-Stress</div>
+      <div class="stamp-city">Switzerland</div>
+      <div class="stamp-guide">Travel Guide &middot; 2026</div>
+      <div class="stamp-blacklist">The Black List</div>
+      <div class="stamp-rule"></div>
+      <div class="stamp-footer">
+        <span class="stamp-footer-tag">What the other guides won&rsquo;t tell you</span>
+        <span class="stamp-year">2026</span>
+      </div>
+    </div>
+  </div>
+  <div class="header-sub">
+    <span class="bl-badge">
+      <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><circle cx="6" cy="6" r="5.5" stroke="#E07A7A"/><line x1="6" y1="3" x2="6" y2="6.5" stroke="#E07A7A" stroke-width="1.5" stroke-linecap="round"/><circle cx="6" cy="8.5" r=".75" fill="#E07A7A"/></svg>
+      No sponsored content
+    </span>
+    <span class="header-note">Updated March 2026</span>
+  </div>
+</header>
 
+<div class="intro-bar">
+  <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M9 1L1 16h16L9 1z" stroke="white" stroke-width="1.5" stroke-linejoin="round"/><line x1="9" y1="7" x2="9" y2="11" stroke="white" stroke-width="1.5" stroke-linecap="round"/><circle cx="9" cy="13.5" r=".75" fill="white"/></svg>
+  Switzerland is not a scam-heavy destination. The entries below are about structural traps, pass mistakes, overpriced experiences, and the decisions most first-time visitors regret. Awareness is sufficient protection.
+</div>
+
+<div class="disclaimer">
+  <span class="disclaimer-label">How to read this</span>
+  No individual businesses are named negatively. Patterns and zones are identified. Use your own judgment on the ground.
+</div>
+
+<main>
+  <div class="legend">
+    <div class="leg"><span class="leg-pip lp-tour"></span>Overpriced experience</div>
+    <div class="leg"><span class="leg-pip lp-trap"></span>Tourist trap</div>
+    <div class="leg"><span class="leg-pip lp-scam"></span>Active scam</div>
+    <div class="leg"><span class="leg-pip lp-mistake"></span>Classic mistake</div>
+  </div>
+
+  <!-- PASSES & TRANSPORT -->
+  <section class="section" id="sec-passes">
+    <div class="section-head">
+      <div class="sh-left"><span class="sh-pip sp-mistake"></span><span class="sh-title">Pass &amp; Transport Mistakes</span></div>
+      <span class="sh-count">6 mistakes</span>
+    </div>
+
+    <div class="card">
+      <div class="card-bar cb-mistake"></div>
+      <div class="card-body">
+        <div class="card-place">Swiss Travel Pass &mdash; wrong buyer profile</div>
+        <div class="card-title">Buying the Swiss Travel Pass for a city-based trip</div>
+        <div class="card-text">The Swiss Travel Pass makes financial sense only when your total train travel exceeds its cost. A 4-day trip based entirely in Zurich with one day trip to Lucerne involves perhaps CHF 132 in train tickets. The 4-day pass costs CHF 309. <strong>Individual tickets win by CHF 177.</strong> The pass is designed for multi-region travelers covering significant distances daily. Before buying, add up your planned routes on sbb.ch. If the total falls below the pass price, buy point-to-point tickets.</div>
+        <div class="signal sig-mistake"><span class="signal-label">Who the pass is actually for</span>Travelers covering multiple regions over several days, visiting mountain excursions (the 50% discount compounds fast), and anyone wanting museum access included. Single-city visitors and those renting a car for most legs: buy individual tickets or the Half Fare Card instead.</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-bar cb-mistake"></div>
+      <div class="card-body">
+        <div class="card-place">Swiss Travel Pass &mdash; activation</div>
+        <div class="card-title">Forgetting to activate the pass before boarding</div>
+        <div class="card-text">The Swiss Travel Pass requires activation before first use. An unactivated pass is invalid. Activate at a staffed SBB ticket counter or through the SBB Mobile app. Swiss train conductors check passes on board &mdash; an unactivated pass produces the same result as having no ticket. The fine is the full point-to-point fare plus a processing fee. This happens more often than it should.</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-bar cb-mistake"></div>
+      <div class="card-body">
+        <div class="card-place">Swiss trains &mdash; punctuality</div>
+        <div class="card-title">Arriving at the platform after the departure second</div>
+        <div class="card-text">Swiss trains depart on the scheduled second. Not approximately. Not when the platform is full. <strong>At the scheduled second.</strong> Being 30 seconds late on the platform means watching your train leave. The Swiss system is built on precise connections &mdash; a train waited for any passenger becomes a cascade of delays across the network. Arrive at the platform at least 3 minutes before departure. Check the platform number in the SBB app or on station displays (platforms change occasionally).</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-bar cb-mistake"></div>
+      <div class="card-body">
+        <div class="card-place">Mountain excursions &mdash; pricing</div>
+        <div class="card-title">Paying full price for mountain railways without checking discounts</div>
+        <div class="card-text">The Swiss Travel Pass provides 50% off most major mountain railways (Jungfraujoch, Gornergrat, Schilthorn, Pilatus, Titlis). The Half Fare Card provides the same 50%. Rigi, Stoos, and Stanserhorn are now free with the Swiss Travel Pass. The discount is not applied automatically at ticket machines &mdash; you must select the appropriate reduction option or show your pass at the counter. On Jungfraujoch, the difference is CHF 261.20 vs. CHF 177.20. On Gornergrat: CHF 132 vs. CHF 66. Not asking is an expensive oversight.</div>
+        <div class="signal sig-mistake"><span class="signal-label">Always ask before purchasing</span>At every mountain railway ticket window: &ldquo;Do you have a discount for Swiss Travel Pass holders?&rdquo; or &ldquo;Rabatt mit Swiss Travel Pass?&rdquo; The answer is almost always yes, but the discount is not applied unless you specifically request or select it.</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-bar cb-mistake"></div>
+      <div class="card-body">
+        <div class="card-place">Supersaver tickets &mdash; missed savings</div>
+        <div class="card-title">Ignoring Supersaver tickets for fixed-itinerary travelers</div>
+        <div class="card-text">If your train routes are decided in advance, Supersaver tickets on sbb.ch offer 30&ndash;50% off standard fares. A Zurich&ndash;Interlaken ticket at full price is CHF 76; a Supersaver on the same route can be CHF 38&ndash;52. Non-refundable and non-changeable, but for anyone with a fixed itinerary these represent the single biggest saving available on Swiss rail. Available on sbb.ch and the SBB Mobile app. Limited quantities per train &mdash; book as soon as your dates are confirmed.</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-bar cb-mistake"></div>
+      <div class="card-body">
+        <div class="card-place">Zermatt &mdash; driving</div>
+        <div class="card-title">Attempting to drive to Zermatt</div>
+        <div class="card-text">Zermatt is entirely car-free. No road reaches the village. This is not a preference or a seasonal restriction &mdash; it is the permanent physical reality. The road ends at Täsch, 5 km before Zermatt. From there, only the shuttle train reaches the village. <strong>Park at Täsch (CHF 15&ndash;18 per day)</strong> and take the 12-minute train (CHF 8.40 round trip). Factor parking and shuttle costs into your Zermatt budget. The same applies to Wengen, Mürren, and Gimmelwald in the Bernese Oberland.</div>
+      </div>
+    </div>
+
+  </section>
+
+  <!-- SCENIC TRAINS -->
+  <section class="section" id="sec-trains">
+    <div class="section-head">
+      <div class="sh-left"><span class="sh-pip sp-tour"></span><span class="sh-title">Scenic Train Traps</span></div>
+      <span class="sh-count">2 to understand</span>
+    </div>
+
+    <div class="card">
+      <div class="card-bar cb-tour"></div>
+      <div class="card-body">
+        <div class="card-place">Glacier Express &mdash; Zermatt to St. Moritz (or reverse)</div>
+        <div class="card-title">The Glacier Express supplement for views you can see for free</div>
+        <div class="card-text">The Glacier Express is a beautifully operated train and a genuine experience. It is also <strong>poor value if you are paying only for the scenery.</strong> The mandatory supplement is CHF 49 (winter) to CHF 69 (summer) on top of your ticket or pass. Optional lunch is an additional CHF 45. Total cost on top of a Swiss Travel Pass: CHF 94&ndash;114 for a single journey.<br><br>
+        The alternative: regular regional trains cover the identical route on the same tracks. You change at Andermatt and Disentis. The journey takes roughly the same time. <strong>The views are identical.</strong> Windows on regional trains open for unobstructed photography. The Swiss Travel Pass covers everything at no extra cost. No supplement, no lunch, no reservation required.<br><br>
+        Take the Glacier Express if you want the curated experience &mdash; table service, large panoramic windows, a formal journey. Skip it if the supplement and lunch budget would fund another mountain excursion you actually want.</div>
+        <div class="signal sig-warn"><span class="signal-label">The fog problem</span>The Glacier Express takes 8 hours. Mountain weather is unpredictable. Paying CHF 49&ndash;114 in supplements and lunch for 8 hours of cloud cover is a real possibility in any season. Check weather forecasts for the Oberalp Pass corridor before committing. No weather refund exists.</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-bar cb-tour"></div>
+      <div class="card-body">
+        <div class="card-place">Bernina Express &mdash; Chur to Tirano</div>
+        <div class="card-title">The Bernina Express supplement when regular trains use the same tracks</div>
+        <div class="card-text">The Bernina Line is genuinely exceptional &mdash; UNESCO World Heritage, the highest transalpine railway without rack assistance, palm trees in Tirano after departing the glacier. The supplement is CHF 14&ndash;26.<br><br>
+        Identical logic to the Glacier Express applies: regional trains run the same route on the same tracks at no supplement. The Bernina Express panoramic cars have larger windows; regular trains have opening windows. Both see the same viaducts, same glacier, same descent into Italy. The supplement buys the panoramic car and the formal reservation, not exclusive access to the scenery.<br><br>
+        At CHF 14&ndash;26 the supplement is more defensible than the Glacier Express. But if you are traveling on a tight budget, the free alternative exists.</div>
+        <div class="signal sig-trap"><span class="signal-label">Exception to note</span>The GoldenPass Express (Interlaken to Montreux) requires only a CHF 19 reservation &mdash; no supplement on top. The base fare is covered by the Swiss Travel Pass. This is the most practical scenic route for pass holders and the one we consistently recommend.</div>
+      </div>
+    </div>
+
+  </section>
+
+  <!-- MONEY TRAPS -->
+  <section class="section" id="sec-money">
+    <div class="section-head">
+      <div class="sh-left"><span class="sh-pip sp-scam"></span><span class="sh-title">Money &amp; Currency Traps</span></div>
+      <span class="sh-count">3 active</span>
+    </div>
+
+    <div class="card">
+      <div class="card-bar cb-scam"></div>
+      <div class="card-body">
+        <div class="card-place">Card terminals &mdash; everywhere in Switzerland</div>
+        <div class="card-title">Dynamic Currency Conversion &mdash; always decline</div>
+        <div class="card-text">When paying by card, terminals regularly ask whether you want to pay in your home currency (USD, EUR, GBP) rather than Swiss francs. This screen is designed to look helpful &mdash; it shows you an amount in a familiar currency. <strong>Always decline. Always select CHF.</strong> The conversion rate offered by the merchant includes a markup of 3&ndash;7% above the real rate. Your own bank charges a foreign transaction fee of 1&ndash;3% but applies the real rate. The merchant&rsquo;s rate is always worse. This applies to hotels, restaurants, shops, and mountain railways. Every time, without exception.</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-bar cb-scam"></div>
+      <div class="card-body">
+        <div class="card-place">Airports &mdash; all three Swiss airports</div>
+        <div class="card-title">Airport currency exchange counters</div>
+        <div class="card-text">Currency exchange counters at Zurich, Geneva, and Basel airports apply rates 5&ndash;10% worse than ATM rates. There is no advantage to using them. Withdraw Swiss francs from a Bancomat or Bankomat ATM (attached to actual Swiss banks: UBS, Credit Suisse, PostFinance, Raiffeisen). Your home bank charges 1&ndash;3% in foreign transaction fees but at the real exchange rate &mdash; significantly better than any counter rate. Withdraw CHF 200&ndash;300 at a time to minimize per-transaction fees. Do not withdraw more than you need &mdash; reconverting Swiss francs back to your home currency at departure means paying the spread twice.</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-bar cb-trap"></div>
+      <div class="card-body">
+        <div class="card-place">Restaurants accepting euros &mdash; tourist zones</div>
+        <div class="card-title">Paying in euros where CHF is the actual currency</div>
+        <div class="card-text">Some restaurants in tourist areas and border towns accept euros. This sounds convenient. The exchange rate applied is typically 5&ndash;8% worse than the real rate. Change is given in Swiss francs at their rate. If you pay a CHF 60 meal in euros, you effectively overpay by CHF 3&ndash;5. Pay in Swiss francs with your card, or withdraw CHF from an ATM before dining. The moment a restaurant displays a euro price alongside a franc price, compare both and pay in CHF.</div>
+      </div>
+    </div>
+
+  </section>
+
+  <!-- TOURIST TRAPS -->
+  <section class="section" id="sec-traps">
+    <div class="section-head">
+      <div class="sh-left"><span class="sh-pip sp-trap"></span><span class="sh-title">Tourist Traps by Region</span></div>
+      <span class="sh-count">6 zones</span>
+    </div>
+
+    <div class="zone"><span class="zone-label">Lucerne</span><span class="zone-line"></span></div>
+
+    <div class="card">
+      <div class="card-bar cb-trap"></div>
+      <div class="card-body">
+        <div class="card-place">Lucerne &mdash; Schweizerhofquai and Nationalquai waterfront</div>
+        <div class="card-title">Lakefront restaurants along the main promenade</div>
+        <div class="card-text">The waterfront promenade facing the lake and the KKL concert hall is Lucerne&rsquo;s most photographed stretch. The restaurants lining Schweizerhofquai have excellent views and price accordingly. <strong>The food is overpriced and designed for tourists who will not return.</strong> A meal here costs 40&ndash;60% more than equivalent food five minutes&rsquo; walk into the old town&rsquo;s interior streets. The promenade is worth walking. The restaurants are not worth sitting in.</div>
+        <div class="signal sig-trap"><span class="signal-label">Where to eat instead</span>Walk off the main waterfront into the old town interior. Rathaus Brauerei at Unter der Egg: house-brewed beer and solid traditional plates. Wirtshaus Galliker (south of old town): Lucerne&rsquo;s most authentic traditional cooking, primarily local crowd. CHF 35&ndash;55 for dinner.</div>
+      </div>
+    </div>
+
+    <div class="zone"><span class="zone-label">Interlaken</span><span class="zone-line"></span></div>
+
+    <div class="card">
+      <div class="card-bar cb-trap"></div>
+      <div class="card-body">
+        <div class="card-place">Interlaken &mdash; Höheweg main street</div>
+        <div class="card-title">Restaurants on the main tourist boulevard</div>
+        <div class="card-text">Interlaken functions primarily as a transit hub for the Bernese Oberland. Its main street (Höheweg) between the two train stations concentrates hotels, souvenir shops, and restaurants aimed entirely at tourist throughput. Fondue for CHF 45 in a room of other tourists is not the Swiss fondue experience. The better option: if you want fondue, eat it in Grindelwald, Wengen, or Mürren in a mountain setting. In Interlaken itself, find the residential streets behind Höheweg for local pricing.</div>
+      </div>
+    </div>
+
+    <div class="zone"><span class="zone-label">Jungfraujoch</span><span class="zone-line"></span></div>
+
+    <div class="card">
+      <div class="card-bar cb-trap"></div>
+      <div class="card-body">
+        <div class="card-place">Jungfraujoch &mdash; 3,454m above sea level</div>
+        <div class="card-title">Going to Jungfraujoch on a bad weather day</div>
+        <div class="card-text">Jungfraujoch costs CHF 261.20 at full price, CHF 177.20 with Swiss Travel Pass (high season), plus the mandatory CHF 10 seat reservation. The entire value of the excursion depends on clear weather. <strong>On a cloudy day at the summit, you are paying CHF 187&ndash;271 to stand inside a fog bank.</strong> The summit is inside the mountain for much of the visit (Ice Palace, tunnels), but the famous views of the Aletsch Glacier require clear conditions. Check the Jungfraujoch webcam at jungfrau.ch the night before and at 07:00 the day of. If the Sphinx Observatory is hidden, postpone. The mandatory reservation system means you must either buy Flex Cancellation at purchase, or accept the risk.</div>
+      </div>
+    </div>
+
+    <div class="zone"><span class="zone-label">Zermatt</span><span class="zone-line"></span></div>
+
+    <div class="card">
+      <div class="card-bar cb-trap"></div>
+      <div class="card-body">
+        <div class="card-place">Zermatt &mdash; main street restaurant zone</div>
+        <div class="card-title">Restaurants on Bahnhofstrasse facing the Matterhorn-view terraces</div>
+        <div class="card-text">Zermatt is one of Switzerland&rsquo;s most expensive resorts. The restaurants on the main pedestrian street with Matterhorn-view terraces charge a significant premium for that view. A standard fondue that costs CHF 25&ndash;30 elsewhere reaches CHF 40&ndash;50 here. The Matterhorn appears above any restaurant in Zermatt whenever the sky is clear &mdash; the view premium buys nothing you cannot get by walking to a free viewpoint. Walk one street back from Bahnhofstrasse for prices that reflect the food rather than the real estate.</div>
+        <div class="signal sig-trap"><span class="signal-label">Budget-friendly alternative base</span>Sleeping in Täsch (5km outside Zermatt) cuts accommodation costs 30&ndash;40%. The 12-minute shuttle train runs regularly. The food in Täsch costs what food costs in a normal Swiss village.</div>
+      </div>
+    </div>
+
+    <div class="zone"><span class="zone-label">Zürich &amp; Geneva</span><span class="zone-line"></span></div>
+
+    <div class="card">
+      <div class="card-bar cb-trap"></div>
+      <div class="card-body">
+        <div class="card-place">Zürich &mdash; Limmat riverfront &middot; Geneva &mdash; Quai du Mont-Blanc</div>
+        <div class="card-title">Lakefront and riverfront restaurant zones in both cities</div>
+        <div class="card-text">Both Zürich and Geneva have well-documented tourist-restaurant zones along their waterfronts. In Zürich, the Limmat riverfront between the main station and the old town concentrates overpriced cafés that trade on proximity to the Grossmünster and Fraumünster. In Geneva, Quai du Mont-Blanc facing the Jet d&rsquo;Eau applies lake-view pricing to average food. Both cities have active local dining scenes one to two streets removed from the tourist axis. Walk until you stop seeing menus in four languages displayed outside.</div>
+      </div>
+    </div>
+
+    <div class="zone"><span class="zone-label">Nationwide</span><span class="zone-line"></span></div>
+
+    <div class="card">
+      <div class="card-bar cb-trap"></div>
+      <div class="card-body">
+        <div class="card-place">Switzerland-wide &mdash; mountain summit restaurants</div>
+        <div class="card-title">Eating at summit restaurants as a meal strategy</div>
+        <div class="card-text">Every major Swiss summit has a restaurant. All charge altitude premiums: CHF 25&ndash;40 for a basic plate, CHF 6&ndash;9 for coffee, CHF 10&ndash;14 for a beer. These prices exist because there is no competition and everything must be flown in by helicopter or carried up by cogwheel train. This is not a scam &mdash; the logistics are real. But treating the summit restaurant as a dining option rather than an emergency stop is expensive. The strategy: eat a proper meal in the valley before ascending, bring snacks, and treat any summit food as a deliberate splurge on atmosphere rather than nutrition.</div>
+        <div class="signal sig-trap"><span class="signal-label">Exception</span>The Migros and Coop supermarkets in every Swiss train station sell excellent ready-made sandwiches, salads, and snacks at normal prices. A picnic assembled at the base station before the ascent costs CHF 8&ndash;15 for what the summit restaurant charges CHF 35&ndash;50 for.</div>
+      </div>
+    </div>
+
+  </section>
+
+  <!-- CLASSIC MISTAKES -->
+  <section class="section" id="sec-mistakes">
+    <div class="section-head">
+      <div class="sh-left"><span class="sh-pip sp-mistake"></span><span class="sh-title">Classic First-Timer Mistakes</span></div>
+      <span class="sh-count">6 mistakes</span>
+    </div>
+
+    <div class="card">
+      <div class="card-bar cb-mistake"></div>
+      <div class="card-body">
+        <div class="card-place">Car rental</div>
+        <div class="card-title">Renting a car &ldquo;for flexibility&rdquo; and not using it</div>
+        <div class="card-text">Switzerland&rsquo;s public transport reaches every tourist destination a visitor is likely to want. Trains, PostBuses, lake boats, and cable cars operate on coordinated timetables that connect seamlessly. Most first-time visitors who rent a car &ldquo;for flexibility&rdquo; discover that the car creates complications: parking in cities costs CHF 20&ndash;40 per day, the motorway vignette is CHF 40, fuel runs CHF 1.85 per liter, and several key destinations (Zermatt, Wengen, Mürren, Gimmelwald) are car-free. The train is faster than driving between major cities and requires no navigation, parking, or fuel. Rent a car only if your itinerary specifically requires it: remote valleys, cross-country combining Switzerland with France or Italy, or traveling with young children and heavy luggage.</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-bar cb-mistake"></div>
+      <div class="card-body">
+        <div class="card-place">Motorway</div>
+        <div class="card-title">Driving on Swiss motorways without the vignette</div>
+        <div class="card-text">The annual motorway vignette (CHF 40) is mandatory for driving on Swiss motorways and expressways. It is valid from December 1 of the previous year through January 31 of the following year &mdash; essentially a full year. There is no pro-rated daily or weekly option. <strong>Fines for driving without a vignette run CHF 100&ndash;200 plus the cost of the vignette.</strong> Buy at the border crossing when entering Switzerland, at petrol stations, or online before arrival. If you rented a car at a Swiss airport, the vignette is typically already on the car &mdash; confirm with the rental company before driving.</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-bar cb-mistake"></div>
+      <div class="card-body">
+        <div class="card-place">Mountain excursions</div>
+        <div class="card-title">Planning mountain excursions in April&ndash;May or October&ndash;November</div>
+        <div class="card-text">Most cable cars, gondolas, and cogwheel trains outside major year-round operations close for annual maintenance in these shoulder windows. The Pilatus cogwheel railway (the world&rsquo;s steepest) closes mid-November through mid-May. Other cable cars have similar windows. Arriving at a closed lift station wastes the travel time and the entry to the valley. Before finalizing any itinerary involving a specific mountain excursion, check the operating dates on that mountain railway&rsquo;s website. This applies to every non-famous mountain &mdash; the Jungfrau railways and Gornergrat operate year-round; most others do not.</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-bar cb-mistake"></div>
+      <div class="card-body">
+        <div class="card-place">Budgeting</div>
+        <div class="card-title">Budgeting in dollars or euros instead of Swiss francs</div>
+        <div class="card-text">Switzerland prices everything in CHF. A cappuccino at CHF 6.50 looks alarming in dollars. The Jungfraujoch at CHF 261.20 sounds catastrophic in any currency. But the practical question is always: how many CHF do I have, and how much does this cost in CHF? Converting on the fly adds confusion and causes people to either over-budget (and deny themselves things they can actually afford) or under-budget (by mentally discounting the exchange rate). Set a daily CHF budget. Withdraw CHF from ATMs. Think in CHF throughout the trip. As of early 2026, CHF 1 &asymp; USD 1.10 &mdash; close enough to treat them as roughly equivalent when estimating costs.</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-bar cb-mistake"></div>
+      <div class="card-body">
+        <div class="card-place">Mountain weather</div>
+        <div class="card-title">Underestimating how quickly Alpine weather changes</div>
+        <div class="card-text">A sunny morning at 2,500 meters routinely becomes a thunderstorm by early afternoon. This is not a rare event &mdash; it is the normal Alpine weather pattern from June through August. Hikers wearing t-shirts at 9:00 AM may encounter hail by 14:00 at the same altitude. <strong>Always carry a waterproof layer regardless of morning conditions.</strong> Check the MeteoSwiss forecast (app available, in English) before any mountain excursion. The Swiss Alpine Club (SAC) huts provide emergency shelter on major routes. Tell someone your hiking plan. Turn back if conditions deteriorate. People fall and get lost on well-maintained Swiss trails every season.</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-bar cb-mistake"></div>
+      <div class="card-body">
+        <div class="card-place">Cash</div>
+        <div class="card-title">Relying entirely on cards above the treeline</div>
+        <div class="card-text">Cards work in Swiss cities, train stations, hotels, and most restaurants without exception. Above the treeline, the picture changes. Mountain huts, small cable car operators, and remote trail-side refreshment stands frequently lack card terminals or operate them unreliably. Carry CHF 50&ndash;100 in cash for any day that involves mountain huts, hiking above 1,800m, or remote villages. The same applies to market vendors and small bakeries in smaller towns throughout Switzerland.</div>
+      </div>
+    </div>
+
+  </section>
+</main>
+
+<footer>
+  <div class="footer-gold">
+    <div>
+      <div class="footer-brand">No-Stress Guides</div>
+      <div class="footer-brand-sub">Switzerland Travel Guide &middot; 2026</div>
+    </div>
+  </div>
+  <div class="footer-body">
+    <div class="footer-promise">
+      <span class="fp-title">The No-Stress Promise</span>
+      No sponsored content. No paid placements. No business paid to be excluded from or included in this guide. Every entry is based on direct experience or verified 2025&ndash;2026 reports.
+    </div>
+    <p class="footer-contact">Questions or updates: <a href="mailto:info@nostressguides.com">info@nostressguides.com</a></p>
+    <p class="footer-legal">&copy; 2026 No-Stress Guides. For personal travel use only.</p>
+  </div>
+</footer>
+
+<script>
+document.querySelectorAll('.section').forEach(function(s, i) {
+  setTimeout(function() { s.classList.add('visible'); }, 100 + i * 80);
+});
+</script>
+</body>
+</html>
