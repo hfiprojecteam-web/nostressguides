@@ -1,1 +1,794 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Switzerland No-Stress -- Interactive Map</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Serif+Display&display=swap" rel="stylesheet">
+<style>
+:root{--p:#112244;--r:#c4533a;--a:#e8a838;--l:#f5f1eb;--d:#2c2c2c;--g:#2d6a4f;--bd:#e0d8cc;
+  --s1:#0077CC;--s2:#CC4400;--s3:#006633}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'DM Sans',sans-serif;background:var(--l);color:var(--d);overflow:hidden}
+.hdr{position:fixed;top:0;left:0;right:0;height:50px;background:var(--p);color:#fff;display:flex;align-items:center;justify-content:space-between;padding:0 16px;z-index:1001;box-shadow:0 2px 12px rgba(0,0,0,.15)}
+.hdr-logo{display:flex;align-items:baseline;gap:8px}
+.hdr-main{font-family:'DM Serif Display',serif;font-size:1.3rem}
+.hdr-sub{font-size:.65rem;font-weight:500;opacity:.8;text-transform:uppercase;letter-spacing:.1em}
+.hdr-badge{background:var(--r);padding:4px 10px;border-radius:20px;font-size:.7rem;font-weight:600}
+#map{position:fixed;top:50px;left:0;right:0;bottom:0;z-index:1}
+.fab{display:none;position:fixed;bottom:20px;right:20px;width:56px;height:56px;background:var(--r);color:#fff;border:none;border-radius:50%;font-size:1.4rem;cursor:pointer;z-index:1002;box-shadow:0 4px 12px rgba(0,0,0,.3);align-items:center;justify-content:center}
+.panel{position:fixed;top:70px;left:20px;width:360px;background:#fff;border-radius:12px;box-shadow:0 4px 24px rgba(0,0,0,.12);z-index:1000;overflow:hidden;max-height:calc(100vh - 100px);display:flex;flex-direction:column}
+.tabs{display:flex;background:var(--p);flex-shrink:0}
+.tbtn{flex:1;padding:10px 4px;text-align:center;font-size:.65rem;font-weight:600;color:rgba(255,255,255,.6);cursor:pointer;border:none;background:none;transition:all .2s}
+.tbtn.on{color:#fff;background:rgba(255,255,255,.15)}
+.tbtn:hover{color:#fff}
+.px{background:none;border:none;color:#fff;font-size:1.4rem;cursor:pointer;padding:0 12px;display:none}
+.pane{display:none;overflow-y:auto;flex:1;padding:12px}
+.pane.on{display:block}
+/* Shared styles */
+.sec-ttl{font-family:'DM Serif Display',serif;font-size:.95rem;color:var(--p);margin-bottom:8px}
+.rt-label{display:block;font-size:.7rem;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:#888;margin-bottom:4px;margin-top:10px}
+.rt-sel{width:100%;padding:8px 10px;border:1.5px solid var(--bd);border-radius:8px;font-size:.82rem;font-family:'DM Sans',sans-serif;background:#fff;color:var(--d)}
+.rt-sel:focus{outline:none;border-color:var(--p)}
+.rt-result{display:none;background:var(--l);border-radius:8px;padding:10px 12px;margin-top:10px}
+.rt-result.on{display:block;animation:fadeIn .2s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+.rt-main{font-size:.92rem;font-weight:700;color:var(--p);margin-bottom:4px}
+.rt-detail{font-size:.78rem;color:#666;margin-bottom:4px}
+.rt-tip{font-size:.74rem;color:#6b5a00;background:#fff8e6;border-left:3px solid var(--a);padding:5px 8px;margin-top:6px;border-radius:0 4px 4px 0}
+/* Itinerary cards */
+.itin-card{background:var(--l);border-radius:10px;padding:12px;margin-bottom:8px;cursor:pointer;border:2px solid transparent;transition:all .2s}
+.itin-card:hover{border-color:var(--p)}
+.itin-card.on{border-color:var(--r);background:#fff}
+.itin-card h3{font-family:'DM Serif Display',serif;font-size:.95rem;color:var(--p);margin-bottom:3px}
+.imeta{font-size:.72rem;color:#666;margin-bottom:4px}
+.idesc{font-size:.76rem;color:#555;line-height:1.4}
+.dtabs{display:none;flex-wrap:wrap;gap:4px;margin-top:10px}
+.dtabs.on{display:flex}
+.dbtn{padding:5px 10px;border-radius:20px;font-size:.64rem;font-weight:600;border:1.5px solid var(--bd);background:#fff;color:var(--p);cursor:pointer;transition:all .15s}
+.dbtn.on{background:var(--r);border-color:var(--r);color:#fff}
+/* BYT */
+.bld-intro{font-size:.76rem;color:#666;margin-bottom:10px;padding:8px 10px;background:var(--l);border-radius:8px;line-height:1.5}
+.bld-stops{display:flex;flex-direction:column;gap:6px;margin-bottom:8px}
+.bld-stop{display:flex;align-items:center;gap:6px;padding:8px 10px;background:#fff;border:1.5px solid var(--bd);border-radius:8px;transition:all .2s}
+.bld-stop:hover{border-color:var(--p)}
+.bld-handle{cursor:grab;color:#bbb;font-size:.95rem;flex-shrink:0}
+.bld-num{width:20px;height:20px;border-radius:50%;background:var(--r);color:#fff;display:flex;align-items:center;justify-content:center;font-size:.65rem;font-weight:700;flex-shrink:0}
+.bld-sel{flex:1;padding:6px 8px;border:1px solid #ddd;border-radius:6px;font-size:.78rem;background:#fff;font-family:'DM Sans',sans-serif}
+.bld-sel:focus{outline:none;border-color:var(--p)}
+.bld-rm{width:22px;height:22px;border:none;background:#f5f5f5;border-radius:50%;cursor:pointer;color:#999;font-size:1rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;padding:0}
+.bld-rm:hover{background:#ffebee;color:var(--r)}
+.bld-add{width:100%;padding:9px;border:2px dashed #ccc;background:transparent;border-radius:8px;cursor:pointer;font-size:.8rem;color:#666;transition:all .2s;font-family:'DM Sans',sans-serif;margin-bottom:8px}
+.bld-add:hover{border-color:var(--p);color:var(--p)}
+.bld-actions{display:flex;gap:8px;margin-bottom:4px}
+.bld-calc{flex:1;padding:10px;background:var(--r);color:#fff;border:none;border-radius:8px;font-weight:600;cursor:pointer;font-size:.82rem;font-family:'DM Sans',sans-serif;transition:opacity .2s}
+.bld-calc:disabled{opacity:.45;cursor:not-allowed}
+.bld-clear{padding:10px 14px;background:#f5f5f5;color:#666;border:none;border-radius:8px;cursor:pointer;font-size:.78rem;font-family:'DM Sans',sans-serif}
+.bld-results{margin-top:10px}
+.bld-leg{background:#fff;border:1px solid var(--bd);border-radius:8px;padding:10px 12px;margin-bottom:6px}
+.bld-leg-head{font-weight:700;font-size:.82rem;color:var(--p);margin-bottom:3px}
+.bld-leg-detail{font-size:.74rem;color:#555;line-height:1.5}
+.bld-leg-tip{font-size:.69rem;color:#6b5a00;background:#fff8e6;border-left:2px solid var(--a);padding:4px 7px;margin-top:5px;border-radius:0 3px 3px 0}
+.bld-stop.dragging{opacity:.5;border-style:dashed}
+.bld-stop.drag-over{border-color:var(--r);background:#fff5f3}
+/* Stops panel */
+.stops{position:fixed;bottom:20px;left:20px;width:360px;background:#fff;border-radius:12px;box-shadow:0 4px 24px rgba(0,0,0,.12);z-index:1000;display:none;overflow:hidden;max-height:44vh}
+.stops.on{display:block;animation:up .25s ease}
+@keyframes up{from{transform:translateY(16px);opacity:0}to{transform:translateY(0);opacity:1}}
+.stops-hd{background:var(--g);color:#fff;padding:11px 14px;display:flex;align-items:center;justify-content:space-between}
+.stops-hd h3{font-family:'DM Serif Display',serif;font-size:.95rem;font-weight:400}
+.sx{background:none;border:none;color:#fff;font-size:1.3rem;cursor:pointer;line-height:1}
+.stops-bd{overflow-y:auto;max-height:calc(44vh - 46px)}
+.srow{padding:11px 14px;border-bottom:1px solid #eee}
+.srow:last-child{border-bottom:none}
+.snum{display:inline-flex;align-items:center;justify-content:center;width:21px;height:21px;border-radius:50%;background:var(--r);color:#fff;font-size:.7rem;font-weight:700;margin-right:7px;vertical-align:middle;flex-shrink:0}
+.sname{font-weight:600;font-size:.88rem;vertical-align:middle}
+.stime{font-size:.7rem;color:var(--p);margin-left:6px;font-weight:600}
+.stip{font-size:.73rem;color:#666;margin-top:3px;padding-left:28px}
+/* Legend */
+.legend{position:fixed;bottom:20px;right:20px;background:#fff;padding:12px 15px;border-radius:10px;box-shadow:0 4px 16px rgba(0,0,0,.1);z-index:1000}
+.legend h4{font-size:.66rem;font-weight:700;text-transform:uppercase;color:#888;margin-bottom:7px;letter-spacing:.04em}
+.legr{display:flex;align-items:center;gap:7px;margin-bottom:5px;font-size:.75rem;color:#555}
+.legr:last-child{margin-bottom:0}
+.legdot{width:12px;height:12px;border-radius:50%;flex-shrink:0}
+.stop-dot{width:24px;height:24px;border-radius:50%;background:var(--r);border:3px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,.3);display:flex;align-items:center;justify-content:center;color:#fff;font-size:10px;font-weight:700;margin:0 auto}
+.stop-lbl{margin-top:2px;font-size:10px;font-weight:600;color:#222;text-shadow:1px 1px 2px #fff,-1px -1px 2px #fff;white-space:nowrap;text-align:center}
+.pu{padding:12px 14px;min-width:185px}
+.pu-name{font-family:'DM Serif Display',serif;font-size:.98rem;color:var(--p);margin-bottom:2px}
+.pu-type{font-size:.6rem;text-transform:uppercase;letter-spacing:.08em;color:#999;margin-bottom:6px}
+.pu-row{font-size:.74rem;color:#555;margin-bottom:3px;line-height:1.4}
+.pu-row b{color:var(--d)}
+.pu-tip{background:var(--l);border-radius:4px;padding:5px 7px;font-size:.7rem;color:#6b5a00;margin-top:5px}
+.dtable{width:100%;border-collapse:collapse;font-size:.76rem;margin-top:6px}
+.dtable th{background:var(--p);color:#fff;padding:5px 8px;text-align:left;font-size:.62rem;letter-spacing:.05em;text-transform:uppercase;font-weight:500}
+.dtable td{padding:5px 8px;border-bottom:1px solid var(--bd);color:#555}
+.dtable tr:last-child td{border-bottom:none}
+@media(max-width:768px){
+  .panel{position:fixed;top:auto;bottom:0;left:0;right:0;width:100%;border-radius:16px 16px 0 0;transform:translateY(100%);max-height:75vh;transition:transform .3s ease}
+  .panel.open{transform:translateY(0)}
+  .px{display:block}
+  .stops{bottom:0;left:0;right:0;width:100%;border-radius:16px 16px 0 0;max-height:50vh}
+  .legend{display:none}
+  .fab{display:flex}
+}
+</style>
+</head>
+<body>
+<header class="hdr">
+  <div class="hdr-logo">
+    <span class="hdr-main">Switzerland</span>
+    <span class="hdr-sub">No-Stress Travel Guide</span>
+  </div>
+  <span class="hdr-badge">Interactive Map</span>
+</header>
+<div id="map"></div>
+<button class="fab" id="fab">&#9776;</button>
 
+<div class="panel" id="panel">
+  <div class="tabs">
+    <button class="tbtn on" onclick="showPane('itin',this)">&#128197; Itineraries</button>
+    <button class="tbtn"    onclick="showPane('routes',this)">&#128674; Routes</button>
+    <button class="tbtn"    onclick="showPane('byt',this)">&#128466; Build Your Trip</button>
+    <button class="px" id="px">&#215;</button>
+  </div>
+
+  <div class="pane on" id="pane-itin"><div id="itinList"></div></div>
+
+  <div class="pane" id="pane-routes">
+    <div style="margin-bottom:16px">
+      <div class="sec-ttl">Train Time Calculator</div>
+      <p style="font-size:.74rem;color:#666;margin-bottom:10px;line-height:1.5">Select origin and destination to see journey time, fare, and travel tip.</p>
+      <label class="rt-label">From</label>
+      <select class="rt-sel" id="selFrom"><option value="">Select origin...</option></select>
+      <label class="rt-label">To</label>
+      <select class="rt-sel" id="selTo"><option value="">Select destination...</option></select>
+      <div class="rt-result" id="rtResult">
+        <div class="rt-main" id="rtMain"></div>
+        <div class="rt-detail" id="rtDetail"></div>
+        <div class="rt-tip" id="rtTip"></div>
+      </div>
+    </div>
+    <div>
+      <div class="sec-ttl">Key Hub Times from Zurich</div>
+      <table class="dtable">
+        <thead><tr><th>Destination</th><th>Time</th><th>Fare (2nd)</th></tr></thead>
+        <tbody>
+          <tr><td>Lucerne</td><td>45 min</td><td>CHF 27</td></tr>
+          <tr><td>Bern</td><td>55 min</td><td>CHF 51</td></tr>
+          <tr><td>Basel</td><td>55 min</td><td>CHF 34</td></tr>
+          <tr><td>Interlaken</td><td>2h</td><td>CHF 76</td></tr>
+          <tr><td>Geneva</td><td>2h 45min</td><td>CHF 92</td></tr>
+          <tr><td>Zermatt</td><td>3h 30min</td><td>CHF 102</td></tr>
+          <tr><td>Lugano</td><td>2h 30min</td><td>CHF 73</td></tr>
+          <tr><td>St. Moritz</td><td>3h 30min</td><td>CHF 90</td></tr>
+          <tr><td>Montreux</td><td>2h 30min</td><td>CHF 85</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="pane" id="pane-byt">
+    <div class="bld-intro">Build your custom Swiss itinerary. Add destinations in order, then calculate to see journey times and tips for each leg.</div>
+    <div class="bld-stops" id="bldStops">
+      <div class="bld-stop" data-index="0">
+        <span class="bld-handle">&#9776;</span>
+        <span class="bld-num">1</span>
+        <select class="bld-sel" data-index="0"><option value="">Add first stop...</option></select>
+        <button class="bld-rm" data-index="0">&#215;</button>
+      </div>
+    </div>
+    <button class="bld-add" id="bldAdd">+ Add Stop</button>
+    <div class="bld-actions">
+      <button class="bld-calc" id="bldCalc" disabled>Calculate Route</button>
+      <button class="bld-clear" id="bldClear">Clear</button>
+    </div>
+    <div class="bld-results" id="bldResults"></div>
+  </div>
+</div>
+
+<div class="stops" id="stops">
+  <div class="stops-hd">
+    <h3 id="stopsTitle">Itinerary</h3>
+    <button class="sx" onclick="document.getElementById('stops').classList.remove('on')">&#215;</button>
+  </div>
+  <div class="stops-bd" id="stopsBd"></div>
+</div>
+
+<div class="legend">
+  <h4>Legend</h4>
+  <div class="legr"><div class="legdot" style="background:#1a3a5c"></div>Major city / hub</div>
+  <div class="legr"><div class="legdot" style="background:#2d6a4f"></div>Mountain destination</div>
+  <div class="legr"><div class="legdot" style="background:#8a5a10"></div>Lake region</div>
+  <div class="legr"><div class="legdot" style="background:#6a2a2a"></div>Scenic train route</div>
+  <div class="legr" style="margin-top:6px"><div style="width:22px;height:0;border-top:3px dashed #2d6a4f"></div>Itinerary route</div>
+  <div class="legr"><div style="width:22px;height:3px;background:#c4533a;border-radius:2px"></div>Active route</div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script>
+var nsMap, markersLayer, activeRouteObjs;
+activeRouteObjs = [];
+
+// ── DESTINATIONS ─────────────────────────────────────────────
+var DESTS = [
+  {id:'zurich',     n:'Zurich',          lat:47.3769, lng:8.5417,  type:'hub',
+   tag:'Financial capital and gateway', best:'Year-round. Spring and autumn ideal.',
+   days:'1-2 days', eat:'Niederdorf old town, Langstrasse. Avoid Limmat riverfront tourist zone.',
+   tip:'ZRH airport: 10 min to city center by train. Direct trains to all major destinations.'},
+  {id:'lucerne',    n:'Lucerne',         lat:47.0502, lng:8.3093,  type:'hub',
+   tag:'Classic Switzerland and mountain gateway', best:'May-October for mountains. Christmas markets November-December.',
+   days:'2-3 days', eat:'Interior old town streets. Avoid Schweizerhofquai waterfront.',
+   tip:'Ideal base for Pilatus, Rigi, Titlis. All three reachable as day trips. Pilatus is the most dramatic.'},
+  {id:'bern',       n:'Bern',            lat:46.9480, lng:7.4474,  type:'hub',
+   tag:'Swiss capital and Bernese Oberland gateway', best:'Year-round. Spring and summer.',
+   days:'1-2 days', eat:'Under the arcades (Lauben). Bear Park area for local spots.',
+   tip:'Underrated as a destination. Rose garden views are free. 55 min from Zurich, 55 min from Interlaken.'},
+  {id:'geneva',     n:'Geneva',          lat:46.2044, lng:6.1432,  type:'hub',
+   tag:'Lake Geneva region and France gateway', best:'May-September for lake. Winter for the city.',
+   days:'1-2 days', eat:'Carouge neighborhood for authentic dining. Paquis for affordable variety.',
+   tip:'Free 80-min transit ticket dispenses in airport baggage claim. Use it. GVA airport is the best entry for Valais and Lake Geneva.'},
+  {id:'interlaken', n:'Interlaken',      lat:46.6863, lng:7.8632,  type:'mountain',
+   tag:'Gateway to Jungfrau region', best:'June-September. February for ski season.',
+   days:'Base only. Day trips from here.',
+   eat:'Avoid Hoheweg main street. Residential streets behind it for local pricing.',
+   tip:'Choose Lauterbrunnen or Grindelwald over Interlaken itself for atmosphere. Interlaken is logistics, not destination.'},
+  {id:'grindelwald',n:'Grindelwald',     lat:46.6245, lng:8.0414,  type:'mountain',
+   tag:'Eiger north face and Jungfraujoch base', best:'June-September for hiking. December-March for ski.',
+   days:'2-3 days', eat:'One street back from the main road. Summit restaurants: emergency only.',
+   tip:'Eiger Express gondola cuts Jungfraujoch journey by 47 min vs classic route. Best views: Bachalpsee hike, First Cliff Walk.'},
+  {id:'zermatt',    n:'Zermatt',         lat:46.0207, lng:7.7491,  type:'mountain',
+   tag:'Matterhorn and highest peaks', best:'June-September (hiking). December-April (ski).',
+   days:'2-3 days', eat:'One street back from Bahnhofstrasse. Avoid Matterhorn-view terrace premium.',
+   tip:'Car-free village. Park at Tasch (CHF 15-18/day), shuttle train 12 min. Check Matterhorn webcam at 07:00 before booking excursions.'},
+  {id:'stmoritz',   n:'St. Moritz',      lat:46.4979, lng:9.8444,  type:'mountain',
+   tag:'Engadin and Glacier Express terminus', best:'Winter for ski (December-April). Summer hiking June-September.',
+   days:'2-3 days', eat:'Pontresina or nearby villages for lower prices. St. Moritz itself is premium.',
+   tip:'Starting point (or end) of Glacier Express to Zermatt. Regional trains run same route free with pass. Pontresina cheaper base.'},
+  {id:'lausanne',   n:'Lausanne',        lat:46.5197, lng:6.6323,  type:'hub',
+   tag:'Olympic capital and Lake Geneva hub', best:'April-October.',
+   days:'1 day', eat:'Flon district for modern dining. Market at Place de la Riponne.',
+   tip:'Cathedral hill is free and offers the best view. Olympic Museum CHF 20. 40 min from Geneva, 25 min from Montreux.'},
+  {id:'montreux',   n:'Montreux',        lat:46.4312, lng:6.9107,  type:'lake',
+   tag:'Jazz Festival and Chateau de Chillon', best:'July for Jazz Festival. May-September for lake.',
+   days:'1-2 days', eat:'Walk east toward Clarens for local restaurants. Quai du Mont-Blanc has premium pricing.',
+   tip:'Chateau de Chillon: 20 min walk east along the lake. CHF 14. GoldenPass Express arrives and departs from Montreux.'},
+  {id:'lugano',     n:'Lugano',          lat:46.0037, lng:8.9511,  type:'lake',
+   tag:'Italian-speaking Switzerland and lake life', best:'April-October. Summer for lake swimming.',
+   days:'1-2 days', eat:'Grotti (traditional Ticino taverns) in the hills above the city.',
+   tip:'2h 30min from Zurich by direct train. Feels like Italy but priced like Switzerland. Monte San Salvatore cable car for views.'},
+  {id:'basel',      n:'Basel',           lat:47.5596, lng:7.5886,  type:'hub',
+   tag:'Art Basel capital and Rhine gateway', best:'Art Basel week (June). Christmas markets (November-December).',
+   days:'1-2 days', eat:'Markthalle indoor market for affordable lunch. Kleinbasel neighborhood.',
+   tip:'BSL airport: bus to Basel SBB in 20 min, CHF 5.60. Kunstmuseum Basel: best fine art collection in Switzerland.'},
+  {id:'murren',     n:'Murren',          lat:46.5592, lng:7.8927,  type:'mountain',
+   tag:'Car-free village above Lauterbrunnen', best:'June-September for hiking. December-March for ski.',
+   days:'1-2 days', eat:'Simple mountain restaurants. Bring picnic supplies from valley.',
+   tip:'Only accessible by cable car from Stechelberg or Grütschalp. Car-free. Schilthorn summit 30 min above. Spectacular views of Eiger, Mönch, Jungfrau.'},
+  {id:'lauterbrunnen',n:'Lauterbrunnen', lat:46.5958, lng:7.9089,  type:'mountain',
+   tag:'Valley of 72 waterfalls', best:'June-September.',
+   days:'1-2 days as base', eat:'Self-catering recommended. Bring supplies from Interlaken.',
+   tip:'72 waterfalls including Staubbach Falls visible from the village. Base for Mürren, Wengen, and Jungfraujoch via classic route. More atmospheric than Interlaken.'},
+  {id:'jungfraujoch',n:'Jungfraujoch',  lat:46.5474, lng:7.9857,  type:'mountain',
+   tag:'Top of Europe - 3,454m', best:'Year-round but check weather first.',
+   days:'Day excursion only',
+   eat:'Summit: emergency only. Eat in valley before and after.',
+   tip:'Full price CHF 261.20 (high season). With Swiss Travel Pass CHF 177.20. Mandatory reservation May-Oct: CHF 10. Check webcam at 07:00 - if cloudy, postpone.'},
+  {id:'gornergratkm',n:'Gornergrat',    lat:45.9836, lng:7.7854,  type:'mountain',
+   tag:'Best Matterhorn view - 3,089m', best:'Year-round. First train (07:00) for clearest skies.',
+   days:'Half-day excursion from Zermatt',
+   eat:'Summit restaurant: emergency only.',
+   tip:'CHF 132 round trip (CHF 66 with pass). 33 min from Zermatt. Sit right side for Matterhorn views on ascent. Optional priority boarding CHF 7.'},
+  {id:'pilatus',    n:'Pilatus',         lat:46.9787, lng:8.2519,  type:'mountain',
+   tag:'Steepest cogwheel railway - 2,132m', best:'May-November (cogwheel). Year-round by cable car.',
+   days:'Half-day excursion from Lucerne',
+   eat:'Summit restaurant: emergency only.',
+   tip:'Golden Round Trip: boat from Lucerne to Alpnachstad, cogwheel up, cable car down to Kriens, bus back. CHF 120 (CHF 72 with pass). Cogwheel closed mid-Nov to mid-May.'},
+  {id:'rigi',       n:'Rigi',            lat:47.0566, lng:8.4833,  type:'mountain',
+   tag:'Queen of the Mountains - 1,797m', best:'Year-round. Sunrise experience famous.',
+   days:'Half-day excursion from Lucerne',
+   eat:'Bring own food. Summit options limited.',
+   tip:'FREE with Swiss Travel Pass (2026). Without pass: CHF 90 round trip. Boat from Lucerne to Vitznau, cogwheel railway to summit. Gentler terrain than Pilatus, better for hiking.'}
+];
+
+// ── ROUTES ──────────────────────────────────────────────────
+var ROUTES = {
+  'zurich-lucerne':       {t:'45 min',      d:'47 km',  m:'Train (every 30 min)', tip:'Departs at :04 and :34 past every hour. Sit on right side for lake views after Zug.'},
+  'zurich-bern':          {t:'55 min',      d:'120 km', m:'ICE/IC Train (every 30 min)', tip:'Direct IC train. From Bern all other destinations open up. Central position.'},
+  'zurich-basel':         {t:'55 min',      d:'85 km',  m:'IC Train (every 30 min)', tip:'Fast and frequent. Basel sits on the German and French borders.'},
+  'zurich-geneva':        {t:'2h 45min',    d:'280 km', m:'IC Train (every 30 min)', tip:'CHF 92. Consider Supersaver for CHF 45-60 booked 2+ weeks ahead. Scenic along Lake Zurich.'},
+  'zurich-interlaken':    {t:'2h',          d:'195 km', m:'IC + change Bern', tip:'Change at Bern (direct), or Spiez. Consider Supersaver tickets. Sit on right after Spiez for Thun lake.'},
+  'zurich-zermatt':       {t:'3h 30min',    d:'280 km', m:'IC + change Visp', tip:'No direct train. Change at Spiez or Visp. CHF 102. Supersaver available. Final Visp-Zermatt stretch on Matterhorn Gotthard Bahn.'},
+  'zurich-lugano':        {t:'2h 30min',    d:'220 km', m:'IC (Gotthard route)', tip:'Crosses the Alps via the Gotthard Base Tunnel (deepest in world). Dramatic emergence into Ticino.'},
+  'zurich-stmoritz':      {t:'3h 30min',    d:'190 km', m:'IC + Glacier Express or Albula', tip:'Via Chur (1h 15min), then Rhaetian Railway. No supplement on regional trains. Glacier Express: supplement CHF 49.'},
+  'lucerne-interlaken':   {t:'1h 50min',    d:'73 km',  m:'Train (Brunig Pass route)', tip:'Sit right side for lake views. Crosses the Brunig Pass. Book in advance for busy summer weekends.'},
+  'lucerne-bern':         {t:'1h',          d:'105 km', m:'IC Train (every 30 min)', tip:'Direct and frequent. Bern makes a good one-night add-on from Lucerne base.'},
+  'lucerne-zermatt':      {t:'3h 15min',    d:'200 km', m:'Train via Bern + Visp', tip:'Change at Bern and Visp. Full journey time 3h 15min. With STP: included. Scenic Visp-Zermatt final section.'},
+  'bern-interlaken':      {t:'55 min',      d:'58 km',  m:'IC Train (every 30 min)', tip:'Departs at :02 and :32 past every hour. Two lakes visible on journey. Spiez is a charming stop.'},
+  'bern-zermatt':         {t:'2h 10min',    d:'170 km', m:'IC + change Visp', tip:'Change at Visp. Direct service several times daily. CHF 82.'},
+  'bern-geneva':          {t:'1h 45min',    d:'160 km', m:'IC Train (every 30 min)', tip:'Fast direct service. Bordeaux-Lyria TGV also connects. Bern-Geneva is one of the busiest routes.'},
+  'interlaken-grindelwald':{t:'35 min',     d:'23 km',  m:'BOB cogwheel + change', tip:'Change at Zweilutschinen or Grindelwald Terminal for the Eiger Express. Very scenic final section.'},
+  'interlaken-jungfraujoch':{t:'2h',        d:'36 km',  m:'Train via Kleine Scheidegg', tip:'Or via Grindelwald Terminal + Eiger Express (47 min faster). Mandatory reservation May-Oct: CHF 10. Check webcam first.'},
+  'interlaken-zermatt':   {t:'3h 15min',    d:'150 km', m:'IC + change Spiez + Visp', tip:'CHF 89. Supersaver possible. Change at Spiez and Visp. Plan the Visp-Zermatt final section.'},
+  'zermatt-stmoritz':     {t:'8h',          d:'290 km', m:'Glacier Express (supplement)', tip:'CHF 49-69 supplement on Swiss Travel Pass. Same route on regional trains: 5h 30min, free, windows open. Book Glacier Express 3 months ahead for summer.'},
+  'geneva-lausanne':      {t:'40 min',      d:'62 km',  m:'IC Train (every 15 min)', tip:'Very frequent. Supersaver CHF 10-14. Lavaux vineyards visible from the train on the right side.'},
+  'geneva-montreux':      {t:'1h 5min',     d:'80 km',  m:'IC Train (every 30 min)', tip:'CHF 33. Or take the boat for 3h 30min of lake views. Chateau de Chillon visible from the lake.'},
+  'lausanne-montreux':    {t:'25 min',      d:'27 km',  m:'IC Train (every 15 min)', tip:'Or boat: 1 hour. GoldenPass Express departs Montreux for Interlaken.'},
+  'montreux-interlaken':  {t:'3h 30min',    d:'145 km', m:'GoldenPass Express (CHF 19 reservation)', tip:'No supplement beyond CHF 19 reservation. Covered by Swiss Travel Pass. Best scenic route for pass holders.'},
+  'zurich-montreux':      {t:'2h 30min',    d:'220 km', m:'IC Train', tip:'CHF 85 standard. Part of the classic Swiss arc: Zurich - Bern - Lausanne - Montreux.'},
+  'lugano-locarno':       {t:'1h 15min',    d:'28 km',  m:'PostBus or train via Bellinzona', tip:'Both covered by Swiss Travel Pass. PostBus route more scenic through valleys.'},
+  'chur-stmoritz':        {t:'2h',          d:'90 km',  m:'Rhaetian Railway (Albula Line)', tip:'UNESCO World Heritage. Regional trains free with pass. No supplement. Same views as Glacier Express on this section.'}
+};
+
+// ── ITINERARIES ──────────────────────────────────────────────
+var ITINS = [
+  {id:'firsttimer', n:'The First-Timer', days:'7 days', transport:'Swiss Travel Pass (6-day)',
+   desc:'The essential Switzerland arc: Zurich, Lucerne, Jungfrau region, Zermatt. One mountain excursion per region.',
+   dl:[
+     {lbl:'Day 1 — Zurich',
+      stops:[{loc:'zurich',n:'Zurich old town and lake',time:'Afternoon',tip:'Niederdorf. Grossmunster and Fraumunster from outside. Sprüngli for chocolate. Early night.'}],
+      routes:[]},
+     {lbl:'Day 2 — Lucerne',
+      stops:[{loc:'zurich',n:'Zurich depart',time:'Morning',tip:'Train at :04 or :34. 45 min to Lucerne.'},
+             {loc:'lucerne',n:'Lucerne — bridges and old town',time:'Afternoon',tip:'Kapellbrucke. Spreuerbrucke. Museggmauer towers (free views). Avoid waterfront restaurants.'}],
+      routes:[{f:'zurich',t:'lucerne'}]},
+     {lbl:'Day 3 — Pilatus',
+      stops:[{loc:'lucerne',n:'Lucerne depart by boat',time:'Morning',tip:'Boat to Alpnachstad (90 min, included with STP). Cogwheel railway to summit (steepest in world, 30 min). Cable car descent. Bus back to Lucerne.'},
+             {loc:'pilatus',n:'Pilatus summit — 2,132m',time:'Midday',tip:'Check weather at 07:00 before committing. Cogwheel closed mid-Nov to mid-May. CHF 72 with Swiss Travel Pass.'}],
+      routes:[{f:'lucerne',t:'pilatus'}]},
+     {lbl:'Day 4 — Interlaken base',
+      stops:[{loc:'lucerne',n:'Lucerne depart',time:'Morning',tip:'Train via Brunig Pass: 1h 50min. Sit right side for lake views.'},
+             {loc:'interlaken',n:'Interlaken — settle and orient',time:'Afternoon',tip:'Harder Kulm funicular for orientation views. Or continue to Lauterbrunnen for valley atmosphere. Choose your mountain base for Day 5.'}],
+      routes:[{f:'lucerne',t:'interlaken'}]},
+     {lbl:'Day 5 — Jungfraujoch',
+      stops:[{loc:'interlaken',n:'Early departure',time:'07:30',tip:'First trains fill up. Book mandatory seat reservation (CHF 10) in advance. Check webcam before leaving hotel.'},
+             {loc:'jungfraujoch',n:'Jungfraujoch — Top of Europe',time:'Midday',tip:'CHF 177.20 with Swiss Travel Pass (high season). Ice Palace, Sphinx Observatory, Aletsch Glacier views. Return by late afternoon.'}],
+      routes:[{f:'interlaken',t:'jungfraujoch'}]},
+     {lbl:'Day 6 — Zermatt',
+      stops:[{loc:'interlaken',n:'Interlaken depart',time:'Morning',tip:'Train via Spiez and Visp: 3h 15min. Change at Spiez and Visp. The Visp-Zermatt section reveals increasingly dramatic terrain.'},
+             {loc:'zermatt',n:'Zermatt — Matterhorn first view',time:'Afternoon',tip:'Check Matterhorn webcam. If clear, take Gornergrat railway immediately for late afternoon light (07:00 first train, departs every 24 min).'}],
+      routes:[{f:'interlaken',t:'zermatt'}]},
+     {lbl:'Day 7 — Gornergrat then depart',
+      stops:[{loc:'zermatt',n:'Gornergrat — 3,089m',time:'Morning',tip:'First train around 07:00 for clearest skies before cloud builds. CHF 66 with Swiss Travel Pass. Sit right side for Matterhorn on ascent.'},
+             {loc:'zurich',n:'Return to Zurich',time:'Afternoon',tip:'Allow 3h 30min from Zermatt to Zurich. For Zurich airport connection allow 4 hours minimum.'}],
+      routes:[{f:'zermatt',t:'gornergratkm'},{f:'zermatt',t:'zurich'}]}
+   ]
+  },
+  {id:'alpinedive', n:'Alpine Deep Dive', days:'10-14 days', transport:'Swiss Travel Pass (8 or 15-day)',
+   desc:'Three great alpine regions in depth: Lucerne and Central Switzerland, Bernese Oberland, Zermatt, and the Engadin.',
+   dl:[
+     {lbl:'Days 1-2 — Lucerne',
+      stops:[{loc:'zurich',n:'Arrive Zurich',time:'Day 1 afternoon',tip:'Transfer directly to Lucerne (45 min). Spend 3-4 hours in Zurich old town if arriving before noon.'},
+             {loc:'lucerne',n:'Lucerne — 2 nights',time:'Day 1 evening',tip:'Two nights allows one full mountain day. Pilatus or Rigi: both excellent first Alpine experiences.'},
+             {loc:'pilatus',n:'Mountain day — Pilatus or Rigi',time:'Day 2',tip:'Rigi is now FREE with Swiss Travel Pass. Pilatus: CHF 72 with pass. Rigi for gentler terrain, Pilatus for more dramatic rocky summit.'}],
+      routes:[{f:'zurich',t:'lucerne'},{f:'lucerne',t:'pilatus'}]},
+     {lbl:'Days 3-5 — Bernese Oberland',
+      stops:[{loc:'lucerne',n:'Lucerne to Interlaken',time:'Day 3 morning',tip:'Train via Brunig: 1h 50min. Settle in Lauterbrunnen (more atmosphere) or Grindelwald (Jungfraujoch access).'},
+             {loc:'jungfraujoch',n:'Jungfraujoch — Day 4',time:'Day 4',tip:'Depart 07:30. Mandatory reservation May-Oct. Check webcam. Full day. If cloudy, swap with hiking day.'},
+             {loc:'murren',n:'Murren and Schilthorn — Day 5',time:'Day 5',tip:'Cable car to car-free Murren. Continue to Schilthorn (CHF 52 with pass). 360-degree panorama. Or walk Panoramaweg to Kleine Scheidegg.'}],
+      routes:[{f:'lucerne',t:'interlaken'},{f:'interlaken',t:'jungfraujoch'},{f:'interlaken',t:'murren'}]},
+     {lbl:'Days 6-7 — Bern',
+      stops:[{loc:'interlaken',n:'Interlaken to Bern',time:'Day 6 morning',tip:'55 min direct. Cultural pause between mountain intensities.'},
+             {loc:'bern',n:'Bern — 2 nights',time:'Day 6-7',tip:'Rose garden free views. Bear Park. Federal Parliament (free tours). Medieval arcades. Einstein museum.'}],
+      routes:[{f:'interlaken',t:'bern'}]},
+     {lbl:'Days 8-10 — Zermatt',
+      stops:[{loc:'bern',n:'Bern to Zermatt',time:'Day 8 morning',tip:'2h 10min via Visp. Car-free village. Park at Tasch if driving.'},
+             {loc:'gornergratkm',n:'Gornergrat — Day 8 afternoon',time:'Day 8',tip:'First afternoon in Zermatt: Gornergrat if weather clear. CHF 66 with pass. First train 07:00.'},
+             {loc:'zermatt',n:'Zermatt valley walks — Days 9-10',time:'Days 9-10',tip:'Riffelsee (Matterhorn reflection lake, below Rotenboden). Five Lakes Walk. Schwarzsee for close Matterhorn view.'}],
+      routes:[{f:'bern',t:'zermatt'},{f:'zermatt',t:'gornergratkm'}]},
+     {lbl:'Days 11-14 — Engadin (14-day only)',
+      stops:[{loc:'zermatt',n:'Glacier Express to St. Moritz',time:'Day 11',tip:'CHF 49 supplement. Or free on regional trains via Visp, Andermatt, Chur (5h 30min, same views). Book Glacier Express 3 months ahead.'},
+             {loc:'stmoritz',n:'St. Moritz and Engadin — 3 nights',time:'Days 11-14',tip:'Base in Pontresina for 30-40% lower prices. Bernina Express to Tirano (CHF 14-29 supplement, or free on regional train). Muottas Muragl for lake panorama.'}],
+      routes:[{f:'zermatt',t:'stmoritz'}]}
+   ]
+  },
+  {id:'goldenpass', n:'Scenic Train Journey', days:'7-10 days', transport:'Swiss Travel Pass (6 or 8-day)',
+   desc:'Switzerland by its three great scenic routes: GoldenPass Express, Bernina Express, and the alpine arc from Zurich to Geneva.',
+   dl:[
+     {lbl:'Day 1 — Zurich arrival',
+      stops:[{loc:'zurich',n:'Arrive Zurich',time:'Afternoon',tip:'Old town, Rhine riverbank, Sprüngli. Arrival day only — Zurich rewards a full day if you arrive early.'}],
+      routes:[]},
+     {lbl:'Day 2 — Zurich to Lucerne',
+      stops:[{loc:'zurich',n:'Zurich depart',time:'Morning',tip:'Train every 30 min. 45 min journey.'},
+             {loc:'lucerne',n:'Lucerne',time:'Full day',tip:'Old town and mountain orientation. Rigi is FREE with Swiss Travel Pass and makes a superb afternoon addition.'},
+             {loc:'rigi',n:'Rigi afternoon option',time:'Afternoon',tip:'Boat from Lucerne to Vitznau, cogwheel to summit. Views of 13 lakes. FREE with Swiss Travel Pass.'}],
+      routes:[{f:'zurich',t:'lucerne'},{f:'lucerne',t:'rigi'}]},
+     {lbl:'Day 3 — GoldenPass Express',
+      stops:[{loc:'lucerne',n:'Lucerne — GoldenPass start',time:'Morning',tip:'GoldenPass Express departs for Montreux via Interlaken. No supplement with Swiss Travel Pass. Reservation: CHF 19 (recommended).'},
+             {loc:'interlaken',n:'Interlaken — brief stop',time:'Midday',tip:'Optional lunch stop. Continue same day or overnight.'},
+             {loc:'montreux',n:'Montreux — arrive',time:'Afternoon',tip:'Arrive Montreux. Lake Geneva evening walk. Chateau de Chillon 20 min east.'}],
+      routes:[{f:'lucerne',t:'interlaken'},{f:'interlaken',t:'montreux'}]},
+     {lbl:'Day 4 — Lake Geneva region',
+      stops:[{loc:'montreux',n:'Montreux and Chateau de Chillon',time:'Morning',tip:'CHF 14. Walk there along the lake (20 min). Byron carved his name on a pillar.'},
+             {loc:'lausanne',n:'Lausanne',time:'Afternoon',tip:'40 min from Montreux. Cathedral free. Olympic Museum CHF 20. Lavaux vineyards by local train.'},
+             {loc:'geneva',n:'Geneva',time:'Evening',tip:'1h from Lausanne. Jet dEau best seen at dusk. Night in Geneva.'}],
+      routes:[{f:'montreux',t:'lausanne'},{f:'lausanne',t:'geneva'}]},
+     {lbl:'Days 5-6 — Zermatt',
+      stops:[{loc:'geneva',n:'Geneva to Zermatt',time:'Day 5 morning',tip:'3h 45min. Change at Visp. The Rhone valley narrows into increasingly dramatic mountain terrain.'},
+             {loc:'zermatt',n:'Zermatt — 2 nights',time:'Days 5-6',tip:'Matterhorn country. Gornergrat recommended (CHF 66 with pass). Check webcam at 07:00.'},
+             {loc:'gornergratkm',n:'Gornergrat',time:'Day 6',tip:'Best view of the Matterhorn. 33 min from Zermatt. First train 07:00.'}],
+      routes:[{f:'geneva',t:'zermatt'},{f:'zermatt',t:'gornergratkm'}]},
+     {lbl:'Days 7-10 — Bernina Express (10-day version)',
+      stops:[{loc:'zermatt',n:'Zermatt to St. Moritz',time:'Day 7',tip:'Glacier Express (CHF 49 supplement) or regional trains via Visp-Andermatt-Chur (5h 30min, free, same views).'},
+             {loc:'stmoritz',n:'St. Moritz — Engadin',time:'Day 7-8',tip:'Pontresina as cheaper base. Muottas Muragl for panorama. Engadin lakes.'},
+             {loc:'lugano',n:'Bernina Express to Lugano via Tirano',time:'Day 9',tip:'CHF 14-29 supplement (or free on regional train). Descend from the Alps to palm trees in Tirano, continue to Lugano. 4h total.'},
+             {loc:'zurich',n:'Return to Zurich',time:'Day 10',tip:'2h 30min from Lugano via Gotthard. Direct IC train.'}],
+      routes:[{f:'zermatt',t:'stmoritz'},{f:'stmoritz',t:'lugano'},{f:'lugano',t:'zurich'}]}
+   ]
+  },
+  {id:'weekend', n:'Weekend City Break', days:'2-3 days', transport:'Individual tickets or Supersaver',
+   desc:'Three options: Zurich, Geneva, or Bern. Each works as a self-contained 2-3 day trip without a pass.',
+   dl:[
+     {lbl:'Option A — Zurich',
+      stops:[{loc:'zurich',n:'Zurich — Day 1: old town and lake',time:'Day 1',tip:'Niederdorf. Grossmunster and Fraumunster from outside. Kunsthaus for art (CHF 26). Uetliberg hill for free city views (train from HB, 20 min).'},
+             {loc:'lucerne',n:'Day trip to Lucerne — Day 2',time:'Day 2',tip:'45 min each way. Bridges, towers, lake, Mount Pilatus option. Individual ticket CHF 27 each way.'},
+             {loc:'zurich',n:'Zurich — Day 3 (optional)',time:'Day 3',tip:'Lake boat cruise. Langstrasse neighborhood for dinner. Rhine Falls day trip option: train to Neuhausen, 1 hour.'}],
+      routes:[{f:'zurich',t:'lucerne'}]},
+     {lbl:'Option B — Geneva',
+      stops:[{loc:'geneva',n:'Geneva — Day 1: old town and lake',time:'Day 1',tip:'Old town and Cathedral Saint-Pierre (tower: CHF 5 for lake views). Jet dEau at dusk. MAMCO contemporary art museum.'},
+             {loc:'lausanne',n:'Day trip to Lausanne — Day 2',time:'Day 2',tip:'40 min each way. Cathedral free. Olympic Museum. Lavaux vineyard trail (30 min from Lausanne by regional train).'},
+             {loc:'montreux',n:'Montreux and Chateau de Chillon — Day 3',time:'Day 3',tip:'1h from Geneva. Chateau de Chillon (CHF 14). Lake walk. Train back.'}],
+      routes:[{f:'geneva',t:'lausanne'},{f:'lausanne',t:'montreux'}]},
+     {lbl:'Option C — Bern',
+      stops:[{loc:'bern',n:'Bern — Day 1: capital and arcades',time:'Day 1',tip:'Medieval city under the arcades (Lauben). Rose garden free views. Bear Park free. Federal Parliament tours (free, book ahead).'},
+             {loc:'interlaken',n:'Day trip to Interlaken region — Day 2',time:'Day 2',tip:'55 min each way. Harder Kulm funicular for views. Or continue to Grindelwald for Eiger north face proximity.'}],
+      routes:[{f:'bern',t:'interlaken'}]}
+   ]
+  }
+];
+
+// ── STATE ────────────────────────────────────────────────────
+var _activeItinId = null, _globalStops = [];
+
+function buildGlobalStops(it) {
+  var res=[], n=1;
+  it.dl.forEach(function(day,di){
+    var prev=null;
+    day.stops.forEach(function(s){
+      var d=getDestById(s.loc);
+      var xy=s.lat?[s.lat,s.lng]:(d?[d.lat,d.lng]:null);
+      if(!xy)return;
+      if(s.loc===prev){if(res.length>0&&res[res.length-1].dayIdx===di)res[res.length-1].label+=' + '+s.n;return;}
+      prev=s.loc;
+      res.push({locId:s.loc,coords:xy,label:s.n,num:n++,dayIdx:di});
+    });
+  });
+  return res;
+}
+
+function activateItinerary(it){_activeItinId=it.id;_globalStops=buildGlobalStops(it);}
+
+// ── ICONS ────────────────────────────────────────────────────
+function mkMarkerHtml(col, letter) {
+  return '<div style="width:30px;height:30px;border-radius:50%;background:'+col+';border:2.5px solid white;box-shadow:0 2px 8px rgba(0,0,0,.4);display:flex;align-items:center;justify-content:center;color:white;font-size:11px;font-weight:700;">'+letter+'</div>';
+}
+function mkIcon(type) {
+  var conf = {
+    hub:     {col:'#1a3a5c', l:'H'},
+    mountain:{col:'#2d6a4f', l:'M'},
+    lake:    {col:'#8a5a10', l:'L'}
+  };
+  var c = conf[type] || conf.hub;
+  return L.divIcon({html:mkMarkerHtml(c.col, c.l), iconSize:[30,30], iconAnchor:[15,15], popupAnchor:[0,-18], className:''});
+}
+
+function getDestById(id) {
+  for(var i=0;i<DESTS.length;i++) if(DESTS[i].id===id) return DESTS[i];
+  return null;
+}
+
+// ── MAP INIT ────────────────────────────────────────────────
+window.onload = function(){
+  nsMap = L.map('map',{zoomControl:true}).setView([46.8,8.2],8);
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',{
+    attribution:'&copy; OpenStreetMap &copy; CARTO',subdomains:'abcd',maxZoom:19
+  }).addTo(nsMap);
+  markersLayer = L.layerGroup().addTo(nsMap);
+  placeLandmarkMarkers();
+  buildItinList();
+  fillSelects();
+  fillBldSelect(document.querySelector('.bld-sel[data-index="0"]'));
+  document.querySelector('.bld-rm[data-index="0"]').addEventListener('click',function(){removeBldStop(0);});
+  setupBldDrag();
+  updateBldState();
+  document.getElementById('bldAdd').addEventListener('click', addBldStop);
+  document.getElementById('bldCalc').addEventListener('click', calcBldRoute);
+  document.getElementById('bldClear').addEventListener('click', clearBld);
+  document.getElementById('px').addEventListener('click',function(){document.getElementById('panel').classList.remove('open');});
+  document.getElementById('fab').addEventListener('click',function(){document.getElementById('panel').classList.toggle('open');});
+};
+
+// ── LANDMARKS ────────────────────────────────────────────────
+function placeLandmarkMarkers(){
+  markersLayer.clearLayers();
+  DESTS.forEach(function(d){
+    var icon=mkIcon(d.type);
+    var html='<div class="pu"><div class="pu-name">'+d.n+'</div><div class="pu-type">'+d.tag+'</div>'
+      +'<div class="pu-row"><b>Best time:</b> '+d.best+'</div>'
+      +'<div class="pu-row"><b>Stay:</b> '+d.days+'</div>'
+      +'<div class="pu-tip">'+d.tip+'</div></div>';
+    L.marker([d.lat,d.lng],{icon:icon}).bindPopup(html,{maxWidth:260}).addTo(markersLayer);
+  });
+}
+
+// ── ITIN LIST ────────────────────────────────────────────────
+function buildItinList(){
+  var cont=document.getElementById('itinList');
+  ITINS.forEach(function(it){
+    var card=document.createElement('div');
+    card.className='itin-card';
+    var btns=it.dl.map(function(d,i){
+      return '<button class="dbtn'+(i===0?' on':'')+'" data-itin="'+it.id+'" data-idx="'+i+'">'+d.lbl+'</button>';
+    }).join('');
+    card.innerHTML='<h3>'+it.n+'</h3><div class="imeta">'+it.days+' &nbsp; '+it.transport+'</div><div class="idesc">'+it.desc+'</div><div class="dtabs" id="dtabs-'+it.id+'">'+btns+'</div>';
+    card.addEventListener('click',function(e){
+      if(e.target.closest&&e.target.closest('.dbtn'))return;
+      var isOn=card.classList.contains('on');
+      document.querySelectorAll('.itin-card').forEach(function(c){c.classList.remove('on');});
+      document.querySelectorAll('.dtabs').forEach(function(t){t.classList.remove('on');});
+      clearRoutes();
+      if(!isOn){
+        card.classList.add('on');
+        document.getElementById('dtabs-'+it.id).classList.add('on');
+        activateItinerary(it);
+        drawDay(it,0);
+        document.querySelectorAll('#dtabs-'+it.id+' .dbtn').forEach(function(b,i){b.classList.toggle('on',i===0);});
+      }
+    });
+    cont.appendChild(card);
+  });
+  cont.addEventListener('click',function(e){
+    var btn=e.target.closest('[data-itin]');
+    if(!btn)return;
+    e.stopPropagation();
+    var itId=btn.getAttribute('data-itin'), idx=parseInt(btn.getAttribute('data-idx'));
+    var it2=null;
+    for(var i=0;i<ITINS.length;i++){if(ITINS[i].id===itId){it2=ITINS[i];break;}}
+    if(!it2)return;
+    if(_activeItinId!==itId)activateItinerary(it2);
+    document.querySelectorAll('#dtabs-'+itId+' .dbtn').forEach(function(b){b.classList.remove('on');});
+    btn.classList.add('on');
+    drawDay(it2,idx);
+  });
+}
+
+// ── DRAW DAY ─────────────────────────────────────────────────
+function clearRoutes(){
+  activeRouteObjs.forEach(function(o){nsMap.removeLayer(o);});
+  activeRouteObjs=[];
+  document.getElementById('stops').classList.remove('on');
+}
+
+function drawDay(it,dayIdx){
+  clearRoutes();
+  var day=it.dl[dayIdx];
+  if(!day)return;
+
+  // Background dots
+  DESTS.forEach(function(d){
+    activeRouteObjs.push(L.circleMarker([d.lat,d.lng],{radius:4,color:'#fff',fillColor:'#b0bccc',fillOpacity:.35,weight:1,interactive:false}).addTo(nsMap));
+  });
+
+  var dayStops=_globalStops.filter(function(s){return s.dayIdx===dayIdx;});
+  var prevLast=null;
+  if(dayIdx>0){
+    var prev=_globalStops.filter(function(s){return s.dayIdx===dayIdx-1;});
+    if(prev.length)prevLast=prev[prev.length-1];
+  }
+  if(prevLast&&dayStops.length>0&&prevLast.locId!==dayStops[0].locId){
+    activeRouteObjs.push(L.polyline([prevLast.coords,dayStops[0].coords],{color:'#e8a838',weight:3,opacity:.75,dashArray:'8,5',lineCap:'round'}).addTo(nsMap));
+    var gIcon=L.divIcon({className:'',html:'<div style="width:22px;height:22px;border-radius:50%;background:#99a8bb;border:2px solid white;box-shadow:0 1px 5px rgba(0,0,0,.2);display:flex;align-items:center;justify-content:center;color:white;font-size:10px;font-weight:600;">'+prevLast.num+'</div>',iconSize:[22,22],iconAnchor:[11,11],zIndexOffset:350});
+    activeRouteObjs.push(L.marker(prevLast.coords,{icon:gIcon,zIndexOffset:350}).addTo(nsMap));
+  }
+  for(var j=0;j<dayStops.length-1;j++){
+    if(dayStops[j].locId===dayStops[j+1].locId)continue;
+    activeRouteObjs.push(L.polyline([dayStops[j].coords,dayStops[j+1].coords],{color:'#2d6a4f',weight:5,opacity:1,dashArray:'10,6',lineCap:'round',lineJoin:'round'}).addTo(nsMap));
+  }
+  var bCoords=[];
+  dayStops.forEach(function(s){
+    bCoords.push(s.coords);
+    var lbl=s.label.length>24?s.label.substring(0,22)+'...':s.label;
+    var icon=L.divIcon({className:'',html:'<div style="text-align:center;width:130px;"><div style="width:30px;height:30px;border-radius:50%;background:#c4533a;border:3px solid white;box-shadow:0 2px 10px rgba(0,0,0,.4);display:flex;align-items:center;justify-content:center;color:white;font-size:12px;font-weight:700;margin:0 auto;">'+s.num+'</div><div style="margin-top:3px;font-size:10px;font-weight:700;color:#112244;background:rgba(255,255,255,.92);border-radius:3px;padding:1px 4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:130px;display:inline-block;">'+lbl+'</div></div>',iconSize:[130,46],iconAnchor:[65,15],zIndexOffset:700});
+    activeRouteObjs.push(L.marker(s.coords,{icon:icon,zIndexOffset:700}).addTo(nsMap));
+  });
+  if(prevLast&&prevLast.locId!==dayStops[0].locId)bCoords.push(prevLast.coords);
+  var seen={},uniq=[];
+  bCoords.forEach(function(xy){var k=xy[0].toFixed(2)+','+xy[1].toFixed(2);if(!seen[k]){seen[k]=true;uniq.push(xy);}});
+  if(uniq.length>1)nsMap.fitBounds(L.latLngBounds(uniq),{paddingTopLeft:[380,70],paddingBottomRight:[80,90],animate:true,maxZoom:11});
+  else if(uniq.length===1)nsMap.setView(uniq[0],10,{animate:true});
+
+  // Stops panel
+  document.getElementById('stopsTitle').textContent=it.n+' — '+day.lbl;
+  document.getElementById('stopsBd').innerHTML=day.stops.map(function(s,i){
+    return '<div class="srow"><span class="snum">'+(i+1)+'</span><span class="sname">'+s.n+'</span>'+(s.time?'<span class="stime">'+s.time+'</span>':'')+(s.tip?'<div class="stip">'+s.tip+'</div>':'')+'</div>';
+  }).join('');
+  document.getElementById('stops').classList.add('on');
+  if(window.innerWidth<=768)document.getElementById('panel').classList.remove('open');
+}
+
+// ── ROUTES PANE ──────────────────────────────────────────────
+function getRoute(from,to){return ROUTES[from+'-'+to]||ROUTES[to+'-'+from]||null;}
+
+function fillSelects(){
+  ['selFrom','selTo'].forEach(function(sid){
+    var sel=document.getElementById(sid);
+    if(!sel)return;
+    DESTS.forEach(function(d){
+      var opt=document.createElement('option');
+      opt.value=d.id; opt.textContent=d.n;
+      sel.appendChild(opt);
+    });
+    sel.addEventListener('change',liveRoute);
+  });
+}
+
+function liveRoute(){
+  var from=document.getElementById('selFrom').value;
+  var to=document.getElementById('selTo').value;
+  var res=document.getElementById('rtResult');
+  if(!from||!to||from===to){res.classList.remove('on');clearRoutes();placeLandmarkMarkers();return;}
+  var A=getDestById(from), B=getDestById(to);
+  if(!A||!B)return;
+  var r=getRoute(from,to);
+
+  // Always draw the line, regardless of route data
+  clearRoutes();
+  placeLandmarkMarkers();
+  var line=L.polyline([[A.lat,A.lng],[B.lat,B.lng]],{
+    color:'#c4533a',weight:5,opacity:.95,dashArray:'9,6',lineCap:'round'
+  }).addTo(nsMap);
+  activeRouteObjs.push(line);
+
+  // Endpoint markers
+  [{d:A,lbl:'A'},{d:B,lbl:'B'}].forEach(function(pt){
+    var icon=L.divIcon({className:'',
+      html:'<div style="text-align:center;width:100px;">'
+         + '<div style="width:28px;height:28px;border-radius:50%;background:#c4533a;border:3px solid white;'
+         + 'box-shadow:0 2px 10px rgba(0,0,0,.35);display:flex;align-items:center;justify-content:center;'
+         + 'color:white;font-size:11px;font-weight:700;margin:0 auto;">'+pt.lbl+'</div>'
+         + '<div style="margin-top:3px;font-size:10px;font-weight:700;color:#112244;background:rgba(255,255,255,.9);'
+         + 'border-radius:3px;padding:1px 4px;white-space:nowrap;max-width:100px;overflow:hidden;text-overflow:ellipsis;display:inline-block;">'
+         + pt.d.n+'</div></div>',
+      iconSize:[100,40],iconAnchor:[50,14],zIndexOffset:600
+    });
+    activeRouteObjs.push(L.marker([pt.d.lat,pt.d.lng],{icon:icon,zIndexOffset:600}).addTo(nsMap));
+  });
+
+  nsMap.fitBounds(L.latLngBounds([[A.lat,A.lng],[B.lat,B.lng]]),{
+    paddingTopLeft:[380,60],paddingBottomRight:[80,60],animate:true,maxZoom:10
+  });
+
+  // Info panel
+  if(r){
+    document.getElementById('rtMain').textContent=A.n+' → '+B.n+' — '+r.t;
+    document.getElementById('rtDetail').textContent='Distance: '+r.d+' · Mode: '+r.m;
+    document.getElementById('rtTip').textContent=r.tip;
+  } else {
+    document.getElementById('rtMain').textContent=A.n+' → '+B.n;
+    document.getElementById('rtDetail').textContent='Indicative straight line. Check sbb.ch for exact times and connections.';
+    document.getElementById('rtTip').textContent='Most Swiss cities connect via train with max 1-2 changes. Use the SBB Mobile app for live schedules.';
+  }
+  res.classList.add('on');
+}
+
+// ── BUILD YOUR TRIP ───────────────────────────────────────────
+function fillBldSelect(sel){
+  if(!sel)return;
+  DESTS.forEach(function(d){var opt=document.createElement('option');opt.value=d.id;opt.textContent=d.n;sel.appendChild(opt);});
+  sel.addEventListener('change',updateBldState);
+}
+
+function addBldStop(){
+  var container=document.getElementById('bldStops');
+  var idx=container.querySelectorAll('.bld-stop').length;
+  var div=document.createElement('div');
+  div.className='bld-stop';div.setAttribute('data-index',idx);
+  div.innerHTML='<span class="bld-handle">&#9776;</span><span class="bld-num">'+(idx+1)+'</span><select class="bld-sel" data-index="'+idx+'"><option value="">Select destination...</option></select><button class="bld-rm" data-index="'+idx+'">&#215;</button>';
+  container.appendChild(div);
+  fillBldSelect(div.querySelector('.bld-sel'));
+  div.querySelector('.bld-rm').addEventListener('click',function(){removeBldStop(parseInt(this.getAttribute('data-index')));});
+  setupBldDrag();updateBldState();
+}
+
+function removeBldStop(idx){
+  var container=document.getElementById('bldStops');
+  if(container.querySelectorAll('.bld-stop').length<=1)return;
+  var el=container.querySelector('.bld-stop[data-index="'+idx+'"]');
+  if(el)el.remove();
+  renumberBld();updateBldState();
+}
+
+function renumberBld(){
+  document.querySelectorAll('.bld-stop').forEach(function(s,i){
+    s.setAttribute('data-index',i);
+    s.querySelector('.bld-num').textContent=i+1;
+    var sel=s.querySelector('.bld-sel');if(sel)sel.setAttribute('data-index',i);
+    var rm=s.querySelector('.bld-rm');if(rm)rm.setAttribute('data-index',i);
+  });
+}
+
+function updateBldState(){
+  var vals=Array.from(document.querySelectorAll('.bld-sel')).map(function(s){return s.value;}).filter(Boolean);
+  document.getElementById('bldCalc').disabled=vals.length<2;
+}
+
+function setupBldDrag(){
+  document.querySelectorAll('.bld-stop').forEach(function(s){
+    s.setAttribute('draggable','true');
+    s.ondragstart=function(e){this.classList.add('dragging');e.dataTransfer.setData('text/plain',this.getAttribute('data-index'));};
+    s.ondragend=function(){this.classList.remove('dragging');document.querySelectorAll('.bld-stop').forEach(function(x){x.classList.remove('drag-over');});};
+    s.ondragover=function(e){e.preventDefault();this.classList.add('drag-over');};
+    s.ondragleave=function(){this.classList.remove('drag-over');};
+    s.ondrop=function(e){
+      e.preventDefault();this.classList.remove('drag-over');
+      var fromIdx=parseInt(e.dataTransfer.getData('text/plain'));
+      var toIdx=parseInt(this.getAttribute('data-index'));
+      if(fromIdx===toIdx)return;
+      var container=document.getElementById('bldStops');
+      var allStops=Array.from(container.querySelectorAll('.bld-stop'));
+      var moved=allStops.splice(fromIdx,1)[0];
+      allStops.splice(toIdx,0,moved);
+      allStops.forEach(function(s){container.appendChild(s);});
+      renumberBld();updateBldState();
+    };
+  });
+}
+
+function clearBld(){
+  var container=document.getElementById('bldStops');
+  container.innerHTML='<div class="bld-stop" data-index="0"><span class="bld-handle">&#9776;</span><span class="bld-num">1</span><select class="bld-sel" data-index="0"><option value="">Add first stop...</option></select><button class="bld-rm" data-index="0">&#215;</button></div>';
+  fillBldSelect(container.querySelector('.bld-sel'));
+  container.querySelector('.bld-rm').addEventListener('click',function(){removeBldStop(0);});
+  setupBldDrag();
+  document.getElementById('bldResults').innerHTML='';
+  document.getElementById('bldCalc').disabled=true;
+  clearRoutes();placeLandmarkMarkers();
+}
+
+function calcBldRoute(){
+  var stops=Array.from(document.querySelectorAll('.bld-sel')).map(function(s){return s.value;}).filter(Boolean);
+  if(stops.length<2)return;
+  clearRoutes();placeLandmarkMarkers();
+  var legs=[],coords=[];
+  for(var i=0;i<stops.length-1;i++){
+    var A=getDestById(stops[i]),B=getDestById(stops[i+1]);
+    if(!A||!B)continue;
+    var r=getRoute(stops[i],stops[i+1]);
+    legs.push({A:A,B:B,r:r});
+    var line=L.polyline([[A.lat,A.lng],[B.lat,B.lng]],{color:'#c4533a',weight:4,opacity:.9,dashArray:'7,5',lineCap:'round'}).addTo(nsMap);
+    activeRouteObjs.push(line);
+    coords.push([A.lat,A.lng]);
+  }
+  var last=getDestById(stops[stops.length-1]);
+  if(last)coords.push([last.lat,last.lng]);
+  stops.forEach(function(id,i){
+    var d=getDestById(id);if(!d)return;
+    var icon=L.divIcon({className:'',html:'<div style="text-align:center;width:110px;"><div class="stop-dot">'+(i+1)+'</div><div class="stop-lbl">'+d.n+'</div></div>',iconSize:[120,38],iconAnchor:[60,11]});
+    activeRouteObjs.push(L.marker([d.lat,d.lng],{icon:icon,zIndexOffset:500}).addTo(nsMap));
+  });
+  if(coords.length>1)nsMap.fitBounds(L.latLngBounds(coords),{padding:[80,80],animate:true});
+  var html='';
+  legs.forEach(function(leg){
+    html+='<div class="bld-leg"><div class="bld-leg-head">'+leg.A.n+' &rarr; '+leg.B.n+(leg.r?' &mdash; '+leg.r.t:'')+'</div>';
+    if(leg.r){html+='<div class="bld-leg-detail"><b>Distance:</b> '+leg.r.d+' &middot; <b>Mode:</b> '+leg.r.m+'</div><div class="bld-leg-tip">'+leg.r.tip+'</div>';}
+    else{html+='<div class="bld-leg-detail">Check sbb.ch for connection details.</div>';}
+    html+='</div>';
+  });
+  document.getElementById('bldResults').innerHTML=html;
+}
+
+// ── TAB SWITCH ───────────────────────────────────────────────
+function showPane(id,btn){
+  clearRoutes();
+  document.querySelectorAll('.itin-card').forEach(function(c){c.classList.remove('on');});
+  document.querySelectorAll('.dtabs').forEach(function(t){t.classList.remove('on');});
+  var rtr=document.getElementById('rtResult');if(rtr)rtr.classList.remove('on');
+  document.querySelectorAll('.tbtn').forEach(function(b){b.classList.remove('on');});
+  document.querySelectorAll('.pane').forEach(function(p){p.classList.remove('on');});
+  btn.classList.add('on');
+  document.getElementById('pane-'+id).classList.add('on');
+  placeLandmarkMarkers();
+}
+</script>
+</body>
+</html>
