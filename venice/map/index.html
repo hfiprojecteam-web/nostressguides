@@ -1,1 +1,802 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Venice No-Stress -- Interactive Map</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Serif+Display&display=swap" rel="stylesheet">
+<style>
+:root{--p:#112244;--r:#c4533a;--a:#e8a838;--l:#f5f1eb;--d:#2c2c2c;--g:#4a7c59;--bd:#e0d8cc;
+  --v1:#0066CC;--v2:#E05A00;--v3:#008844;--v4:#9B3A9B}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'DM Sans',sans-serif;background:var(--l);color:var(--d);overflow:hidden}
+.hdr{position:fixed;top:0;left:0;right:0;height:50px;background:var(--p);color:#fff;display:flex;align-items:center;justify-content:space-between;padding:0 16px;z-index:1001;box-shadow:0 2px 12px rgba(0,0,0,.15)}
+.hdr-logo{display:flex;align-items:baseline;gap:8px}
+.hdr-main{font-family:'DM Serif Display',serif;font-size:1.3rem}
+.hdr-sub{font-size:.65rem;font-weight:500;opacity:.8;text-transform:uppercase;letter-spacing:.1em}
+.hdr-badge{background:var(--r);padding:4px 10px;border-radius:20px;font-size:.7rem;font-weight:600}
+#map{position:fixed;top:50px;left:0;right:0;bottom:0;z-index:1}
+.fab{display:none;position:fixed;bottom:20px;right:20px;width:56px;height:56px;background:var(--r);color:#fff;border:none;border-radius:50%;font-size:1.4rem;cursor:pointer;z-index:1002;box-shadow:0 4px 12px rgba(0,0,0,.3);align-items:center;justify-content:center}
+.panel{position:fixed;top:70px;left:20px;width:360px;background:#fff;border-radius:12px;box-shadow:0 4px 24px rgba(0,0,0,.12);z-index:1000;overflow:hidden;max-height:calc(100vh - 100px);display:flex;flex-direction:column}
+.tabs{display:flex;background:var(--p);flex-shrink:0}
+.tbtn{flex:1;padding:10px 4px;text-align:center;font-size:.65rem;font-weight:600;color:rgba(255,255,255,.6);cursor:pointer;border:none;background:none;transition:all .2s}
+.tbtn.on{color:#fff;background:rgba(255,255,255,.15)}
+.tbtn:hover{color:#fff}
+.px{background:none;border:none;color:#fff;font-size:1.4rem;cursor:pointer;padding:0 12px;display:none}
+.pane{display:none;overflow-y:auto;flex:1;padding:12px}
+.pane.on{display:block}
+/* Neighbourhood cards */
+.nbhd-card{background:var(--l);border-radius:10px;padding:12px;margin-bottom:8px;cursor:pointer;border:2px solid transparent;transition:all .2s}
+.nbhd-card:hover{border-color:var(--p)}
+.nbhd-card.on{border-color:var(--r);background:#fff}
+.nbhd-card h3{font-family:'DM Serif Display',serif;font-size:.95rem;color:var(--p);margin-bottom:2px}
+.ntag{font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--r);margin-bottom:4px}
+.ndesc{font-size:.76rem;color:#555;line-height:1.4}
+.ndet{display:none;margin-top:10px;padding-top:10px;border-top:1px solid var(--bd)}
+.ndet.on{display:block}
+.nrow{font-size:.74rem;color:#555;margin-bottom:5px;display:flex;gap:6px;line-height:1.45}
+.nrow b{color:var(--p);min-width:60px;flex-shrink:0}
+.ntip{background:#fff8e6;border-left:3px solid var(--a);padding:6px 8px;font-size:.7rem;color:#6b5a00;margin-top:6px;border-radius:0 4px 4px 0}
+/* Itinerary cards */
+.itin-card{background:var(--l);border-radius:10px;padding:12px;margin-bottom:8px;cursor:pointer;border:2px solid transparent;transition:all .2s}
+.itin-card:hover{border-color:var(--p)}
+.itin-card.on{border-color:var(--r);background:#fff}
+.itin-card h3{font-family:'DM Serif Display',serif;font-size:.95rem;color:var(--p);margin-bottom:3px}
+.imeta{font-size:.72rem;color:#666;margin-bottom:4px}
+.idesc{font-size:.76rem;color:#555;line-height:1.4}
+.dtabs{display:none;flex-wrap:wrap;gap:4px;margin-top:10px}
+.dtabs.on{display:flex}
+.dbtn{padding:5px 10px;border-radius:20px;font-size:.64rem;font-weight:600;border:1.5px solid var(--bd);background:#fff;color:var(--p);cursor:pointer;transition:all .15s}
+.dbtn:hover{border-color:var(--p)}
+.dbtn.on{background:var(--r);border-color:var(--r);color:#fff}
+/* Getting around */
+.ga-sec{margin-bottom:14px}
+.ga-ttl{font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#666;margin-bottom:8px;border-bottom:1px solid var(--bd);padding-bottom:4px}
+.ga-row{display:flex;gap:8px;font-size:.77rem;color:#555;margin-bottom:5px;line-height:1.45}
+.ga-row b{color:var(--p);min-width:72px;flex-shrink:0;font-size:.71rem}
+.vpills{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px}
+.vp{padding:4px 10px;border-radius:20px;font-size:.67rem;font-weight:700;color:#fff}
+.vp1{background:var(--v1)}.vp2{background:var(--v2)}.vp3{background:var(--v3)}.vp4{background:var(--v4)}
+/* Stops panel */
+.stops{position:fixed;bottom:20px;left:20px;width:360px;background:#fff;border-radius:12px;box-shadow:0 4px 24px rgba(0,0,0,.12);z-index:1000;display:none;overflow:hidden;max-height:44vh}
+.stops.on{display:block;animation:up .25s ease}
+@keyframes up{from{transform:translateY(16px);opacity:0}to{transform:translateY(0);opacity:1}}
+.stops-hd{background:var(--g);color:#fff;padding:11px 14px;display:flex;align-items:center;justify-content:space-between}
+.stops-hd h3{font-family:'DM Serif Display',serif;font-size:.95rem;font-weight:400}
+.sx{background:none;border:none;color:#fff;font-size:1.3rem;cursor:pointer;line-height:1}
+.stops-bd{overflow-y:auto;max-height:calc(44vh - 46px)}
+.srow{padding:11px 14px;border-bottom:1px solid #eee}
+.srow:last-child{border-bottom:none}
+.snum{display:inline-flex;align-items:center;justify-content:center;width:21px;height:21px;border-radius:50%;background:var(--r);color:#fff;font-size:.7rem;font-weight:700;margin-right:7px;vertical-align:middle;flex-shrink:0}
+.sname{font-weight:600;font-size:.88rem;vertical-align:middle}
+.stime{font-size:.7rem;color:var(--p);margin-left:6px;font-weight:600}
+.stip{font-size:.73rem;color:#666;margin-top:3px;padding-left:28px}
+/* Legend */
+.legend{position:fixed;bottom:20px;right:20px;background:#fff;padding:12px 15px;border-radius:10px;box-shadow:0 4px 16px rgba(0,0,0,.1);z-index:1000}
+.legend h4{font-size:.66rem;font-weight:700;text-transform:uppercase;color:#888;margin-bottom:7px;letter-spacing:.04em}
+.legr{display:flex;align-items:center;gap:7px;margin-bottom:5px;font-size:.75rem;color:#555}
+.legr:last-child{margin-bottom:0}
+.legdot{width:12px;height:12px;border-radius:50%;flex-shrink:0}
+.vbtn{padding:7px 12px;border-radius:20px;font-size:.68rem;font-weight:700;color:#fff;border:none;cursor:pointer;opacity:.55;transition:all .2s;font-family:'DM Sans',sans-serif;min-height:36px}
+.vbtn.on{opacity:1;transform:scale(1.05);box-shadow:0 3px 10px rgba(0,0,0,.25)}
+.vbtn:hover{opacity:.85}
+.vline-info{background:var(--l);border-radius:8px;padding:10px 12px;font-size:.77rem;color:#555;line-height:1.55;animation:fadeIn .2s ease}
+.vline-info b{color:var(--p);display:block;font-size:.8rem;margin-bottom:3px}
+@keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+.stop-dot{width:24px;height:24px;border-radius:50%;background:var(--r);border:3px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,.3);display:flex;align-items:center;justify-content:center;color:#fff;font-size:10px;font-weight:700;margin:0 auto}
+.stop-lbl{margin-top:2px;font-size:10px;font-weight:600;color:#222;text-shadow:1px 1px 2px #fff,-1px -1px 2px #fff;white-space:nowrap;text-align:center}
+.leaflet-popup-content-wrapper{border-radius:10px;padding:0}
+.leaflet-popup-content{margin:0}
+.pu{padding:12px 14px;min-width:185px}
+.pu-name{font-family:'DM Serif Display',serif;font-size:.98rem;color:var(--p);margin-bottom:2px}
+.pu-type{font-size:.6rem;text-transform:uppercase;letter-spacing:.08em;color:#999;margin-bottom:6px}
+.pu-row{font-size:.74rem;color:#555;margin-bottom:3px;line-height:1.4}
+.pu-row b{color:var(--d)}
+.pu-tip{background:var(--l);border-radius:4px;padding:5px 7px;font-size:.7rem;color:#6b5a00;margin-top:5px}
+@media(max-width:768px){
+  .panel{position:fixed;top:auto;bottom:0;left:0;right:0;width:100%;border-radius:16px 16px 0 0;transform:translateY(100%);max-height:75vh;transition:transform .3s ease}
+  .panel.open{transform:translateY(0)}
+  .px{display:block}
+  .stops{bottom:0;left:0;right:0;width:100%;border-radius:16px 16px 0 0;max-height:50vh}
+  .legend{display:none}
+  .fab{display:flex}
+}
+</style>
+</head>
+<body>
+<header class="hdr">
+  <div class="hdr-logo">
+    <span class="hdr-main">Venice</span>
+    <span class="hdr-sub">No-Stress Travel Guide</span>
+  </div>
+  <span class="hdr-badge">Interactive Map</span>
+</header>
+<div id="map"></div>
+<button class="fab" id="fab">&#9776;</button>
+<div class="panel" id="panel">
+  <div class="tabs">
+    <button class="tbtn on" onclick="showPane('nbhd',this)">&#127963; Neighbourhoods</button>
+    <button class="tbtn"    onclick="showPane('itin',this)">&#128197; Itineraries</button>
+    <button class="tbtn"    onclick="showPane('go',this)">&#128674; Getting Around</button>
+    <button class="px" id="px">&#215;</button>
+  </div>
+  <div class="pane on" id="pane-nbhd"><div id="nbhdList"></div></div>
+  <div class="pane"    id="pane-itin"><div id="itinList"></div></div>
+  <div class="pane"    id="pane-go">
+    <div class="ga-sec">
+      <div class="ga-ttl">Select a Vaporetto Line</div>
+      <div class="vpills" id="vLineBtns">
+        <button class="vbtn" data-line="L1" style="background:var(--v1)">1 &middot; Grand Canal slow</button>
+        <button class="vbtn" data-line="L2" style="background:var(--v2)">2 &middot; Grand Canal fast</button>
+        <button class="vbtn" data-line="L12" style="background:var(--v3)">12 &middot; Lagoon islands</button>
+        <button class="vbtn" data-line="LN" style="background:var(--v4)">N &middot; Night line</button>
+      </div>
+      <div id="vLineInfo" style="margin-top:10px"></div>
+    </div>
+    <div class="ga-sec">
+      <div class="ga-ttl">Airport Connections</div>
+      <div class="ga-row"><b>Alilaguna</b><span>Water bus from Marco Polo Airport. &euro;15 one-way, &euro;27 return. Orange Line to San Marco: 75 min. Blue Line via Lido: 90 min. Not covered by ACTV passes.</span></div>
+      <div class="ga-row"><b>ATVO bus</b><span>Bus to Piazzale Roma, &euro;14 one-way, &euro;24 return. 25 min. Then vaporetto or on foot.</span></div>
+      <div class="ga-row"><b>Water taxi</b><span>&euro;120&ndash;140 per boat (up to 4 passengers). Late arrivals, large groups, or mobility needs only.</span></div>
+    </div>
+    <div class="ga-sec">
+      <div class="ga-ttl">Key Walking Times</div>
+      <div class="ga-row"><b>Ferrovia &rarr; Rialto</b><span>20&ndash;25 min on foot (faster than Line 1)</span></div>
+      <div class="ga-row"><b>Rialto &rarr; San Marco</b><span>10&ndash;12 min on foot</span></div>
+      <div class="ga-row"><b>San Marco &rarr; Accademia</b><span>12&ndash;15 min on foot</span></div>
+      <div class="ga-row"><b>Piazzale Roma &rarr; San Marco</b><span>35&ndash;40 min on foot / 25 min Line 1</span></div>
+    </div>
+    <div class="ga-sec">
+      <div class="ga-ttl">Traghetto &mdash; the &euro;2.50 crossing</div>
+      <div class="ga-row"><b>What it is</b><span>Shared gondola crossing the Grand Canal at 7 fixed points. &euro;2.50 (&euro;2 for residents). Stand in the boat. No booking, no schedule.</span></div>
+      <div class="ga-row"><b>Best crossing</b><span>Santa Sofia &ndash; Pescaria (near Rialto market). Most reliable.</span></div>
+    </div>
+    <div class="ga-sec">
+      <div class="ga-ttl">Tickets</div>
+      <div class="ga-row"><b>Single ride</b><span>&euro;9.50 &middot; valid 75 min</span></div>
+      <div class="ga-row"><b>Passes</b><span>24h &euro;25 &middot; 48h &euro;35 &middot; 72h &euro;45 &middot; 7 days &euro;65</span></div>
+      <div class="ga-row"><b>Validate</b><span>Touch card to white reader at every platform entrance. Fine: &euro;60 + fare.</span></div>
+    </div>
+  </div>  </div>
+</div>
+<div class="stops" id="stops">
+  <div class="stops-hd">
+    <h3 id="stopsTitle">Itinerary</h3>
+    <button class="sx" onclick="document.getElementById('stops').classList.remove('on')">&#215;</button>
+  </div>
+  <div class="stops-bd" id="stopsBd"></div>
+</div>
+<div class="legend">
+  <h4>Neighbourhoods</h4>
+  <div class="legr"><div class="legdot" style="background:#c4533a"></div>San Marco</div>
+  <div class="legr"><div class="legdot" style="background:#4a7c59"></div>Dorsoduro</div>
+  <div class="legr"><div class="legdot" style="background:#1a3a5c"></div>San Polo / S.Croce</div>
+  <div class="legr"><div class="legdot" style="background:#7a2a4a"></div>Cannaregio</div>
+  <div class="legr"><div class="legdot" style="background:#5a6a2a"></div>Castello</div>
+  <div class="legr"><div class="legdot" style="background:#5a3a7c"></div>Giudecca</div>
+  <div class="legr"><div class="legdot" style="background:#e8a838"></div>Islands</div>
+  <h4 style="margin-top:8px">Routes</h4>
+  <div class="legr"><div style="width:22px;height:0;border-top:3px dashed #4a7c59"></div>Itinerary walk</div>
+  <div class="legr"><div style="width:22px;height:3px;background:#0066CC;border-radius:2px"></div>Vaporetto</div>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script>
+var nsMap, markersLayer, activeNbhdLayer, activeRouteObjs, vaporettoLayer;
+var VLINES = {};
+activeRouteObjs = [];
+activeNbhdLayer = null;
+vaporettoLayer  = null;
 
+// ── ICONS ───────────────────────────────────────────────────
+var ISVG = {
+  monument:{bg:'#1a3a5c', p:'<rect x="5" y="10" width="4" height="6" fill="white"/><rect x="9" y="7" width="4" height="9" fill="white"/><rect x="13" y="10" width="4" height="6" fill="white"/><rect x="4" y="16" width="14" height="2" fill="white"/>'},
+  church:  {bg:'#7a2a4a', p:'<path d="M11 2 L11 5 M9 5h4 M9 5v5H7v8h8v-8h-2V5" fill="white" stroke="white" stroke-width=".5"/><rect x="9" y="13" width="4" height="5" fill="white"/>'},
+  museum:  {bg:'#4a7c59', p:'<rect x="5" y="10" width="12" height="8" fill="white"/><path d="M5 10 L11 4 L17 10z" fill="white"/><rect x="9" y="12" width="4" height="6" fill="white"/>'},
+  island:  {bg:'#e8a838', p:'<circle cx="11" cy="9" r="5" fill="none" stroke="white" stroke-width="2"/><path d="M8 14 L6 19 M11 14 L11 19 M14 14 L16 19" stroke="white" stroke-width="1.5"/>'},
+  market:  {bg:'#5a6a2a', p:'<path d="M5 8h12l-1 8H6z" fill="white"/><path d="M4 8l2-4h10l2 4" fill="none" stroke="white" stroke-width="1.5"/>'},
+  view:    {bg:'#5a3a7c', p:'<circle cx="11" cy="9" r="4" fill="none" stroke="white" stroke-width="2"/><line x1="11" y1="2" x2="11" y2="5" stroke="white" stroke-width="1.5"/><line x1="11" y1="13" x2="11" y2="16" stroke="white" stroke-width="1.5"/><line x1="2" y1="9" x2="5" y2="9" stroke="white" stroke-width="1.5"/><line x1="17" y1="9" x2="20" y2="9" stroke="white" stroke-width="1.5"/>'}
+};
+function mkIcon(type) {
+  var ic = ISVG[type] || ISVG.monument;
+  var h = '<div style="width:30px;height:30px;border-radius:50%;background:'+ic.bg+';border:2.5px solid white;box-shadow:0 2px 8px rgba(0,0,0,.4);">'
+        + '<svg viewBox="0 0 22 22" width="22" height="22" style="display:block;margin:2px auto;">'+ic.p+'</svg></div>';
+  return L.divIcon({html:h, iconSize:[30,30], iconAnchor:[15,15], popupAnchor:[0,-18], className:''});
+}
+
+// ── LANDMARKS ───────────────────────────────────────────────
+var LM = {
+  sanmarco:    {n:'Piazza San Marco',          lat:45.4341,lng:12.3386,t:'monument',price:'Free',hours:'Always open',tip:'Arrive by 07:00 for the empty piazza. By 10:00 it belongs to the crowds.'},
+  basilica:    {n:'Basilica di San Marco',     lat:45.4345,lng:12.3397,t:'church',  price:'Free + EUR 3 booking',hours:'9:30-17:00',tip:'Book at venetoinside.com. Shoulders and knees must be covered. Bags at Ateneo San Basso (1 min away).'},
+  ducale:      {n:'Palazzo Ducale',            lat:45.4337,lng:12.3406,t:'monument',price:'EUR 30',hours:'9:00-18:00',tip:'Includes Correr, Archaeologico, Marciana. Book online in high season. Secret Itineraries tour EUR 28 extra.'},
+  campanile:   {n:'Campanile di San Marco',    lat:45.4341,lng:12.3388,t:'view',    price:'EUR 10',hours:'9:00-21:00 (seasonal)',tip:'360-degree panorama of Venice and the lagoon. Morning or an hour before closing for shorter queues.'},
+  rialto:      {n:'Ponte di Rialto',           lat:45.4380,lng:12.3356,t:'monument',price:'Free',hours:'Always',tip:'Best photographed from a vaporetto or from the water level. Crowded at street level all day.'},
+  rialto_mkt:  {n:'Rialto Market',             lat:45.4385,lng:12.3344,t:'market',  price:'Free',hours:'Mon-Sat 07:00-13:00',tip:'Best before 11:00 when the serious buyers are there. Fish market closes earlier than produce side.'},
+  accademia:   {n:'Gallerie dellAccademia',  lat:45.4316,lng:12.3277,t:'museum',  price:'EUR 15',hours:'8:15-19:15 (Mon 14:00)',tip:'Venetian painting from Byzantine to 18th century. Book ahead April-October. Free first Sunday of month.'},
+  guggenheim:  {n:'Peggy Guggenheim',          lat:45.4306,lng:12.3318,t:'museum',  price:'EUR 16',hours:'10:00-18:00 (closed Tue)',tip:'Modern art in a Grand Canal palazzo. Less crowded than Accademia. Terrace cafe has canal views.'},
+  sanrocco:    {n:'Scuola Grande di San Rocco',lat:45.4372,lng:12.3268,t:'church',  price:'EUR 10',hours:'9:30-17:30',tip:'Tintoretto cycle covering the entire building. One of the great concentrated art experiences in Venice. No booking needed.'},
+  frari:       {n:'Santa Maria Gloriosa dei Frari',lat:45.4375,lng:12.3264,t:'church',price:'EUR 3.50 (Chorus)',hours:'9:00-18:00 Mon-Sat, 13:00-18:00 Sun',tip:'Titian Assumption behind the high altar. Bellini triptych. Buy Chorus Pass for EUR 14 if visiting multiple churches.'},
+  dorsoduro:   {n:'Campo Santa Margherita',    lat:45.4350,lng:12.3231,t:'market',  price:'Free',hours:'Always open',tip:'The real Venice aperitivo scene. Students and locals from 18:00. Cicchetti at local prices. The best campo for evening atmosphere.'},
+  zattere:     {n:'Zattere promenade',         lat:45.4286,lng:12.3230,t:'view',    price:'Free',hours:'Always',tip:'Best sunset walk in Venice. Views of Giudecca Canal. Gelateria Nico is here. Walk west toward San Basilio for fewer crowds.'},
+  ghetto:      {n:'Jewish Ghetto',             lat:45.4456,lng:12.3278,t:'monument',price:'Museum EUR 12',hours:'10:00-18:30 (closed Sat)',tip:'The original ghetto, established 1516. Museo Ebraico and synagogue tours. Closed Saturdays. Best food options in Cannaregio nearby.'},
+  arsenal:     {n:'Arsenale',                  lat:45.4313,lng:12.3506,t:'monument',price:'Exterior free',hours:'Exterior always',tip:'The greatest naval shipyard of the medieval world. Exterior walls and gateway remarkable. Interior only during Biennale (even years).'},
+  sansebastiano:{n:'San Sebastiano',           lat:45.4295,lng:12.3180,t:'church',  price:'EUR 3.50 (Chorus)',hours:'10:00-17:00 Mon-Sat',tip:'Veronese parish church, almost never crowded. His ceiling and wall paintings are extraordinary. A deliberate discovery, not an accident.'},
+  orto:        {n:'Madonna dellOrto',        lat:45.4501,lng:12.3287,t:'church',  price:'EUR 3.50 (Chorus)',hours:'10:00-17:00 Mon-Sat',tip:'Tintoretto parish church. His tomb is here. Two huge paintings filling entire walls. Quiet even in high season.'},
+  puntadogana: {n:'Punta della Dogana',        lat:45.4297,lng:12.3352,t:'view',    price:'EUR 18',hours:'11:00-19:00 Wed-Mon',tip:'Contemporary art in the Customs House. View of the Grand Canal entrance. The free exterior terrace has the best view in Venice.'},
+  murano:      {n:'Murano',                    lat:45.4597,lng:12.3553,t:'island',  price:'Free island',hours:'Always',tip:'Visit Museo del Vetro first (EUR 12, Musei Civici Pass). Skip the Colonna dock promoters. Walk toward the Faro stop for serious furnaces.'},
+  burano:      {n:'Burano',                    lat:45.4855,lng:12.4173,t:'island',  price:'Free island',hours:'Always',tip:'Colored houses and lace-making tradition. Museo del Merletto (EUR 5, Musei Civici). Best photography before 10:00 and after 16:00. Gatto Nero for risotto di go.'},
+  torcello:    {n:'Torcello',                  lat:45.4959,lng:12.4171,t:'island',  price:'EUR 5 Basilica',hours:'10:30-17:00',tip:'The oldest settlement in the Venetian lagoon. Basilica di Santa Maria Assunta has extraordinary Byzantine mosaics. Fewer than 10 residents. Genuinely empty.'},
+  lido:        {n:'Lido',                      lat:45.4069,lng:12.3611,t:'island',  price:'Free island',hours:'Always',tip:'Venice beach island. June-September for swimming. Film Festival in late August/September. Bikes for rent along the Gran Viale. Quieter than the main island.'},
+  sanpolo_area:{n:'San Polo / Santa Croce',lat:45.4374,lng:12.3270,t:'market',price:'Free',hours:'Always',tip:'The densest bacari concentration in Venice. West of the Rialto Bridge. Get lost in the calli.'},
+  correr:      {n:'Museo Correr',              lat:45.4340,lng:12.3375,t:'museum',  price:'Included in Ducale EUR 30',hours:'10:00-18:00',tip:'Included in the Palazzo Ducale ticket. Napoleonic rooms and Venetian history. Often overlooked but worth the extra hour.'}
+};
+
+// ── NEIGHBOURHOOD POLYGONS ─────────────────────────────────
+var POLY = {
+  sanmarco:  [[45.4310,12.3330],[45.4310,12.3430],[45.4380,12.3430],[45.4380,12.3350],[45.4350,12.3310]],
+  dorsoduro: [[45.4240,12.3140],[45.4240,12.3360],[45.4330,12.3360],[45.4330,12.3140]],
+  sanpolo:   [[45.4330,12.3200],[45.4330,12.3360],[45.4410,12.3360],[45.4410,12.3200]],
+  cannaregio:[[45.4380,12.3140],[45.4380,12.3420],[45.4520,12.3420],[45.4520,12.3140]],
+  castello:  [[45.4310,12.3420],[45.4310,12.3680],[45.4450,12.3680],[45.4450,12.3420]],
+  giudecca:  [[45.4220,12.3100],[45.4220,12.3560],[45.4285,12.3560],[45.4285,12.3100]]
+};
+
+var NBHD_COL = {
+  sanmarco:'#c4533a', dorsoduro:'#4a7c59', sanpolo:'#1a3a5c',
+  cannaregio:'#7a2a4a', castello:'#5a6a2a', giudecca:'#5a3a7c'
+};
+
+// ── NEIGHBOURHOODS DATA ─────────────────────────────────────
+var NBHDS = [
+  {id:'sanmarco',  lat:45.4341,lng:12.3380,col:'#c4533a',
+   n:'San Marco',     tag:'Monumental heart &middot; Everything walkable',
+   desc:'Piazza San Marco, Palazzo Ducale, the Basilica. Packed 09:00&ndash;19:00; quieter after dinner.',
+   vaporetto:'San Marco Vallaresso, San Zaccaria, Rialto',
+   bestfor:'First-time visitors with limited time. Those prioritising location over value.',
+   price:'EUR 180&ndash;400 / night',
+   tip:'Accept the price premium or use San Marco as your base for mornings only, returning to quieter sestieri for evenings.'},
+  {id:'dorsoduro', lat:45.4308,lng:12.3250,col:'#4a7c59',
+   n:'Dorsoduro',   tag:'Artistic &middot; Student energy &middot; Best sunsets',
+   desc:'Accademia, Guggenheim, Campo Santa Margherita. Artistic, residential, genuine aperitivo culture.',
+   vaporetto:'Accademia, Zattere, San Basilio',
+   bestfor:'Art lovers, couples. Best authentic evening scene in Venice.',
+   price:'EUR 120&ndash;250 / night',
+   tip:'Campo Santa Margherita at 18:30. Locals outnumber tourists. Spritz EUR 3.50. The real Venice aperitivo.'},
+  {id:'sanpolo',   lat:45.4375,lng:12.3280,col:'#1a3a5c',
+   n:'San Polo &amp; Santa Croce', tag:'Food capital &middot; Rialto market &middot; Bacari',
+   desc:'Rialto Market, densest bacari concentration in Venice. Feels lived-in rather than museified.',
+   vaporetto:'Rialto Mercato, San Toma, San Silvestro',
+   bestfor:'Food lovers. Travelers wanting authentic atmosphere with central positioning.',
+   price:'EUR 100&ndash;200 / night',
+   tip:'Bacaro giro west of the Rialto Bridge: AllArco, Cantina Do Mori, Do Spade. Budget EUR 15&ndash;25 for a proper lunch standing at the counter.'},
+  {id:'cannaregio',lat:45.4456,lng:12.3290,col:'#7a2a4a',
+   n:'Cannaregio',  tag:'Best value &middot; Jewish Ghetto &middot; Local life',
+   desc:'Two characters: Strada Nova corridor (busy) and residential back calli (quiet). Best value in the historic centre.',
+   vaporetto:'Ferrovia, Guglie, Ca dOro, Fondamente Nove',
+   bestfor:'Budget travellers, longer stays. Those wanting local atmosphere over monument proximity.',
+   price:'EUR 80&ndash;180 / night',
+   tip:'Fondamenta della Misericordia and Fondamenta degli Ormesini for evening local bars. The Jewish Ghetto: historical depth and best food in the sestiere.'},
+  {id:'castello',  lat:45.4360,lng:12.3530,col:'#5a6a2a',
+   n:'Castello',    tag:'Largest sestiere &middot; Via Garibaldi &middot; Families',
+   desc:'Two personalities: tourist-heavy western edge; working-class eastern stretch with Arsenale, Via Garibaldi, Giardini.',
+   vaporetto:'Arsenale, Giardini, SantElena, San Zaccaria',
+   bestfor:'Families (Giardini park), budget travellers, those seeking genuine local life.',
+   price:'EUR 70&ndash;160 / night',
+   tip:'Eastern Castello is the lowest-priced area in the historic centre. Via Garibaldi is a real neighbourhood street &mdash; bakeries, bars, markets at Italian prices.'},
+  {id:'giudecca',  lat:45.4253,lng:12.3320,col:'#5a3a7c',
+   n:'Giudecca',    tag:'Separate island &middot; Zero crowds &middot; Views',
+   desc:'A separate island across the Giudecca Canal. Residential, quiet, unmatched views of Venice skyline from across the water.',
+   vaporetto:'Palanca, Redentore, Zitelle (Line 2 or 4)',
+   bestfor:'Complete tranquility. Romantics. Works for both low (Generator hostel) and high budgets (Hilton).',
+   price:'EUR 60&ndash;350 / night (hostel to Hilton)',
+   tip:'Entirely dependent on Line 2 or 4 vaporetto. Nothing happens after dinner. Not ideal for first visits &mdash; the isolation is its point, not a defect.'},
+  {id:'murano_i',  lat:45.4597,lng:12.3553,col:'#e8a838',
+   n:'Murano',      tag:'Glass island &middot; 10 min from Fondamente Nove',
+   desc:'The glass island. Real furnaces, serious craftspeople &mdash; and tourist-trap shops at the dock.',
+   vaporetto:'Line 12 or 4.1 from Fondamente Nove (10 min) or Piazzale Roma (20 min)',
+   bestfor:'Craft enthusiasts, serious glass buyers, families (children enjoy furnace demonstrations).',
+   price:'Day trip',
+   tip:'Decline dock promoters. Visit Museo del Vetro first (EUR 12). Walk toward the Faro stop for serious furnaces that do not recruit at the landing.'},
+  {id:'burano_i',  lat:45.4855,lng:12.4173,col:'#e8a838',
+   n:'Burano',      tag:'Coloured houses &middot; Lace tradition &middot; 45 min',
+   desc:'Photographically extraordinary. Lace tradition and seafood. Best before 10:00 or after 16:00.',
+   vaporetto:'Line 12 from Fondamente Nove (45 min) or continue from Murano',
+   bestfor:'Photographers, couples, anyone wanting postcard Venice without the San Marco crush.',
+   price:'Day trip',
+   tip:'Gatto Nero for risotto di go. Museo del Merletto (EUR 5) for lace history. The coloured houses are best photographed in morning or late afternoon light.'},
+  {id:'torcello_i',lat:45.4959,lng:12.4171,col:'#e8a838',
+   n:'Torcello',    tag:'Oldest settlement &middot; Byzantine mosaics &middot; 50 min',
+   desc:'Fewer than 10 residents. The Basilica di Santa Maria Assunta has extraordinary Byzantine mosaics. Genuinely empty.',
+   vaporetto:'Line 9 from Burano (5 min) or Line 12 from Fondamente Nove',
+   bestfor:'History lovers, Byzantine art, anyone wanting radical solitude 50 minutes from San Marco.',
+   price:'EUR 5 Basilica',
+   tip:'15-min walk from the dock to the Basilica. Allow 1&ndash;1.5 hours on the island. Almost no tourists even in peak season.'},
+  {id:'lido_i',    lat:45.4069,lng:12.3611,col:'#e8a838',
+   n:'Lido',        tag:'Beach island &middot; Film Festival &middot; 15 min',
+   desc:'Venice beach island. Quiet off-season; Film Festival crowds in late August. Bikes along the Gran Viale.',
+   vaporetto:'Line 1 or 2 from San Marco/Zaccaria (15 min)',
+   bestfor:'Summer beach days. Film Festival visitors. Those wanting a car-accessible base on a budget.',
+   price:'EUR 80&ndash;200 / night (summer beach hotels)',
+   tip:'Bike rental from the ferry stop. Gran Viale Santa Maria Elisabetta runs the length of the island. Beach clubs mid-June through September.'}
+];
+
+// ── ITINERARIES ──────────────────────────────────────────────
+var ITINS = [
+  { id:'oneday', n:'One Day in Venice', days:'1 day', transport:'Vaporetto + Walking',
+    desc:'San Marco at dawn, cicchetti at Rialto, one sestiere on foot. The non-tourist version of a day trip.',
+    dl:[
+      { lbl:'Morning',
+        stops:[{loc:'sanmarco',n:'Piazza San Marco',time:'07:00',tip:'Arrive at dawn. Empty piazza, soft light. The Basilica opens at 9:30 &mdash; queue starts forming at 9:00.'},
+               {loc:'basilica',n:'Basilica di San Marco',time:'09:30',tip:'Book skip-line for EUR 3 at venetoinside.com. 30&ndash;45 min inside is enough.'},
+               {loc:'campanile',n:'Campanile (optional)',time:'10:30',tip:'30 min including queue. Skip if pressed for time. The view is wonderful but not essential.'}],
+        routes:[{f:'sanmarco',t:'basilica'},{f:'basilica',t:'campanile'}]},
+      { lbl:'Midday',
+        stops:[{loc:'rialto',n:'Rialto Bridge',time:'11:30',tip:'15&ndash;20 min walk from San Marco via the Mercerie or quieter parallel routes.'},
+               {loc:'rialto_mkt',n:'Rialto Market + bacaro giro',time:'12:00',tip:'If market still active. Cicchetti lunch at AlArco or Cantina Do Mori. EUR 15&ndash;25. Standing at the counter. This is how Venetians eat.'}],
+        routes:[{f:'campanile',t:'rialto'},{f:'rialto',t:'rialto_mkt'}]},
+      { lbl:'Afternoon',
+        stops:[{loc:'sanpolo_area',n:'San Polo &mdash; wander or Accademia',time:'14:00',lat:45.4375,lng:12.3260,tip:'Option A: walk through San Polo toward Campo Santa Margherita. Option B: Accademia (1.5h) if art matters. Skip trying to do both.'},
+               {loc:'zattere',n:'Zattere promenade',time:'17:00',tip:'Spritz or coffee. Watch the light change over the Giudecca Canal. This is the point of Venice.'}],
+        routes:[{f:'rialto_mkt',t:'sanpolo'},{f:'sanpolo',t:'zattere'}]}
+    ]
+  },
+  { id:'twodays', n:'2&ndash;3 Days: Essential Venice', days:'2&ndash;3 days', transport:'Vaporetto + Walking',
+    desc:'The icons plus the real city. Day 1 San Marco deep dive. Day 2 Dorsoduro and Rialto. Day 3 islands.',
+    dl:[
+      { lbl:'Day 1 &mdash; San Marco',
+        stops:[{loc:'basilica',n:'Basilica di San Marco',time:'09:30',tip:'Skip-line ticket EUR 3. Book the day before at venetoinside.com.'},
+               {loc:'ducale',n:'Palazzo Ducale',time:'11:00',tip:'2.5&ndash;3h. Book online. Museo Correr included &mdash; use the ticket.'},
+               {loc:'rialto',n:'Rialto &amp; bacari',time:'14:00',tip:'Walk via the Mercerie. Cicchetti giro for lunch. First evening in San Marco after dark.'}],
+        routes:[{f:'basilica',t:'ducale'},{f:'ducale',t:'rialto'}]},
+      { lbl:'Day 2 &mdash; Dorsoduro',
+        stops:[{loc:'accademia',n:'Gallerie dellAccademia',time:'08:15',tip:'Open early. Book ahead April&ndash;October. 2 hours.'},
+               {loc:'guggenheim',n:'Peggy Guggenheim',time:'11:00',tip:'1.5h. Modern art on the Grand Canal. Skip if museum-fatigued &mdash; save energy.'},
+               {loc:'dorsoduro',n:'Campo Santa Margherita &mdash; aperitivo',time:'18:30',tip:'The best authentic aperitivo in Venice. Spritz EUR 3.50. Stay until 20:00 then find dinner nearby.'}],
+        routes:[{f:'accademia',t:'guggenheim'},{f:'guggenheim',t:'dorsoduro'}]},
+      { lbl:'Day 3 &mdash; Islands',
+        stops:[{loc:'murano',n:'Murano',time:'09:00',tip:'Line 12 from Fondamente Nove, 10 min. Museo del Vetro + one serious furnace. 2h.'},
+               {loc:'burano',n:'Burano',time:'12:00',tip:'Line 12, 35 min from Murano. Lunch at Gatto Nero or a simpler option. Walk the coloured streets.'},
+               {loc:'torcello',n:'Torcello',time:'15:00',tip:'Line 9 from Burano, 5 min. Basilica mosaics. 1h. Return to Venice by 17:30.'}],
+        routes:[{f:'murano',t:'burano'},{f:'burano',t:'torcello'}]}
+    ]
+  },
+  { id:'fourdays', n:'4&ndash;5 Days: Full Venice', days:'4&ndash;5 days', transport:'Vaporetto + Walking',
+    desc:'All six sestieri, two islands, multiple giri, unscheduled afternoons. Enough time to stop being a tourist.',
+    dl:[
+      { lbl:'Day 1 &mdash; Arrival + San Marco',
+        stops:[{loc:'sanmarco',n:'Piazza San Marco &mdash; first evening',time:'Afternoon',tip:'Do not rush. Stand in the piazza. Absorb the scale. Dinner in Castello west &mdash; easing in, not impressing.'},
+               {loc:'basilica',n:'Basilica di San Marco &mdash; late entry',time:'16:00',tip:'EUR 3 skip-line ticket. Late afternoon is quieter. Interior takes 20&ndash;30 min.'}],
+        routes:[{f:'sanmarco',t:'basilica'}]},
+      { lbl:'Day 2 &mdash; San Marco + Rialto',
+        stops:[{loc:'ducale',n:'Palazzo Ducale',time:'09:00',tip:'Book online. 2.5&ndash;3h. The Itinerari Segreti tour (EUR 28 extra) if booked weeks ahead.'},
+               {loc:'rialto_mkt',n:'Rialto bacari &mdash; lunch giro',time:'12:00',tip:'First serious bacaro circuit. AllArco, Cantina Do Mori, Do Spade. Budget 45 min and EUR 15&ndash;25.'},
+               {loc:'sanrocco',n:'Scuola Grande di San Rocco',time:'15:00',tip:'Tintoretto complete cycle. 1h. One of the great concentrated art experiences. No booking needed.'},
+               {loc:'frari',n:'Santa Maria dei Frari',time:'16:30',tip:'Titian Assumption + Bellini triptych. 30&ndash;45 min. Chorus Pass covers entry.'}],
+        routes:[{f:'ducale',t:'rialto_mkt'},{f:'rialto_mkt',t:'sanrocco'},{f:'sanrocco',t:'frari'}]},
+      { lbl:'Day 3 &mdash; Dorsoduro',
+        stops:[{loc:'accademia',n:'Gallerie dellAccademia',time:'08:15',tip:'2 hours. Venetian painting from Byzantine to 18th century.'},
+               {loc:'guggenheim',n:'Peggy Guggenheim Collection',time:'11:00',tip:'1.5h. Modern art on the Grand Canal terrace.'},
+               {loc:'zattere',n:'Zattere &mdash; afternoon walk',time:'14:30',tip:'Gelateria Nico. Walk to Punta della Dogana for lagoon views. San Sebastiano nearby if you want Veronese almost alone.'},
+               {loc:'dorsoduro',n:'Campo Santa Margherita &mdash; aperitivo',time:'18:30',tip:'The real Venice aperitivo. Dinner in Dorsoduro.'}],
+        routes:[{f:'accademia',t:'guggenheim'},{f:'guggenheim',t:'zattere'},{f:'zattere',t:'dorsoduro'}]},
+      { lbl:'Day 4 &mdash; Islands',
+        stops:[{loc:'murano',n:'Murano',time:'09:00',tip:'Early start. Museo del Vetro + serious furnace. Skip dock promoters.'},
+               {loc:'burano',n:'Burano',time:'11:30',tip:'Lunch at Gatto Nero. Walk the coloured streets. Best light for photos.'},
+               {loc:'torcello',n:'Torcello',time:'15:00',tip:'5 min from Burano. Basilica mosaics. Almost empty. Return by 17:30.'}],
+        routes:[{f:'murano',t:'burano'},{f:'burano',t:'torcello'}]},
+      { lbl:'Day 5 &mdash; Cannaregio + Castello',
+        stops:[{loc:'ghetto',n:'Jewish Ghetto + Museo Ebraico',time:'10:00',tip:'1.5&ndash;2h. Closed Saturdays. Synagogue tour included.'},
+               {loc:'orto',n:'Madonna dellOrto',time:'12:00',tip:'Tintoretto church. Quiet and atmospheric. His tomb is here.'},
+               {loc:'arsenal',n:'Arsenale exterior + Via Garibaldi',time:'14:30',tip:'Eastern Castello: wide streets, families, bakeries. The other Venice. Giardini for green space.'}],
+        routes:[{f:'ghetto',t:'orto'},{f:'orto',t:'arsenal'}]}
+    ]
+  },
+  { id:'art', n:'Venice for Art Lovers', days:'4&ndash;5 days', transport:'Vaporetto + Walking',
+    desc:'Fewer islands, more paintings. The complete Venetian school: Bellini, Titian, Tintoretto, Veronese, Tiepolo.',
+    dl:[
+      { lbl:'Day 1 &mdash; Byzantine start',
+        stops:[{loc:'basilica',n:'Basilica di San Marco &mdash; mosaics',time:'09:30',tip:'The Byzantine foundation. Look up at every surface. Museum and Loggia (EUR 7) for the bronze horses.'},
+               {loc:'ducale',n:'Palazzo Ducale',time:'11:30',tip:'Tintoretto Paradise. Titian and Veronese in the state rooms. 2.5h.'}],
+        routes:[{f:'basilica',t:'ducale'}]},
+      { lbl:'Day 2 &mdash; Renaissance Venice',
+        stops:[{loc:'accademia',n:'Gallerie dellAccademia',time:'08:15',tip:'The complete Venetian school in chronological sequence. 2&ndash;3h. Giovanni Bellini room, Carpaccio cycle, Titian and Tintoretto.'},
+               {loc:'frari',n:'Santa Maria dei Frari',time:'11:30',tip:'Titian Assumption (1518) &mdash; the turning point of Venetian painting. Bellini triptych in the sacristy.'},
+               {loc:'sanrocco',n:'Scuola Grande di San Rocco',time:'14:00',tip:'Tintoretto masterwork. The entire building as a single narrative. 1&ndash;1.5h.'}],
+        routes:[{f:'accademia',t:'frari'},{f:'frari',t:'sanrocco'}]},
+      { lbl:'Day 3 &mdash; Hidden churches',
+        stops:[{loc:'sansebastiano',n:'San Sebastiano',time:'10:00',tip:'Veronese parish church. His painted ceiling, wall cycles, and tomb. Almost never crowded.'},
+               {loc:'orto',n:'Madonna dellOrto',time:'12:00',tip:'Tintoretto church. Two enormous paintings filling full walls. His actual resting place.'},
+               {loc:'guggenheim',n:'Peggy Guggenheim',time:'15:00',tip:'The 20th century after three days of Renaissance. A necessary contrast. 1.5h.'}],
+        routes:[{f:'sansebastiano',t:'orto'},{f:'orto',t:'guggenheim'}]},
+      { lbl:'Day 4 &mdash; Byzantine islands',
+        stops:[{loc:'torcello',n:'Torcello &mdash; Basilica mosaics',time:'09:00',tip:'The oldest art in the lagoon. Last Judgment mosaic on the west wall. Byzantine at its height. Take Line 12 from Fondamente Nove.'},
+               {loc:'murano',n:'Murano &mdash; Basilica dei Santi Maria e Donato',time:'12:00',tip:'12th-century mosaic floor and Byzantine apse. The Museo del Vetro across the canal. Serious furnace visit.'}],
+        routes:[{f:'torcello',t:'murano'}]}
+    ]
+  }
+];
+
+// ── STATE ─────────────────────────────────────────────────
+var _activeItinId = null, _globalStops = [];
+function buildGlobalStops(it) {
+  var res=[], n=1;
+  it.dl.forEach(function(day,di){
+    var prev=null;
+    day.stops.forEach(function(s){
+      var xy = s.lat ? [s.lat,s.lng] : (function(){ var d=LM[s.loc]; return d?[d.lat,d.lng]:null; })();
+      if (!xy) return;
+      if (s.loc===prev) { if(res.length>0&&res[res.length-1].dayIdx===di) res[res.length-1].label+=' + '+s.n; return; }
+      prev=s.loc;
+      res.push({locId:s.loc,coords:xy,label:s.n,num:n++,dayIdx:di});
+    });
+  });
+  return res;
+}
+function activateItinerary(it) { _activeItinId=it.id; _globalStops=buildGlobalStops(it); }
+
+// ── MAP INIT ─────────────────────────────────────────────
+window.onload = function() {
+  nsMap = L.map('map',{zoomControl:true}).setView([45.4408,12.3155],14);
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',{
+    attribution:'&copy; OpenStreetMap &copy; CARTO',subdomains:'abcd',maxZoom:19
+  }).addTo(nsMap);
+  markersLayer = L.layerGroup().addTo(nsMap);
+
+  // Vaporetto layer (not shown by default)
+  vaporettoLayer = L.layerGroup();
+
+  // ── Accurate Grand Canal path (S-curve through Venice) ──
+  // Line 1: all stops along Grand Canal + Lido
+  var GC = [
+    [45.4413,12.3202],[45.4415,12.3230],[45.4421,12.3264],[45.4420,12.3293],
+    [45.4408,12.3310],[45.4399,12.3327],[45.4388,12.3348],[45.4381,12.3356],
+    [45.4370,12.3346],[45.4358,12.3318],[45.4352,12.3291],[45.4356,12.3267],
+    [45.4360,12.3248],[45.4363,12.3237],[45.4355,12.3232],[45.4343,12.3231],
+    [45.4333,12.3233],[45.4326,12.3240],[45.4320,12.3262],[45.4318,12.3290],
+    [45.4316,12.3309],[45.4306,12.3340],[45.4302,12.3356],[45.4309,12.3374]
+  ];
+  var GC_EAST = [
+    [45.4309,12.3374],[45.4324,12.3430],[45.4311,12.3478],[45.4286,12.3545],
+    [45.4266,12.3590],[45.4254,12.3610]
+  ];
+  // Line 2: same canal, fewer stops (overlaid orange dashed)
+  var GC_L2 = [
+    [45.4413,12.3202],[45.4421,12.3264],[45.4400,12.3296],[45.4394,12.3325],[45.4381,12.3356],
+    [45.4358,12.3318],[45.4352,12.3291],[45.4363,12.3237],[45.4333,12.3233],
+    [45.4318,12.3290],[45.4316,12.3309],[45.4302,12.3356],[45.4309,12.3374],
+    [45.4254,12.3610]
+  ];
+  // Line 12: Fondamente Nove to lagoon islands
+  var L12_PATH = [
+    [45.4523,12.3380],[45.4560,12.3450],[45.4578,12.3547],
+    [45.4628,12.3568],[45.4750,12.3820],[45.4855,12.4173],[45.4958,12.4177]
+  ];
+  // Night line N: Grand Canal (same path as L1, limited stops)
+  var LN_PATH = [
+    [45.4413,12.3202],[45.4421,12.3264],[45.4400,12.3296],[45.4394,12.3325],[45.4381,12.3356],
+    [45.4358,12.3318],[45.4352,12.3291],[45.4363,12.3237],[45.4333,12.3233],
+    [45.4318,12.3290],[45.4316,12.3309],[45.4302,12.3356],[45.4309,12.3374],
+    [45.4254,12.3610]
+  ];
+
+  // ── Vaporetto line objects by key ─────────────────────────
+  VLINES = {
+    L1: {
+      col:'#0066CC', label:'Line 1 — Grand Canal (all stops)', dash:null,
+      desc:'The scenic route. Every stop from Ferrovia to Lido via the full Grand Canal. Ferrovia to San Marco: 35 min. Take this at least once for the view.',
+      paths:[ {coords:GC,dash:null}, {coords:GC_EAST,dash:null} ],
+      stops:[
+        {n:'Ferrovia',lat:45.4413,lng:12.3202},{n:'Riva de Biasio',lat:45.4415,lng:12.3230},
+        {n:'San Marcuola',lat:45.4421,lng:12.3264},{n:'San Stae',lat:45.4396,lng:12.3278},
+        {n:'Ca dOro',lat:45.4399,lng:12.3327},{n:'Rialto Mercato',lat:45.4385,lng:12.3337},
+        {n:'Rialto',lat:45.4381,lng:12.3356},{n:'San Silvestro',lat:45.4368,lng:12.3342},
+        {n:'SantAngelo',lat:45.4352,lng:12.3291},{n:'San Toma',lat:45.4363,lng:12.3243},
+        {n:'Ca Rezzonico',lat:45.4330,lng:12.3238},{n:'Accademia',lat:45.4320,lng:12.3307},
+        {n:'Salute',lat:45.4302,lng:12.3356},{n:'San Marco',lat:45.4309,lng:12.3374},
+        {n:'San Zaccaria',lat:45.4324,lng:12.3430},{n:'Arsenale',lat:45.4311,lng:12.3478},
+        {n:'Giardini',lat:45.4286,lng:12.3545},{n:'Lido',lat:45.4254,lng:12.3610}
+      ]
+    },
+    L2: {
+      col:'#E05A00', label:'Line 2 — Grand Canal (fast, fewer stops)', dash:'8,5',
+      desc:'Same canal, fewer stops. Ferrovia to San Marco: 25 min. Use when in a hurry. Does not stop at Ca dOro, San Silvestro, SantAngelo, Ca Rezzonico, Salute.',
+      paths:[ {coords:GC_L2,dash:'8,5'} ],
+      stops:[
+        {n:'Ferrovia',lat:45.4413,lng:12.3202},{n:'San Marcuola',lat:45.4421,lng:12.3264},
+        {n:'Rialto',lat:45.4381,lng:12.3356},{n:'Accademia',lat:45.4320,lng:12.3307},
+        {n:'San Marco',lat:45.4309,lng:12.3374},{n:'Lido',lat:45.4254,lng:12.3610}
+      ]
+    },
+    L12: {
+      col:'#008844', label:'Line 12 — Lagoon Islands', dash:'8,5',
+      desc:'Fondamente Nove to Murano (10 min), Burano (45 min), Torcello (50 min). Essential for the islands. Departs from Fondamente Nove in Cannaregio.',
+      paths:[ {coords:L12_PATH,dash:'8,5'} ],
+      stops:[
+        {n:'Fondamente Nove',lat:45.4523,lng:12.3380},{n:'Murano Colonna',lat:45.4578,lng:12.3547},
+        {n:'Murano Faro',lat:45.4628,lng:12.3568},{n:'Burano',lat:45.4855,lng:12.4173},
+        {n:'Torcello',lat:45.4958,lng:12.4177}
+      ]
+    },
+    LN: {
+      col:'#9B3A9B', label:'Night Line N — Grand Canal (after midnight)', dash:'10,6',
+      desc:'Runs after midnight along the Grand Canal. Limited stops, infrequent service (every 20-30 min). Check AVM Venezia app before late nights. Connects Piazzale Roma to San Marco and Lido.',
+      paths:[ {coords:LN_PATH,dash:'10,6'} ],
+      stops:[
+        {n:'Piazzale Roma',lat:45.4413,lng:12.3202},{n:'Rialto',lat:45.4381,lng:12.3356},
+        {n:'Accademia',lat:45.4320,lng:12.3307},{n:'San Marco',lat:45.4309,lng:12.3374},
+        {n:'Lido',lat:45.4254,lng:12.3610}
+      ]
+    }
+  };
+
+  // Polylines are NOT pre-added — created on demand in showVLine
+
+
+  placeLandmarkMarkers();
+  buildNbhdList();
+  buildItinList();
+  initVaporettoButtons();
+
+  document.getElementById('px').addEventListener('click',function(){document.getElementById('panel').classList.remove('open');});
+  document.getElementById('fab').addEventListener('click',function(){document.getElementById('panel').classList.toggle('open');});
+};
+
+// ── LANDMARKS ───────────────────────────────────────────────
+function placeLandmarkMarkers() {
+  markersLayer.clearLayers();
+  Object.keys(LM).forEach(function(id){
+    var d = LM[id];
+    var icon = mkIcon(d.t);
+    var html = '<div class="pu"><div class="pu-name">'+d.n+'</div><div class="pu-type">'+d.t+'</div>'
+             + (d.price?'<div class="pu-row"><b>Price:</b> '+d.price+'</div>':'')
+             + (d.hours?'<div class="pu-row"><b>Hours:</b> '+d.hours+'</div>':'')
+             + (d.tip?'<div class="pu-tip">'+d.tip+'</div>':'')+'</div>';
+    L.marker([d.lat,d.lng],{icon:icon}).bindPopup(html,{maxWidth:260}).addTo(markersLayer);
+  });
+}
+
+// ── NBHD LIST ──────────────────────────────────────────────
+function buildNbhdList() {
+  var cont = document.getElementById('nbhdList');
+  NBHDS.forEach(function(nb){
+    var card = document.createElement('div');
+    card.className = 'nbhd-card';
+    card.innerHTML =
+      '<div class="ntag">'+nb.tag+'</div>'+
+      '<h3>'+nb.n+'</h3>'+
+      '<div class="ndesc">'+nb.desc+'</div>'+
+      '<div class="ndet" id="nd-'+nb.id+'">'+
+        '<div class="nrow"><b>Best for:</b>'+nb.bestfor+'</div>'+
+        '<div class="nrow"><b>Vaporetto:</b>'+nb.vaporetto+'</div>'+
+        '<div class="nrow"><b>Price:</b>'+nb.price+'</div>'+
+        '<div class="ntip">'+nb.tip+'</div>'+
+      '</div>';
+    card.addEventListener('click',function(e){
+      if (e.target.closest && e.target.closest('.dbtn')) return;
+      var isOn = card.classList.contains('on');
+      document.querySelectorAll('.nbhd-card').forEach(function(c){c.classList.remove('on');});
+      document.querySelectorAll('.ndet').forEach(function(d){d.classList.remove('on');});
+      if (activeNbhdLayer){nsMap.removeLayer(activeNbhdLayer);activeNbhdLayer=null;}
+      if (!isOn) {
+        card.classList.add('on');
+        document.getElementById('nd-'+nb.id).classList.add('on');
+        nsMap.setView([nb.lat,nb.lng],15,{animate:true});
+        var poly = POLY[nb.id];
+        if (poly) {
+          activeNbhdLayer = L.polygon(poly,{color:nb.col,weight:3,opacity:.9,fillColor:nb.col,fillOpacity:.08,dashArray:'6,4'}).addTo(nsMap);
+        }
+      }
+    });
+    cont.appendChild(card);
+  });
+}
+
+// ── ITIN LIST ──────────────────────────────────────────────
+function buildItinList() {
+  var cont = document.getElementById('itinList');
+  ITINS.forEach(function(it){
+    var card = document.createElement('div');
+    card.className = 'itin-card';
+    var btns = it.dl.map(function(d,i){
+      return '<button class="dbtn'+(i===0?' on':'')+'" data-itin="'+it.id+'" data-idx="'+i+'">'+d.lbl+'</button>';
+    }).join('');
+    card.innerHTML =
+      '<h3>'+it.n+'</h3>'+
+      '<div class="imeta">&#128197; '+it.days+' &nbsp; &#128674; '+it.transport+'</div>'+
+      '<div class="idesc">'+it.desc+'</div>'+
+      '<div class="dtabs" id="dtabs-'+it.id+'">'+btns+'</div>';
+    card.addEventListener('click',function(e){
+      if (e.target.closest('[data-itin]')) return;
+      var isOn = card.classList.contains('on');
+      document.querySelectorAll('.itin-card').forEach(function(c){c.classList.remove('on');});
+      document.querySelectorAll('.dtabs').forEach(function(t){t.classList.remove('on');});
+      clearRoutes();
+      if (!isOn) {
+        card.classList.add('on');
+        document.getElementById('dtabs-'+it.id).classList.add('on');
+        activateItinerary(it);
+        drawDay(it,0);
+        document.querySelectorAll('#dtabs-'+it.id+' .dbtn').forEach(function(b,i){b.classList.toggle('on',i===0);});
+      }
+    });
+    cont.appendChild(card);
+  });
+  cont.addEventListener('click',function(e){
+    var btn = e.target.closest('[data-itin]');
+    if (!btn) return;
+    e.stopPropagation();
+    var itId = btn.getAttribute('data-itin');
+    var idx  = parseInt(btn.getAttribute('data-idx'));
+    var it2  = null;
+    for (var i=0;i<ITINS.length;i++){if(ITINS[i].id===itId){it2=ITINS[i];break;}}
+    if (!it2) return;
+    if (_activeItinId!==itId) activateItinerary(it2);
+    document.querySelectorAll('#dtabs-'+itId+' .dbtn').forEach(function(b){b.classList.remove('on');});
+    btn.classList.add('on');
+    drawDay(it2,idx);
+  });
+}
+
+// ── DRAW DAY ─────────────────────────────────────────────
+function clearRoutes(){
+  activeRouteObjs.forEach(function(o){nsMap.removeLayer(o);});
+  activeRouteObjs=[];
+  document.getElementById('stops').classList.remove('on');
+}
+
+function drawDay(it,dayIdx){
+  clearRoutes();
+  var day = it.dl[dayIdx];
+  if (!day) return;
+
+  // ── 1. Subtle background dots for all landmarks ──────────
+  Object.keys(LM).forEach(function(id){
+    var d=LM[id];
+    activeRouteObjs.push(
+      L.circleMarker([d.lat,d.lng],{radius:4,color:'#fff',fillColor:'#b0bccc',fillOpacity:.35,weight:1,interactive:false}).addTo(nsMap)
+    );
+  });
+
+  // ── 2. This day's global stops only ──────────────────────
+  var dayStops = _globalStops.filter(function(s){return s.dayIdx===dayIdx;});
+
+  // Ghost from previous day (if different location)
+  var prevLast=null;
+  if (dayIdx>0){
+    var prev=_globalStops.filter(function(s){return s.dayIdx===dayIdx-1;});
+    if (prev.length) prevLast=prev[prev.length-1];
+  }
+  if (prevLast && dayStops.length>0 && prevLast.locId!==dayStops[0].locId){
+    activeRouteObjs.push(
+      L.polyline([prevLast.coords,dayStops[0].coords],{color:'#e8a838',weight:3,opacity:.75,dashArray:'8,5',lineCap:'round'}).addTo(nsMap)
+    );
+    var gIcon=L.divIcon({className:'',html:'<div style="width:22px;height:22px;border-radius:50%;background:#99a8bb;border:2px solid white;box-shadow:0 1px 5px rgba(0,0,0,.2);display:flex;align-items:center;justify-content:center;color:white;font-size:10px;font-weight:600;">'+prevLast.num+'</div>',iconSize:[22,22],iconAnchor:[11,11],zIndexOffset:350});
+    activeRouteObjs.push(L.marker(prevLast.coords,{icon:gIcon,zIndexOffset:350}).addTo(nsMap));
+  }
+
+  // ── 3. Lines between this day's stops only ───────────────
+  for (var j=0;j<dayStops.length-1;j++){
+    if (dayStops[j].locId===dayStops[j+1].locId) continue;
+    var isBoat = ['murano','burano','torcello','lido','murano_i','burano_i','torcello_i','lido_i'].indexOf(dayStops[j+1].locId)>=0 ||
+                 ['murano','burano','torcello','lido','murano_i','burano_i','torcello_i','lido_i'].indexOf(dayStops[j].locId)>=0;
+    activeRouteObjs.push(
+      L.polyline([dayStops[j].coords,dayStops[j+1].coords],{
+        color:isBoat?'#0066CC':'#2d6a4f',weight:5,opacity:1,dashArray:'10,6',lineCap:'round',lineJoin:'round'
+      }).addTo(nsMap)
+    );
+  }
+
+  // ── 4. Numbered markers for today only ───────────────────
+  var bCoords=[];
+  dayStops.forEach(function(s){
+    bCoords.push(s.coords);
+    var lbl=s.label.length>24?s.label.substring(0,22)+'...':s.label;
+    var icon=L.divIcon({className:'',html:'<div style="text-align:center;width:130px;"><div style="width:30px;height:30px;border-radius:50%;background:#c4533a;border:3px solid white;box-shadow:0 2px 10px rgba(0,0,0,.4);display:flex;align-items:center;justify-content:center;color:white;font-size:12px;font-weight:700;margin:0 auto;">'+s.num+'</div><div style="margin-top:3px;font-size:10px;font-weight:700;color:#112244;background:rgba(255,255,255,.92);border-radius:3px;padding:1px 4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:130px;display:inline-block;">'+lbl+'</div></div>',iconSize:[130,46],iconAnchor:[65,15],zIndexOffset:700});
+    activeRouteObjs.push(L.marker(s.coords,{icon:icon,zIndexOffset:700}).addTo(nsMap));
+  });
+  if (prevLast && prevLast.locId!==dayStops[0].locId) bCoords.push(prevLast.coords);
+
+  // ── 5. fitBounds on today's stops only ───────────────────
+  var seen={},uniq=[];
+  bCoords.forEach(function(xy){var k=xy[0].toFixed(2)+','+xy[1].toFixed(2);if(!seen[k]){seen[k]=true;uniq.push(xy);}});
+  if (uniq.length>1) nsMap.fitBounds(L.latLngBounds(uniq),{paddingTopLeft:[380,70],paddingBottomRight:[80,90],animate:true,maxZoom:15});
+  else if (uniq.length===1) nsMap.setView(uniq[0],14,{animate:true});
+
+
+  document.getElementById('stopsTitle').textContent = it.n;
+  document.getElementById('stopsBd').innerHTML = day.stops.map(function(s,i){
+    return '<div class="srow"><span class="snum">'+(i+1)+'</span><span class="sname">'+s.n+'</span>'
+          +(s.time?'<span class="stime">'+s.time+'</span>':'')
+          +(s.tip?'<div class="stip">'+s.tip+'</div>':'')+'</div>';
+  }).join('');
+  document.getElementById('stops').classList.add('on');
+  if (window.innerWidth<=768) document.getElementById('panel').classList.remove('open');
+}
+
+// ── VAPORETTO BUTTONS ───────────────────────────────────────
+var _activeVLine = null;
+var _activeVObjs = [];  // all active vaporetto map objects (lines + stop markers)
+
+function clearVLine(){
+  _activeVObjs.forEach(function(o){nsMap.removeLayer(o);});
+  _activeVObjs=[];
+}
+
+function showVLine(key){
+  clearVLine();
+  if (_activeVLine===key){
+    _activeVLine=null;
+    document.getElementById('vLineInfo').innerHTML='';
+    return;
+  }
+  _activeVLine=key;
+  var vl = VLINES[key];
+  // Draw this line's paths directly on nsMap
+  vl.paths.forEach(function(p){
+    var pl = L.polyline(p.coords, {
+      color:vl.col, weight:p.dash?4:5, opacity:.95,
+      dashArray:p.dash||null, lineCap:'round', lineJoin:'round'
+    }).addTo(nsMap);
+    _activeVObjs.push(pl);
+  });
+  // Add stop markers
+  vl.stops.forEach(function(s){
+    var icon = L.divIcon({
+      className:'',
+      html:'<div style="display:flex;flex-direction:column;align-items:center;">'
+         + '<div style="width:9px;height:9px;border-radius:50%;background:'+vl.col+';border:2px solid white;box-shadow:0 1px 4px rgba(0,0,0,.35);"></div>'
+         + '<div style="background:rgba(255,255,255,.95);border:1px solid '+vl.col+';border-radius:3px;padding:1px 4px;font-size:9px;font-weight:700;color:#112244;margin-top:1px;white-space:nowrap;">'+s.n+'</div>'
+         + '</div>',
+      iconSize:[80,28], iconAnchor:[4,8], className:''
+    });
+    var m = L.marker([s.lat,s.lng],{icon:icon,zIndexOffset:500}).addTo(nsMap);
+    _activeVObjs.push(m);
+  });
+  // Info panel
+  document.getElementById('vLineInfo').innerHTML=
+    '<div class="vline-info"><b>'+vl.label+'</b>'+vl.desc+'</div>';
+  // Fit bounds to line stops
+  var coords = vl.stops.map(function(s){return [s.lat,s.lng];});
+  if (coords.length>1) nsMap.fitBounds(L.latLngBounds(coords),{paddingTopLeft:[380,60],paddingBottomRight:[80,60],animate:true,maxZoom:14});
+}
+
+function initVaporettoButtons(){
+  document.getElementById('vLineBtns').addEventListener('click',function(e){
+    var btn = e.target.closest('.vbtn');
+    if (!btn) return;
+    var key = btn.getAttribute('data-line');
+    // Toggle active btn style
+    document.querySelectorAll('.vbtn').forEach(function(b){b.classList.remove('on');});
+    if (_activeVLine!==key) btn.classList.add('on');
+    showVLine(key);
+  });
+}
+
+// ── TAB SWITCH ──────────────────────────────────────────────
+function showPane(id,btn){
+  clearRoutes();
+  if(activeNbhdLayer){nsMap.removeLayer(activeNbhdLayer);activeNbhdLayer=null;}
+  document.querySelectorAll('.nbhd-card').forEach(function(c){c.classList.remove('on');});
+  document.querySelectorAll('.ndet').forEach(function(d){d.classList.remove('on');});
+  document.querySelectorAll('.itin-card').forEach(function(c){c.classList.remove('on');});
+  document.querySelectorAll('.dtabs').forEach(function(t){t.classList.remove('on');});
+  document.getElementById('stops').classList.remove('on');
+  document.querySelectorAll('.tbtn').forEach(function(b){b.classList.remove('on');});
+  document.querySelectorAll('.pane').forEach(function(p){p.classList.remove('on');});
+  btn.classList.add('on');
+  document.getElementById('pane-'+id).classList.add('on');
+  if (id==='go'){
+    clearVLine();
+    _activeVLine=null;
+    document.querySelectorAll('.vbtn').forEach(function(b){b.classList.remove('on');});
+    document.getElementById('vLineInfo').innerHTML='';
+    nsMap.setView([45.4408,12.3155],13,{animate:true});
+  } else {
+    clearVLine();
+    _activeVLine=null;
+    placeLandmarkMarkers();
+  }
+}
+</script>
+</body>
+</html>
