@@ -1,1 +1,444 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>2026 Updates &mdash; The No-Stress Switzerland Travel Guide</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@300;400;500;600;700&family=Lato:ital,wght@0,300;0,400;0,700;1,300&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#112244;--navy-mid:#1B3566;--navy-light:#254580;
+  --gold:#F5C842;--gold-dark:#C89A10;--gold-pale:#FDF6DC;
+  --bg:#F0F4FB;--white:#FFFFFF;
+  --text:#1A2340;--text-mid:#3A4A6A;--text-muted:#6A7A9A;
+  --bad:#8C2020;--bad-pale:#FBF0F0;
+  --warn:#B36A10;--warn-pale:#FDF3E3;
+  --ok:#1A5C30;--ok-pale:#E4F5EB;
+  --new:#1A4A80;--new-pale:#E4EEF8;
+  --border:#C8D6EE;--border-lt:#E2EAF8;
+  --radius:10px;--shadow:0 2px 12px rgba(17,34,68,0.08);
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html{font-size:16px;-webkit-text-size-adjust:100%;scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:'Lato',sans-serif;font-weight:300;line-height:1.65;min-height:100vh;-webkit-font-smoothing:antialiased}
+.header{background:var(--navy);background-image:radial-gradient(ellipse at 80% 0%,rgba(37,69,128,0.8) 0%,transparent 60%);padding:2rem 1.5rem 0;position:sticky;top:0;z-index:100;overflow:hidden}
+.header::before{content:'';position:absolute;inset:0;background-image:radial-gradient(rgba(255,255,255,0.06) 1px,transparent 1px);background-size:20px 20px;pointer-events:none}
+.stamp{position:relative;z-index:1;margin-bottom:1.5rem}
+.stamp-inner{border:2.5px solid var(--gold);border-radius:4px;padding:1.1rem 1.3rem 1rem;background:rgba(17,34,68,0.55);backdrop-filter:blur(4px);position:relative}
+.stamp-inner::before{content:'';position:absolute;top:-9px;left:8px;right:8px;height:8px;background:repeating-linear-gradient(90deg,transparent,transparent 5px,var(--bg) 5px,var(--bg) 10px);opacity:.6}
+.stamp-inner::after{content:'';position:absolute;bottom:-9px;left:8px;right:8px;height:8px;background:repeating-linear-gradient(90deg,transparent,transparent 5px,var(--bg) 5px,var(--bg) 10px);opacity:.6}
+.stamp-label{font-family:'Oswald',sans-serif;font-size:.55rem;font-weight:400;letter-spacing:.28em;text-transform:uppercase;color:var(--gold);opacity:.8;margin-bottom:.35rem}
+.stamp-title{font-family:'Oswald',sans-serif;font-size:2rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:#fff;line-height:1.05;margin-bottom:.55rem}
+.stamp-dest{font-family:'Oswald',sans-serif;font-size:.75rem;font-weight:300;letter-spacing:.22em;text-transform:uppercase;color:rgba(255,255,255,.7)}
+.year-badge{display:inline-block;background:var(--gold);color:var(--navy);font-family:'Oswald',sans-serif;font-size:.7rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;padding:.18rem .65rem;border-radius:3px;margin-bottom:.55rem}
+.header-tabs{position:relative;z-index:1;display:flex;gap:0;margin-top:auto}
+.h-tab{flex:1;padding:.55rem .4rem;text-align:center;font-family:'Oswald',sans-serif;font-size:.58rem;font-weight:400;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.55);border-bottom:3px solid transparent;cursor:pointer;transition:all .2s;border-radius:3px 3px 0 0;background:none;border-top:none;border-left:none;border-right:none}
+.h-tab:hover{color:rgba(255,255,255,.8)}
+.h-tab.active{color:var(--gold);border-bottom-color:var(--gold);background:rgba(245,200,66,.06)}
+.transparency{background:var(--gold-pale);border:1px solid rgba(200,154,16,.3);border-radius:var(--radius);padding:.9rem 1rem;margin-bottom:1.2rem}
+.t-head{font-family:'Oswald',sans-serif;font-size:.6rem;font-weight:500;letter-spacing:.18em;text-transform:uppercase;color:var(--gold-dark);margin-bottom:.35rem}
+.t-text{font-size:.78rem;color:var(--text-mid);line-height:1.5}
+.content{max-width:640px;margin:0 auto;padding:1.2rem 1.1rem 2rem}
+.section{margin-bottom:3rem;opacity:0;transform:translateY(14px);transition:opacity .45s ease,transform .45s ease}
+.section.visible{opacity:1;transform:translateY(0)}
+.section-head{position:sticky;top:0;z-index:10;background:var(--bg);display:flex;align-items:center;justify-content:space-between;padding:.6rem 0 .55rem;margin-bottom:.9rem;border-bottom:2.5px solid var(--navy);box-shadow:0 4px 12px rgba(240,244,251,.95)}
+.sh-left{display:flex;align-items:center;gap:.55rem}
+.sh-pip{width:10px;height:10px;border-radius:2px;flex-shrink:0}
+.sp-bad{background:var(--bad)}.sp-warn{background:var(--warn)}.sp-ok{background:var(--ok)}.sp-new{background:var(--new)}
+.sh-title{font-family:'Oswald',sans-serif;font-size:1rem;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--navy)}
+.sh-date{font-size:.6rem;color:var(--text-muted);letter-spacing:.04em;white-space:nowrap}
+.zone{display:flex;align-items:center;gap:.55rem;margin:1.1rem 0 .6rem}
+.zone-label{font-family:'Oswald',sans-serif;font-size:.6rem;font-weight:500;letter-spacing:.22em;text-transform:uppercase;color:var(--gold-dark);white-space:nowrap}
+.zone-line{flex:1;height:1px;background:var(--border)}
+.card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:.55rem;overflow:hidden;position:relative;box-shadow:var(--shadow)}
+.card-bar{position:absolute;left:0;top:0;bottom:0;width:4px}
+.cb-bad{background:var(--bad)}.cb-warn{background:var(--warn)}.cb-new{background:var(--new)}.cb-ok{background:var(--ok)}
+.card-body{padding:.88rem 1rem .88rem 1.3rem}
+.card-place{font-family:'Oswald',sans-serif;font-size:.58rem;font-weight:300;letter-spacing:.18em;text-transform:uppercase;color:var(--text-muted);margin-bottom:.18rem}
+.card-text{font-size:.85rem;color:var(--text-mid);line-height:1.58}
+.card-text strong{color:var(--text);font-weight:700}
+.card-text em{font-style:italic;color:var(--text-muted)}
+.price-table{width:100%;border-collapse:collapse;margin-top:.75rem;font-size:.78rem}
+.price-table th{background:var(--navy);color:#fff;font-family:'Oswald',sans-serif;font-size:.58rem;font-weight:400;letter-spacing:.12em;text-transform:uppercase;padding:.45rem .65rem;text-align:left}
+.price-table td{padding:.4rem .65rem;border-bottom:1px solid var(--border-lt);color:var(--text-mid)}
+.price-table tr:last-child td{border-bottom:none}
+.price-table .old{text-decoration:line-through;color:var(--text-muted);font-size:.72rem}
+.price-table .new-price{font-weight:700;color:var(--bad)}
+.price-table .ok-price{font-weight:700;color:var(--ok)}
+.price-row{display:flex;align-items:center;gap:.45rem;margin-top:.6rem;padding-top:.5rem;border-top:1px solid var(--border-lt);flex-wrap:wrap}
+.pr-old{font-size:.76rem;color:var(--text-muted);text-decoration:line-through}
+.pr-arrow{font-size:.6rem;color:var(--text-muted)}
+.pr-new{font-size:.86rem;font-weight:700;color:var(--bad)}
+.pr-ok{font-size:.86rem;font-weight:700;color:var(--ok)}
+.pr-src{font-size:.65rem;color:var(--text-muted);margin-left:auto}
+.ok-list{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow)}
+.ok-row{display:flex;gap:.7rem;align-items:flex-start;padding:.75rem 1rem;border-bottom:1px solid var(--border-lt)}
+.ok-row:last-child{border-bottom:none}
+.ok-badge{width:20px;height:20px;border-radius:50%;background:var(--ok-pale);color:var(--ok);font-size:.65rem;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:.08rem}
+.ok-text{font-size:.83rem;color:var(--text-mid);line-height:1.48}
+.ok-text strong{color:var(--text);font-weight:700;display:block;font-size:.77rem;margin-bottom:.08rem}
+.alert{border-radius:var(--radius);padding:.85rem 1rem;margin-bottom:.55rem;border:1px solid}
+.alert-warn{background:var(--warn-pale);border-color:rgba(179,106,16,.25)}
+.alert-new{background:var(--new-pale);border-color:rgba(26,74,128,.25)}
+.alert-head{font-family:'Oswald',sans-serif;font-size:.62rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;margin-bottom:.25rem}
+.alert-head-warn{color:var(--warn)}.alert-head-new{color:var(--new)}
+.alert-text{font-size:.8rem;color:var(--text-mid);line-height:1.5}
+.changelog{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow)}
+.cl-head{background:var(--navy);padding:.65rem 1rem;font-family:'Oswald',sans-serif;font-size:.62rem;font-weight:400;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,.8)}
+.cl-row{display:flex;gap:.8rem;align-items:flex-start;padding:.7rem 1rem;border-bottom:1px solid var(--border-lt)}
+.cl-row:last-child{border-bottom:none}
+.cl-year{font-family:'Oswald',sans-serif;font-size:.72rem;font-weight:600;color:var(--navy);min-width:38px;flex-shrink:0;padding-top:.05rem}
+.cl-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:.28rem}
+.cd-active{background:var(--ok)}.cd-sched{background:var(--border)}
+.cl-text{font-size:.78rem;color:var(--text-mid);line-height:1.45}
+.cl-text.sched{color:var(--text-muted);font-style:italic}
+.cl-badge{display:inline-block;background:var(--ok-pale);color:var(--ok);font-family:'Oswald',sans-serif;font-size:.55rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;padding:.1rem .45rem;border-radius:3px;margin-left:.4rem;vertical-align:middle}
+footer{background:var(--navy)}
+.footer-gold{background:var(--gold);padding:1.1rem 1.5rem;display:flex;align-items:center;justify-content:center}
+.footer-brand{font-family:'Oswald',sans-serif;font-size:1rem;font-weight:700;color:var(--navy);letter-spacing:.14em;text-transform:uppercase}
+.footer-brand-sub{font-family:'Oswald',sans-serif;font-size:.58rem;font-weight:300;letter-spacing:.16em;text-transform:uppercase;color:var(--navy);opacity:.6;margin-top:.15rem}
+.footer-body{padding:1.5rem 1.5rem 2rem;color:rgba(255,255,255,.75)}
+.footer-promise{font-size:.8rem;line-height:1.6;margin-bottom:1rem;color:rgba(255,255,255,.85)}
+.footer-contact{font-size:.75rem;color:rgba(255,255,255,.55);margin-bottom:1rem}
+.footer-contact a{color:var(--gold);text-decoration:none}
+.footer-legal{font-size:.68rem;color:rgba(255,255,255,.35);line-height:1.55}
+@media(min-width:600px){.stamp-title{font-size:2.5rem}.content{padding:1.5rem 1.5rem 3rem}}
+</style>
+</head>
+<body>
+<header class="header">
+  <div class="stamp">
+    <div class="stamp-inner">
+      <div class="stamp-label">No-Stress Guides &mdash; Digital Companion</div>
+      <div class="year-badge">2026 Edition</div>
+      <div class="stamp-title">Switzerland</div>
+      <div class="stamp-dest">Yearly Updates</div>
+    </div>
+  </div>
+  <div class="header-tabs">
+    <button class="h-tab active" data-target="sec-changed">What Changed</button>
+    <button class="h-tab" data-target="sec-confirmed">Confirmed</button>
+    <button class="h-tab" data-target="sec-new">New Tips</button>
+    <button class="h-tab" data-target="sec-seasonal">Seasonal Alerts</button>
+  </div>
+</header>
 
+<main class="content">
+  <div class="transparency">
+    <div class="t-head">How this page works</div>
+    <div class="t-text">Every item verified for 2026 against official sources: SBB, Swiss Travel Pass official shop, Jungfrau Railways, Zermatt Bergbahnen, Gornergrat. Check 3&ndash;5 days before departure for any last-minute changes. Email us if something has shifted and we will update within 30 days.</div>
+  </div>
+
+  <!-- WHAT CHANGED -->
+  <section class="section" id="sec-changed">
+    <div class="section-head">
+      <div class="sh-left"><span class="sh-pip sp-bad"></span><span class="sh-title">What Changed</span></div>
+      <span class="sh-date">Verified March 2026</span>
+    </div>
+
+    <div class="zone"><span class="zone-label">Swiss Travel Pass &mdash; Price Increase</span><span class="zone-line"></span></div>
+
+    <div class="card">
+      <div class="card-bar cb-bad"></div>
+      <div class="card-body">
+        <div class="card-place">Swiss Travel Pass 2026 &mdash; 2nd class, consecutive days</div>
+        <div class="card-text">All Swiss Travel Pass prices increased approximately <strong>5% for 2026</strong>. The book lists 2025 prices. Use the table below for accurate 2026 budgeting. First class costs approximately 65% more than 2nd class. The Flex version (non-consecutive travel days within one month) costs about 15% more than consecutive.</div>
+        <table class="price-table" style="margin-top:10px">
+          <thead><tr><th>Duration</th><th>2025 (book)</th><th>2026 actual</th><th>Flex 2026</th></tr></thead>
+          <tbody>
+            <tr><td>3 days</td><td class="old">CHF 244</td><td class="new-price">CHF 254</td><td>CHF 293</td></tr>
+            <tr><td>4 days</td><td class="old">CHF 295</td><td class="new-price">CHF 309</td><td>CHF 355</td></tr>
+            <tr><td>6 days</td><td class="old">CHF 389</td><td class="new-price">CHF 399</td><td>CHF 459</td></tr>
+            <tr><td>8 days</td><td class="old">CHF 425</td><td class="new-price">CHF 439</td><td>CHF 505</td></tr>
+            <tr><td>15 days</td><td class="old">CHF 479</td><td class="new-price">CHF 499</td><td>CHF 574</td></tr>
+          </tbody>
+        </table>
+        <div class="card-text" style="margin-top:10px">Buy at the official SBB tourist shop (swissrailways.com) or sbb.ch. Instant e-ticket by email. <strong>Youth discount (ages 16&ndash;24): 30% off.</strong> Children under 16 travel free with parent holding a valid pass &mdash; request the free Swiss Family Card at purchase.</div>
+      </div>
+    </div>
+
+    <div class="zone"><span class="zone-label">Half Fare Card &mdash; Major Price Jump</span><span class="zone-line"></span></div>
+
+    <div class="card">
+      <div class="card-bar cb-bad"></div>
+      <div class="card-body">
+        <div class="card-place">Halbtax &mdash; 1-month card for 50% off all rail, bus, boat</div>
+        <div class="card-text">The Half Fare Card increased significantly for 2026. The book lists CHF 120; the current price is <strong>CHF 150</strong>. This is a 25% jump after years of stability. The card still gives 50% off all SBB trains, PostBus, lake boats, and most mountain railways for one month. Despite the increase, it remains the best option for travelers staying 2+ weeks with moderate travel intensity or those based in one region who rent a car for some legs.</div>
+        <div class="price-row">
+          <span class="pr-old">CHF 120 (book)</span>
+          <span class="pr-arrow">&rarr;</span>
+          <span class="pr-new">CHF 150 (2026)</span>
+          <span class="pr-src">sbb.ch</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="zone"><span class="zone-label">Mountain Excursions</span><span class="zone-line"></span></div>
+
+    <div class="card">
+      <div class="card-bar cb-warn"></div>
+      <div class="card-body">
+        <div class="card-place">Jungfraujoch &mdash; from Interlaken / Grindelwald</div>
+        <div class="card-text">Both the full price and the discounted price have changed versus the book. Additionally, <strong>seat reservations are now mandatory from May to October</strong> at an extra CHF 10 per person. Factor this into your budget when planning a summer visit. Reservations must be made in advance at jungfrau.ch or swissrailways.com.</div>
+        <table class="price-table" style="margin-top:10px">
+          <thead><tr><th>Ticket</th><th>Book (2025)</th><th>2026 actual</th></tr></thead>
+          <tbody>
+            <tr><td>Full price (high season, from Interlaken)</td><td class="old">CHF 247.80</td><td class="new-price">CHF 261.20</td></tr>
+            <tr><td>With Swiss Travel Pass (from Interlaken)</td><td class="old">CHF 197.80</td><td class="ok-price">CHF 177.20</td></tr>
+            <tr><td>With Half Fare Card (from Interlaken)</td><td class="old">&mdash;</td><td class="ok-price">CHF 130.60</td></tr>
+            <tr><td>Seat reservation (May&ndash;Oct, mandatory)</td><td class="old">Optional</td><td class="new-price">CHF 10 (required)</td></tr>
+          </tbody>
+        </table>
+        <div class="card-text" style="margin-top:8px"><em>Low season (Nov&ndash;Apr) prices are lower: CHF 224.40 full, CHF 148.60 with Swiss Travel Pass. No mandatory reservation outside May&ndash;Oct.</em></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-bar cb-warn"></div>
+      <div class="card-body">
+        <div class="card-place">Gornergrat &mdash; from Zermatt</div>
+        <div class="card-text">Summer prices have increased since the book was written. The book lists CHF 112 round trip; the 2026 summer price is <strong>CHF 132</strong>. With Swiss Travel Pass or Half Fare Card the 50% discount applies.</div>
+        <div class="price-row">
+          <span class="pr-old">CHF 112 round trip (book)</span>
+          <span class="pr-arrow">&rarr;</span>
+          <span class="pr-new">CHF 132 (summer 2026)</span>
+          <span class="pr-src">gornergrat.ch</span>
+        </div>
+        <div class="card-text" style="margin-top:6px">With Swiss Travel Pass or Half Fare Card: <strong>CHF 66</strong>. Winter (Nov&ndash;Apr): CHF 96 full / CHF 48 with discount. Optional priority boarding: CHF 7 extra.</div>
+      </div>
+    </div>
+
+    <div class="zone"><span class="zone-label">Pass Coverage Update</span><span class="zone-line"></span></div>
+
+    <div class="card">
+      <div class="card-bar cb-new"></div>
+      <div class="card-body">
+        <div class="card-place">Swiss Travel Pass &mdash; free mountains (not just 50% off)</div>
+        <div class="card-text">The book states the Swiss Travel Pass provides a 50% discount on most mountain railways. This is still true for most peaks &mdash; but three mountains are now <strong>fully included (free) with the Swiss Travel Pass</strong> in 2026, not just discounted:<br><br>
+        &bull; <strong>Rigi</strong> (1,797m above Lucerne &mdash; the Queen of the Mountains)<br>
+        &bull; <strong>Stoos</strong> (1,300m, Central Switzerland)<br>
+        &bull; <strong>Stanserhorn</strong> (1,898m, above Lake Lucerne)<br><br>
+        All other major peaks (Jungfraujoch, Gornergrat, Schilthorn, Pilatus, Titlis) remain at 50% discount, not free. Always verify the current discount at the ticket window or mountain railway website before purchasing.</div>
+        <div class="signal" style="background:var(--ok-pale);border-left:3px solid var(--ok);padding:7px 10px;border-radius:0 5px 5px 0;margin-top:8px;font-size:.77rem;color:var(--ok)">
+          <span style="font-family:Oswald,sans-serif;font-size:.58rem;font-weight:600;letter-spacing:.14em;text-transform:uppercase;display:block;margin-bottom:3px">Practical implication</span>
+          A full-day Rigi excursion from Lucerne now costs CHF 0 with the Swiss Travel Pass (round trip was CHF 90 without). This materially changes the value calculation for 3&ndash;4 day passes based in Lucerne.
+        </div>
+      </div>
+    </div>
+
+  </section>
+
+  <!-- CONFIRMED -->
+  <section class="section" id="sec-confirmed">
+    <div class="section-head">
+      <div class="sh-left"><span class="sh-pip sp-ok"></span><span class="sh-title">Confirmed Correct</span></div>
+      <span class="sh-date">Verified March 2026</span>
+    </div>
+
+    <div class="ok-list">
+      <div class="ok-row">
+        <div class="ok-badge">&#10003;</div>
+        <div class="ok-text"><strong>Glacier Express supplement &mdash; CHF 49&ndash;69</strong> Mandatory reservation fee on top of your ticket or pass. Price varies by season. Low season CHF 49, high season up to CHF 69. The base train fare is free with Swiss Travel Pass; you pay only the supplement. Book at glacierexpress.ch.</div>
+      </div>
+      <div class="ok-row">
+        <div class="ok-badge">&#10003;</div>
+        <div class="ok-text"><strong>Bernina Express supplement &mdash; CHF 14&ndash;26</strong> UNESCO World Heritage route from Chur to Tirano, Italy. Reservation mandatory. Regular trains run the same route for free with no supplement &mdash; same views, regular carriages. The supplement buys panoramic cars with larger windows.</div>
+      </div>
+      <div class="ok-row">
+        <div class="ok-badge">&#10003;</div>
+        <div class="ok-text"><strong>Schilthorn round trip &mdash; CHF 105 (CHF 52 with discount)</strong> The 007 connection and 360-degree panorama. Operational year-round. No advance booking required. Take Line 1 cable car to Mürren, then the Schilthornbahn to the top.</div>
+      </div>
+      <div class="ok-row">
+        <div class="ok-badge">&#10003;</div>
+        <div class="ok-text"><strong>Pilatus Golden Round Trip from Lucerne &mdash; CHF 120 (CHF 72 with pass)</strong> Cogwheel railway up from Alpnachstad, gondola or cable car down to Kriens. The cogwheel closes mid-November through mid-May. Verify operating dates before planning any spring visit.</div>
+      </div>
+      <div class="ok-row">
+        <div class="ok-badge">&#10003;</div>
+        <div class="ok-text"><strong>Titlis round trip from Engelberg &mdash; CHF 96 (CHF 48 with pass)</strong> The rotating gondola (Rotair) is unique. Snow year-round at 3,238m. Train from Lucerne to Engelberg: 45 minutes, included in Swiss Travel Pass.</div>
+      </div>
+      <div class="ok-row">
+        <div class="ok-badge">&#10003;</div>
+        <div class="ok-text"><strong>Motorway vignette &mdash; CHF 40</strong> Mandatory for driving on Swiss motorways. Annual vignette; valid from December of the previous year through January of the following year. Buy at border crossings, petrol stations, or online before arrival. No pro-rated option.</div>
+      </div>
+      <div class="ok-row">
+        <div class="ok-badge">&#10003;</div>
+        <div class="ok-text"><strong>Ski lift passes &mdash; CHF 70&ndash;85 per day</strong> Peak ski resorts (Zermatt, Verbier, St. Moritz, Jungfrau region) during peak winter. The Swiss Travel Pass does not cover ski lift passes. Book multi-day passes in advance for savings of 10&ndash;20%.</div>
+      </div>
+      <div class="ok-row">
+        <div class="ok-badge">&#10003;</div>
+        <div class="ok-text"><strong>Zürich Airport train to city center &mdash; CHF 7.00</strong> Every 5&ndash;10 minutes. 10 minutes to Zürich HB. Free with Swiss Travel Pass. Taxis to city center: CHF 50&ndash;70 (no advantage over the train).</div>
+      </div>
+      <div class="ok-row">
+        <div class="ok-badge">&#10003;</div>
+        <div class="ok-text"><strong>Geneva Airport transit ticket &mdash; free</strong> A free 80-minute transit ticket dispenses automatically in the baggage claim area. Covers trams, buses, and suburban trains into the city center. Valid for onward connections within Geneva.</div>
+      </div>
+      <div class="ok-row">
+        <div class="ok-badge">&#10003;</div>
+        <div class="ok-text"><strong>Basel Airport bus to Basel SBB &mdash; CHF 5.60</strong> Every 8&ndash;10 minutes, 20-minute journey. From Basel SBB, the full Swiss rail network is directly accessible.</div>
+      </div>
+      <div class="ok-row">
+        <div class="ok-badge">&#10003;</div>
+        <div class="ok-text"><strong>Kurtaxe (tourist tax) &mdash; CHF 2&ndash;8 per person per night</strong> Applied in most destinations. Sometimes included in quoted accommodation rates, sometimes charged at checkout. Typically comes with a Guest Card providing free local transport. Always ask at check-in what your card covers.</div>
+      </div>
+      <div class="ok-row">
+        <div class="ok-badge">&#10003;</div>
+        <div class="ok-text"><strong>Supersaver tickets &mdash; 30&ndash;50% off at sbb.ch</strong> Non-refundable, non-changeable point-to-point tickets for specific trains on specific dates. Available in advance via sbb.ch or the SBB Mobile app. Excellent value for fixed itineraries.</div>
+      </div>
+      <div class="ok-row">
+        <div class="ok-badge">&#10003;</div>
+        <div class="ok-text"><strong>SBB Mobile app &mdash; essential, free</strong> Real-time departures, live ticket purchase, pass activation, platform numbers. Works offline for purchased tickets. Download before arrival. Available in English.</div>
+      </div>
+      <div class="ok-row">
+        <div class="ok-badge">&#10003;</div>
+        <div class="ok-text"><strong>CHF exchange rate &mdash; approx. USD 1.10 per CHF</strong> As of early 2026. Check the current rate before arrival. Budget in CHF throughout to avoid confusion with menu prices and ticket costs.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- NEW TIPS -->
+  <section class="section" id="sec-new">
+    <div class="section-head">
+      <div class="sh-left"><span class="sh-pip sp-new"></span><span class="sh-title">New for 2026</span></div>
+      <span class="sh-date">Added March 2026</span>
+    </div>
+
+    <div class="alert alert-new">
+      <div class="alert-head alert-head-new">Jungfraujoch seat reservation &mdash; now mandatory in summer</div>
+      <div class="alert-text">From 1 May to 31 October 2026, seat reservations are compulsory for the Jungfraujoch trains in both directions. Cost: CHF 10 per person (round trip). Book at jungfrau.ch or swissrailways.com at the same time you buy your ticket. Arriving without a reservation during this period means joining an unguaranteed standby queue, which during peak days can mean missing the first available connection entirely.</div>
+    </div>
+
+    <div class="card">
+      <div class="card-bar cb-new"></div>
+      <div class="card-body">
+        <div class="card-place">Rigi &mdash; now free with Swiss Travel Pass</div>
+        <div class="card-text">The Rigi (the Queen of the Mountains above Lake Lucerne) was previously at 50% discount with the Swiss Travel Pass. In 2026, the round trip from Lucerne is <strong>fully included at no extra cost</strong>. This is one of the most scenic half-day excursions in Switzerland &mdash; sunrise from the summit in summer is justifiably famous. Previously CHF 90 round trip without discounts. Now CHF 0 with the Swiss Travel Pass. If you are based in Lucerne for 2&ndash;3 days, this materially changes the value case for buying a pass.</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-bar cb-new"></div>
+      <div class="card-body">
+        <div class="card-place">Swiss Travel Pass &mdash; Half Fare Card break-even recalculation</div>
+        <div class="card-text">With the Half Fare Card now at CHF 150 (up from CHF 120), the break-even calculation changes. The old rule was: if you spend more than CHF 240 on tickets at full price, the Half Fare Card saves money. The new rule: you need to spend more than <strong>CHF 300 in full-price tickets</strong> for the Half Fare Card to break even. For 3&ndash;4 day trips with heavy travel, the Swiss Travel Pass increasingly makes more sense relative to the Half Fare Card than it did in 2025.</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-bar cb-new"></div>
+      <div class="card-body">
+        <div class="card-place">GoldenPass Express &mdash; no supplement with Swiss Travel Pass</div>
+        <div class="card-text">The GoldenPass Express (the direct train from Interlaken to Montreux via the new tilt-axle gauge-change technology) is <strong>fully covered by the Swiss Travel Pass</strong> with no supplement, unlike the Glacier Express and Bernina Express. A reservation is recommended (CHF 19) but the base fare requires no extra payment on top of your pass. This makes the GoldenPass the most practical scenic route for Swiss Travel Pass holders.</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-bar cb-new"></div>
+      <div class="card-body">
+        <div class="card-place">Jungfraujoch &mdash; weather check before booking</div>
+        <div class="card-text">The mandatory reservation system means you are now committing to a specific date before you know the weather. Check the Jungfraujoch webcam at jungfrau.ch the evening before and morning of your planned visit. If the Sphinx Observatory is hidden at 07:00, conditions rarely improve significantly by midday. The Flex Cancellation Option (available at purchase) costs extra but allows cancellation up to the day before &mdash; worth considering for summer visits when afternoon cloud is common.</div>
+      </div>
+    </div>
+
+  </section>
+
+  <!-- SEASONAL ALERTS -->
+  <section class="section" id="sec-seasonal">
+    <div class="section-head">
+      <div class="sh-left"><span class="sh-pip sp-warn"></span><span class="sh-title">Seasonal Alerts</span></div>
+      <span class="sh-date">2026 Calendar</span>
+    </div>
+
+    <div class="ok-list">
+      <div class="ok-row">
+        <div class="ok-badge" style="background:var(--bad-pale);color:var(--bad)">!</div>
+        <div class="ok-text"><strong>Cable car closures &mdash; April&ndash;May and October&ndash;November</strong> Most cable cars and cogwheel trains outside major year-round operations close for annual maintenance in these windows. The Pilatus cogwheel railway closes mid-November through mid-May. Confirm operating dates for any mountain excursion before building your itinerary. Arriving at a closed lift station wastes half a day and the journey to get there.</div>
+      </div>
+      <div class="ok-row">
+        <div class="ok-badge" style="background:var(--bad-pale);color:var(--bad)">!</div>
+        <div class="ok-text"><strong>Peak ski weeks &mdash; Christmas&ndash;New Year, February school holidays</strong> Maximum prices at ski resorts. Hotels in Zermatt, Verbier, St. Moritz, and the Jungfrau region book out months ahead. Lift pass prices at peak. Book 3&ndash;6 months ahead or pay a severe premium for last-minute options. Cities (Zurich, Bern, Basel) are quieter during these same weeks.</div>
+      </div>
+      <div class="ok-row">
+        <div class="ok-badge" style="background:var(--warn-pale);color:var(--warn)">!</div>
+        <div class="ok-text"><strong>Summer peaks &mdash; July&ndash;August</strong> Maximum crowds at Lucerne, Grindelwald, Interlaken, Zermatt, and all major mountain destinations. Jungfraujoch seat reservations are mandatory in this window. The Glacier Express books out weeks in advance. Hotels reach 90&ndash;100% occupancy. Prices reflect the demand. Book accommodation and scenic train reservations 2&ndash;3 months ahead.</div>
+      </div>
+      <div class="ok-row">
+        <div class="ok-badge" style="background:var(--warn-pale);color:var(--warn)">!</div>
+        <div class="ok-text"><strong>Christmas and New Year &mdash; December 24 to January 2</strong> Maximum prices everywhere. Cities trade the low-season discount for holiday premium. Lucerne, Zurich, Montreux, and Bern host large Christmas markets through December 23 &mdash; worth visiting. January 2 begins the year low: quietest, cheapest period outside ski resorts.</div>
+      </div>
+      <div class="ok-row">
+        <div class="ok-badge" style="background:var(--ok-pale);color:var(--ok)">&#10003;</div>
+        <div class="ok-text"><strong>Best value windows &mdash; May&ndash;June and September&ndash;October</strong> Shoulder seasons offer hotels at 20&ndash;35% below peak. Hiking conditions are excellent. Mountains are fully operational. Crowds thin noticeably after schools resume in September. The Lavaux vineyards along Lake Geneva are particularly rewarding in October.</div>
+      </div>
+      <div class="ok-row">
+        <div class="ok-badge" style="background:var(--ok-pale);color:var(--ok)">&#10003;</div>
+        <div class="ok-text"><strong>Montreux Jazz Festival &mdash; early July 2026</strong> The lakefront concerts fill hotels across the Lake Geneva region. Book accommodation early if your dates overlap. Free outdoor performances complement ticketed indoor shows. Hotels sell out months in advance.</div>
+      </div>
+      <div class="ok-row">
+        <div class="ok-badge" style="background:var(--ok-pale);color:var(--ok)">&#10003;</div>
+        <div class="ok-text"><strong>Glacier Express reservation window opens 3 months ahead</strong> The earliest you can book a Glacier Express seat reservation is 3 months before travel. The first trains of the day in summer (07:00&ndash;09:00 from Zermatt or St. Moritz) sell out first. Set a reminder to book as soon as the window opens for summer travel.</div>
+      </div>
+    </div>
+
+    <div class="changelog" style="margin-top:1.5rem">
+      <div class="cl-head">Annual review schedule &mdash; every March</div>
+      <div class="cl-row">
+        <div class="cl-year">2026</div>
+        <div class="cl-dot cd-active"></div>
+        <div class="cl-text">Full review completed March 2026 &mdash; 14 items verified. Swiss Travel Pass price increase (all durations +5%) documented. Half Fare Card CHF 120&rarr;150 corrected. Jungfraujoch mandatory reservation added. Gornergrat summer price updated (CHF 112&rarr;132). Rigi/Stoos/Stanserhorn free-with-pass status added. <span class="cl-badge">Active</span></div>
+      </div>
+      <div class="cl-row">
+        <div class="cl-year">2027</div>
+        <div class="cl-dot cd-sched"></div>
+        <div class="cl-text sched">Scheduled review &mdash; March 2027. SBB typically announces price changes in December for the following year.</div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="footer-gold">
+    <div>
+      <div class="footer-brand">No-Stress Guides</div>
+      <div class="footer-brand-sub">Switzerland Travel Guide &mdash; 2026</div>
+    </div>
+  </div>
+  <div class="footer-body">
+    <p class="footer-promise">This page is reviewed every March. No sponsored content. No affiliate links. Every price comes from the official source.</p>
+    <p class="footer-contact">Questions or corrections: <a href="mailto:info@nostressguides.com">info@nostressguides.com</a></p>
+    <p class="footer-legal">&copy; 2026 No-Stress Guides. For personal travel use only.</p>
+  </div>
+</footer>
+
+<script>
+document.querySelectorAll('.section').forEach(function(s, i) {
+  setTimeout(function() { s.classList.add('visible'); }, 100 + i * 80);
+});
+var headerEl = document.querySelector('.header');
+document.querySelectorAll('.h-tab').forEach(function(btn) {
+  btn.addEventListener('click', function() {
+    var target = this.getAttribute('data-target');
+    document.querySelectorAll('.h-tab').forEach(function(t) { t.classList.remove('active'); });
+    btn.classList.add('active');
+    var el = document.getElementById(target);
+    if (!el) return;
+    var hh = headerEl ? headerEl.offsetHeight : 0;
+    window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY - hh - 8, behavior: 'smooth' });
+  });
+});
+var sIds = ['sec-changed','sec-confirmed','sec-new','sec-seasonal'];
+var allTabs = document.querySelectorAll('.h-tab');
+function updateTab() {
+  var hh = headerEl ? headerEl.offsetHeight : 0;
+  var active = 0;
+  sIds.forEach(function(id, i) {
+    var el = document.getElementById(id);
+    if (el && el.getBoundingClientRect().top <= hh + 20) active = i;
+  });
+  allTabs.forEach(function(t, i) { t.classList.toggle('active', i === active); });
+}
+window.addEventListener('scroll', updateTab, { passive: true });
+updateTab();
+</script>
+</body>
+</html>
