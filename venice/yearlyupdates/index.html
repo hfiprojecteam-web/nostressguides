@@ -1,1 +1,475 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>2026 Updates &mdash; The No-Stress Venice Travel Guide</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@300;400;500;600;700&family=Lato:ital,wght@0,300;0,400;0,700;1,300&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#112244;--navy-mid:#1B3566;--navy-light:#254580;
+  --gold:#F5C842;--gold-dark:#C89A10;--gold-pale:#FDF6DC;
+  --bg:#F0F4FB;--white:#FFFFFF;
+  --text:#1A2340;--text-mid:#3A4A6A;--text-muted:#6A7A9A;
+  --bad:#8C2020;--bad-pale:#FBF0F0;
+  --warn:#B36A10;--warn-pale:#FDF3E3;
+  --ok:#1A5C30;--ok-pale:#E4F5EB;
+  --new:#1A4A80;--new-pale:#E4EEF8;
+  --border:#C8D6EE;--border-lt:#E2EAF8;
+  --radius:10px;--shadow:0 2px 12px rgba(17,34,68,0.08);
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html{font-size:16px;-webkit-text-size-adjust:100%;scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:'Lato',sans-serif;font-weight:300;line-height:1.65;min-height:100vh;-webkit-font-smoothing:antialiased}
+.header{background:var(--navy);background-image:radial-gradient(ellipse at 80% 0%,rgba(37,69,128,0.8) 0%,transparent 60%);padding:2rem 1.5rem 0;position:sticky;top:0;z-index:100;overflow:hidden}
+.header::before{content:'';position:absolute;inset:0;background-image:radial-gradient(rgba(255,255,255,0.06) 1px,transparent 1px);background-size:20px 20px;pointer-events:none}
+.stamp{position:relative;z-index:1;margin-bottom:1.5rem}
+.stamp-inner{border:2.5px solid var(--gold);border-radius:4px;padding:1.1rem 1.3rem 1rem;background:rgba(17,34,68,0.55);backdrop-filter:blur(4px);position:relative}
+.stamp-inner::before{content:'';position:absolute;top:-9px;left:8px;right:8px;height:8px;background:repeating-linear-gradient(90deg,transparent,transparent 5px,var(--bg) 5px,var(--bg) 10px);opacity:.6}
+.stamp-inner::after{content:'';position:absolute;bottom:-9px;left:8px;right:8px;height:8px;background:repeating-linear-gradient(90deg,transparent,transparent 5px,var(--bg) 5px,var(--bg) 10px);opacity:.6}
+.stamp-label{font-family:'Oswald',sans-serif;font-size:.55rem;font-weight:400;letter-spacing:.28em;text-transform:uppercase;color:var(--gold);opacity:.8;margin-bottom:.35rem}
+.stamp-title{font-family:'Oswald',sans-serif;font-size:2rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:#fff;line-height:1.05;margin-bottom:.55rem}
+.stamp-dest{font-family:'Oswald',sans-serif;font-size:.75rem;font-weight:300;letter-spacing:.22em;text-transform:uppercase;color:rgba(255,255,255,.7)}
+.year-badge{display:inline-block;background:var(--gold);color:var(--navy);font-family:'Oswald',sans-serif;font-size:.7rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;padding:.18rem .65rem;border-radius:3px;margin-bottom:.55rem}
+.header-tabs{position:relative;z-index:1;display:flex;gap:0;margin-top:auto}
+.h-tab{flex:1;padding:.55rem .4rem;text-align:center;font-family:'Oswald',sans-serif;font-size:.58rem;font-weight:400;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.55);border-bottom:3px solid transparent;cursor:pointer;transition:all .2s;border-radius:3px 3px 0 0;background:none;border-top:none;border-left:none;border-right:none}
+.h-tab:hover{color:rgba(255,255,255,.8)}
+.h-tab.active{color:var(--gold);border-bottom-color:var(--gold);background:rgba(245,200,66,.06)}
+.transparency{background:var(--gold-pale);border:1px solid rgba(200,154,16,.3);border-radius:var(--radius);padding:.9rem 1rem;margin-bottom:1.2rem}
+.t-head{font-family:'Oswald',sans-serif;font-size:.6rem;font-weight:500;letter-spacing:.18em;text-transform:uppercase;color:var(--gold-dark);margin-bottom:.35rem}
+.t-text{font-size:.78rem;color:var(--text-mid);line-height:1.5}
+.content{max-width:640px;margin:0 auto;padding:1.2rem 1.1rem 2rem}
+.section{margin-bottom:3rem;opacity:0;transform:translateY(14px);transition:opacity .45s ease,transform .45s ease}
+.section.visible{opacity:1;transform:translateY(0)}
+.section-head{position:sticky;top:0;z-index:10;background:var(--bg);display:flex;align-items:center;justify-content:space-between;padding:.6rem 0 .55rem;margin-bottom:.9rem;border-bottom:2.5px solid var(--navy);box-shadow:0 4px 12px rgba(240,244,251,.95)}
+.sh-left{display:flex;align-items:center;gap:.55rem}
+.sh-pip{width:10px;height:10px;border-radius:2px;flex-shrink:0}
+.sp-bad{background:var(--bad)}.sp-warn{background:var(--warn)}.sp-ok{background:var(--ok)}.sp-new{background:var(--new)}
+.sh-title{font-family:'Oswald',sans-serif;font-size:1rem;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--navy)}
+.sh-date{font-size:.6rem;color:var(--text-muted);letter-spacing:.04em;white-space:nowrap}
+.zone{display:flex;align-items:center;gap:.55rem;margin:1.1rem 0 .6rem}
+.zone-label{font-family:'Oswald',sans-serif;font-size:.6rem;font-weight:500;letter-spacing:.22em;text-transform:uppercase;color:var(--gold-dark);white-space:nowrap}
+.zone-line{flex:1;height:1px;background:var(--border)}
+.card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:.55rem;overflow:hidden;position:relative;box-shadow:var(--shadow)}
+.card-bar{position:absolute;left:0;top:0;bottom:0;width:4px}
+.cb-bad{background:var(--bad)}.cb-warn{background:var(--warn)}.cb-new{background:var(--new)}.cb-ok{background:var(--ok)}
+.card-body{padding:.88rem 1rem .88rem 1.3rem}
+.card-place{font-family:'Oswald',sans-serif;font-size:.58rem;font-weight:300;letter-spacing:.18em;text-transform:uppercase;color:var(--text-muted);margin-bottom:.18rem}
+.card-text{font-size:.85rem;color:var(--text-mid);line-height:1.58}
+.card-text strong{color:var(--text);font-weight:700}
+.card-text em{font-style:italic;color:var(--text-muted)}
+.price-row{display:flex;align-items:center;gap:.45rem;margin-top:.6rem;padding-top:.5rem;border-top:1px solid var(--border-lt);flex-wrap:wrap}
+.pr-old{font-size:.76rem;color:var(--text-muted);text-decoration:line-through}
+.pr-arrow{font-size:.6rem;color:var(--text-muted)}
+.pr-new{font-size:.86rem;font-weight:700;color:var(--bad)}
+.pr-ok{font-size:.86rem;font-weight:700;color:var(--ok)}
+.pr-src{font-size:.65rem;color:var(--text-muted);margin-left:auto}
+.date-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:10px}
+.date-month{background:var(--bad-pale);border:1px solid rgba(140,32,32,.15);border-radius:8px;padding:8px 10px}
+.date-month-name{font-family:'Oswald',sans-serif;font-size:.65rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--bad);margin-bottom:4px}
+.date-days{font-size:.72rem;color:var(--text-mid);line-height:1.5}
+.ok-list{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow)}
+.ok-row{display:flex;gap:.7rem;align-items:flex-start;padding:.75rem 1rem;border-bottom:1px solid var(--border-lt)}
+.ok-row:last-child{border-bottom:none}
+.ok-badge{width:20px;height:20px;border-radius:50%;background:var(--ok-pale);color:var(--ok);font-size:.65rem;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:.08rem}
+.ok-text{font-size:.83rem;color:var(--text-mid);line-height:1.48}
+.ok-text strong{color:var(--text);font-weight:700;display:block;font-size:.77rem;margin-bottom:.08rem}
+.alert{border-radius:var(--radius);padding:.85rem 1rem;margin-bottom:.55rem;border:1px solid}
+.alert-warn{background:var(--warn-pale);border-color:rgba(179,106,16,.25)}
+.alert-head{font-family:'Oswald',sans-serif;font-size:.62rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;margin-bottom:.25rem;color:var(--warn)}
+.alert-text{font-size:.8rem;color:var(--text-mid);line-height:1.5}
+.changelog{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow)}
+.cl-head{background:var(--navy);padding:.65rem 1rem;font-family:'Oswald',sans-serif;font-size:.62rem;font-weight:400;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,.8)}
+.cl-row{display:flex;gap:.8rem;align-items:flex-start;padding:.7rem 1rem;border-bottom:1px solid var(--border-lt)}
+.cl-row:last-child{border-bottom:none}
+.cl-year{font-family:'Oswald',sans-serif;font-size:.72rem;font-weight:600;color:var(--navy);min-width:38px;flex-shrink:0;padding-top:.05rem}
+.cl-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:.28rem}
+.cd-active{background:var(--ok)}.cd-sched{background:var(--border)}
+.cl-text{font-size:.78rem;color:var(--text-mid);line-height:1.45}
+.cl-text.sched{color:var(--text-muted);font-style:italic}
+.cl-badge{display:inline-block;background:var(--ok-pale);color:var(--ok);font-family:'Oswald',sans-serif;font-size:.55rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;padding:.1rem .45rem;border-radius:3px;margin-left:.4rem;vertical-align:middle}
+footer{background:var(--navy)}
+.footer-gold{background:var(--gold);padding:1.1rem 1.5rem;display:flex;align-items:center;justify-content:center}
+.footer-brand{font-family:'Oswald',sans-serif;font-size:1rem;font-weight:700;color:var(--navy);letter-spacing:.14em;text-transform:uppercase}
+.footer-brand-sub{font-family:'Oswald',sans-serif;font-size:.58rem;font-weight:300;letter-spacing:.16em;text-transform:uppercase;color:var(--navy);opacity:.6;margin-top:.15rem}
+.footer-body{padding:1.5rem 1.5rem 2rem;color:rgba(255,255,255,.75)}
+.footer-promise{font-size:.8rem;line-height:1.6;margin-bottom:1rem;color:rgba(255,255,255,.85)}
+.footer-contact{font-size:.75rem;color:rgba(255,255,255,.55);margin-bottom:1rem}
+.footer-contact a{color:var(--gold);text-decoration:none}
+.footer-legal{font-size:.68rem;color:rgba(255,255,255,.35);line-height:1.55}
+@media(min-width:600px){.stamp-title{font-size:2.5rem}.content{padding:1.5rem 1.5rem 3rem}}
+</style>
+</head>
+<body>
+<header class="header">
+  <div class="stamp">
+    <div class="stamp-inner">
+      <div class="stamp-label">No-Stress Guides &mdash; Digital Companion</div>
+      <div class="year-badge">2026 Edition</div>
+      <div class="stamp-title">Venice</div>
+      <div class="stamp-dest">Yearly Updates</div>
+    </div>
+  </div>
+  <div class="header-tabs">
+    <button class="h-tab active" data-target="sec-changed">What Changed</button>
+    <button class="h-tab" data-target="sec-confirmed">Confirmed</button>
+    <button class="h-tab" data-target="sec-new">New Tips</button>
+    <button class="h-tab" data-target="sec-seasonal">Seasonal Alerts</button>
+  </div>
+</header>
 
+<main class="content">
+  <div class="transparency">
+    <div class="t-head">How this page works</div>
+    <div class="t-text">Every item was personally verified for 2026. Prices come from official sources: ACTV, Musei Civici Venezia, cda.ve.it. Check 3&ndash;5 days before departure for last-minute changes. Email us if something has changed and we will update within 30 days.</div>
+  </div>
+
+  <!-- WHAT CHANGED -->
+  <section class="section" id="sec-changed">
+    <div class="section-head">
+      <div class="sh-left"><span class="sh-pip sp-bad"></span><span class="sh-title">What Changed</span></div>
+      <span class="sh-date">Verified March 2026</span>
+    </div>
+
+    <div class="zone"><span class="zone-label">Venice Access Fee &mdash; The Biggest Change</span><span class="zone-line"></span></div>
+
+    <div class="card">
+      <div class="card-bar cb-bad"></div>
+      <div class="card-body">
+        <div class="card-place">Day visitors &middot; Historic centre only &middot; 08:30&ndash;16:00</div>
+        <div class="card-text">The Venice Access Fee (Contributo di Accesso) introduced in 2024 continues in 2026 with a <strong>two-tier pricing system</strong> not reflected in the book. The fee is <strong>&euro;5 if booked at least 4 days in advance</strong> and <strong>&euro;10 if booked within 3 days</strong> of your visit. The book states a flat &euro;5 &mdash; book early to get that price.<br><br>
+        Who pays: day visitors only (not staying overnight in Venice). Who is exempt: overnight guests, children under 14, Veneto residents, students enrolled in Venice.<br><br>
+        <strong>Critical note for overnight guests:</strong> Even if you are staying in a hotel and are fully exempt from payment, you must still <strong>register online and obtain a QR code</strong> to show during inspections. Your hotel may handle this automatically &mdash; confirm before arrival. Register at <strong>cda.ve.it</strong>. Fines for non-compliance run &euro;50&ndash;300.</div>
+        <div class="price-row">
+          <span class="pr-old">&euro;5 flat (book states)</span>
+          <span class="pr-arrow">&rarr;</span>
+          <span class="pr-new">&euro;5 early / &euro;10 last-minute</span>
+          <span class="pr-src">cda.ve.it</span>
+        </div>
+        <div class="date-grid" style="margin-top:12px">
+          <div class="date-month">
+            <div class="date-month-name">April</div>
+            <div class="date-days">3&ndash;6, 10&ndash;12, 17&ndash;19, 24&ndash;30</div>
+          </div>
+          <div class="date-month">
+            <div class="date-month-name">May</div>
+            <div class="date-days">1&ndash;3, 8&ndash;10, 15&ndash;17, 22&ndash;24, 29&ndash;31</div>
+          </div>
+          <div class="date-month">
+            <div class="date-month-name">June</div>
+            <div class="date-days">1&ndash;7, 12&ndash;14, 19&ndash;21, 26&ndash;28</div>
+          </div>
+          <div class="date-month">
+            <div class="date-month-name">July</div>
+            <div class="date-days">3&ndash;5, 10&ndash;12, 17&ndash;19, 24&ndash;26</div>
+          </div>
+          <div class="date-month" style="background:var(--ok-pale);border-color:rgba(26,92,48,.15)">
+            <div class="date-month-name" style="color:var(--ok)">Not applied</div>
+            <div class="date-days">Aug&ndash;Mar, Mon&ndash;Thu outside exceptions, after 16:00</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="zone"><span class="zone-label">Vaporetto &amp; Transport</span><span class="zone-line"></span></div>
+
+    <div class="card">
+      <div class="card-bar cb-warn"></div>
+      <div class="card-body">
+        <div class="card-place">ACTV &mdash; single ride</div>
+        <div class="card-text">Single ride confirmed at <strong>&euro;9.50</strong>. This remains one of the most expensive single public-transport tickets in Europe &mdash; a 10-minute trip costs the same as a 40-minute one. Any visit involving more than two rides in a day makes a pass better value. Buy passes at ACTV booths (Piazzale Roma, Ferrovia, Rialto, San Marco) or via the AVM Venezia Official App. <strong>Always validate before boarding</strong> &mdash; inspectors check regularly; fines are &euro;60 plus the fare.</div>
+        <div class="price-row">
+          <span class="pr-ok">&euro;9.50 single &mdash; confirmed</span>
+          <span class="pr-src">actv.avmspa.it</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-bar cb-warn"></div>
+      <div class="card-body">
+        <div class="card-place">ACTV &mdash; tourist time passes</div>
+        <div class="card-text">All pass prices confirmed unchanged for 2026. The clock starts at <strong>first validation</strong>, not at purchase. Buy in advance but validate only when you are ready to travel. Passes cover vaporetti, mainland buses (Mestre), and the People Mover. Not valid on Alilaguna (airport service), lines 16 and 19, or water taxis.</div>
+        <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:6px;margin-top:10px">
+          <div style="background:var(--ok-pale);border-radius:8px;padding:8px 10px;font-size:.76rem">
+            <div style="font-weight:700;color:var(--ok);font-family:'Oswald',sans-serif;font-size:.65rem;letter-spacing:.08em;text-transform:uppercase;margin-bottom:2px">24 hours</div>
+            <div style="font-size:1.1rem;font-weight:700;color:var(--text)">&euro;25</div>
+          </div>
+          <div style="background:var(--ok-pale);border-radius:8px;padding:8px 10px;font-size:.76rem">
+            <div style="font-weight:700;color:var(--ok);font-family:'Oswald',sans-serif;font-size:.65rem;letter-spacing:.08em;text-transform:uppercase;margin-bottom:2px">48 hours</div>
+            <div style="font-size:1.1rem;font-weight:700;color:var(--text)">&euro;35</div>
+          </div>
+          <div style="background:var(--ok-pale);border-radius:8px;padding:8px 10px;font-size:.76rem">
+            <div style="font-weight:700;color:var(--ok);font-family:'Oswald',sans-serif;font-size:.65rem;letter-spacing:.08em;text-transform:uppercase;margin-bottom:2px">72 hours</div>
+            <div style="font-size:1.1rem;font-weight:700;color:var(--text)">&euro;45</div>
+          </div>
+          <div style="background:var(--ok-pale);border-radius:8px;padding:8px 10px;font-size:.76rem">
+            <div style="font-weight:700;color:var(--ok);font-family:'Oswald',sans-serif;font-size:.65rem;letter-spacing:.08em;text-transform:uppercase;margin-bottom:2px">7 days</div>
+            <div style="font-size:1.1rem;font-weight:700;color:var(--text)">&euro;65</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="zone"><span class="zone-label">Museums &amp; Attractions</span><span class="zone-line"></span></div>
+
+    <div class="card">
+      <div class="card-bar cb-warn"></div>
+      <div class="card-body">
+        <div class="card-place">Palazzo Ducale (Doge's Palace)</div>
+        <div class="card-text">Price confirmed at <strong>&euro;30</strong> including Museo Correr, Museo Archeologico, and Biblioteca Marciana. Valid for 3 months. In high season, book online to secure timed entry and reduce indoor queuing. The <em>Itinerari Segreti</em> (Secret Itineraries guided tour) remains at <strong>&euro;28 supplement</strong> and must be booked well in advance through the Musei Civici website &mdash; it accesses normally closed areas including Casanova's cell and the torture chambers.</div>
+        <div class="price-row">
+          <span class="pr-ok">&euro;30 &mdash; confirmed</span>
+          <span class="pr-src">palazzoducale.visitmuve.it</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-bar cb-warn"></div>
+      <div class="card-body">
+        <div class="card-place">Basilica di San Marco &mdash; skip-queue booking</div>
+        <div class="card-text">Entry to the basilica remains <strong>free</strong> but the online skip-queue reservation is now <strong>&euro;3 per person</strong> (up from previous years when it was free or lower). In high season the standard queue runs 30&ndash;60 minutes. Book at <strong>venetoinside.com</strong>. Shoulders and knees must be covered &mdash; enforced at the door. Bags larger than a small purse must be checked at the free deposit nearby (Ateneo San Basso, Piazzetta dei Leoncini). No photography inside.</div>
+        <div class="price-row">
+          <span class="pr-new">Reservation: &euro;3 (entry still free)</span>
+          <span class="pr-src">venetoinside.com</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-bar cb-warn"></div>
+      <div class="card-body">
+        <div class="card-place">Alilaguna water bus &mdash; airport to Venice</div>
+        <div class="card-text">Price confirmed at <strong>&euro;15 one-way, &euro;27 return</strong>. Boats every 30 minutes from approximately 06:00 to midnight. The Orange Line reaches San Marco in 75 minutes; the Blue Line via Lido in 90 minutes. <em>Note: Alilaguna is not covered by ACTV passes.</em> The ATVO bus to Piazzale Roma remains a cheaper alternative at <strong>&euro;14 one-way, &euro;24 return</strong> and takes about 25 minutes to Piazzale Roma.</div>
+        <div class="price-row">
+          <span class="pr-ok">&euro;15 one-way / &euro;27 return &mdash; confirmed</span>
+          <span class="pr-src">alilaguna.it</span>
+        </div>
+      </div>
+    </div>
+
+  </section>
+
+  <!-- CONFIRMED -->
+  <section class="section" id="sec-confirmed">
+    <div class="section-head">
+      <div class="sh-left"><span class="sh-pip sp-ok"></span><span class="sh-title">Confirmed Correct</span></div>
+      <span class="sh-date">Verified March 2026</span>
+    </div>
+
+    <div class="ok-list">
+      <div class="ok-row">
+        <div class="ok-badge">&#10003;</div>
+        <div class="ok-text"><strong>Gallerie dell'Accademia &mdash; &euro;15</strong> Venetian painting from Byzantine through 18th century. Free on first Sunday of the month. Book at gallerieaccademia.it in high season.</div>
+      </div>
+      <div class="ok-row">
+        <div class="ok-badge">&#10003;</div>
+        <div class="ok-text"><strong>Collezione Peggy Guggenheim &mdash; &euro;16</strong> Modern art in a Grand Canal palazzo. One of the best-organised museums in Venice. Book ahead in peak season.</div>
+      </div>
+      <div class="ok-row">
+        <div class="ok-badge">&#10003;</div>
+        <div class="ok-text"><strong>Musei Civici Pass &mdash; &euro;35</strong> Covers Palazzo Ducale, Museo Correr, Ca' Rezzonico, Ca' Pesaro, Museo del Vetro (Murano), Museo del Merletto (Burano), and others. Worth it if visiting three or more covered museums.</div>
+      </div>
+      <div class="ok-row">
+        <div class="ok-badge">&#10003;</div>
+        <div class="ok-text"><strong>Chorus Pass &mdash; &euro;14</strong> Entry to 16 historic churches that charge individual admission (&euro;3.50 each). Covers Santa Maria Gloriosa dei Frari, Santa Maria dei Miracoli, San Polo, and others. Good value if visiting more than four.</div>
+      </div>
+      <div class="ok-row">
+        <div class="ok-badge">&#10003;</div>
+        <div class="ok-text"><strong>Campanile di San Marco &mdash; &euro;10</strong> 98-metre bell tower. Elevator to observation deck. 360-degree panorama of Venice and the lagoon. Alternative: San Giorgio Maggiore campanile &euro;8 &mdash; fewer crowds, San Marco campanile in the frame.</div>
+      </div>
+      <div class="ok-row">
+        <div class="ok-badge">&#10003;</div>
+        <div class="ok-text"><strong>Scuola Grande di San Rocco &mdash; &euro;10</strong> Tintoretto's masterwork cycle covering the entire building. One of the most concentrated collections of a single artist in any building in the world. No advance booking needed.</div>
+      </div>
+      <div class="ok-row">
+        <div class="ok-badge">&#10003;</div>
+        <div class="ok-text"><strong>Torre dell'Orologio &mdash; &euro;14</strong> Guided visits only. Small groups climb narrow stairs to the clockwork mechanism and rooftop. Reservation required &mdash; book days ahead in high season via Musei Civici website.</div>
+      </div>
+      <div class="ok-row">
+        <div class="ok-badge">&#10003;</div>
+        <div class="ok-text"><strong>Gondola official rates &mdash; &euro;80 / &euro;100</strong> &euro;80 for 30 minutes during the day, &euro;100 after 19:00. Agree on duration and price before boarding. Rates are posted inside the gondola. Surcharges for singing or extra passengers must be agreed in advance.</div>
+      </div>
+      <div class="ok-row">
+        <div class="ok-badge">&#10003;</div>
+        <div class="ok-text"><strong>Traghetto (standing gondola crossing) &mdash; &euro;2.50</strong> Seven crossing points along the Grand Canal. No booking. Standing only for non-residents. The Santa Sofia&ndash;Pescaria crossing near Rialto market is the most reliable.</div>
+      </div>
+      <div class="ok-row">
+        <div class="ok-badge">&#10003;</div>
+        <div class="ok-text"><strong>Pala d'Oro inside Basilica &mdash; &euro;5</strong> The golden Byzantine altarpiece behind the main altar. Treasury also &euro;5. Museum and Loggia (upper level with bronze horses and terrace) &euro;7.</div>
+      </div>
+      <div class="ok-row">
+        <div class="ok-badge">&#10003;</div>
+        <div class="ok-text"><strong>Public bathroom &mdash; &euro;1.50</strong> Locations at Piazzale Roma, Rialto market area, near San Marco, and Accademia. Alternatively: order a coffee at any bar (standing, &euro;1.20&ndash;1.50) and use theirs free.</div>
+      </div>
+      <div class="ok-row">
+        <div class="ok-badge">&#10003;</div>
+        <div class="ok-text"><strong>First Sunday of the month &mdash; free state museums</strong> Accademia, Ca'd'Oro, Museo Orientale. Lines form early. Arrive at opening.</div>
+      </div>
+      <div class="ok-row">
+        <div class="ok-badge">&#10003;</div>
+        <div class="ok-text"><strong>MOSE operational</strong> The mobile flood barrier system at the lagoon entrances has been operational since 2020. Acqua alta still occurs but the most extreme flooding events (&gt;130 cm) are now largely prevented. Seasonal flooding below barrier activation threshold (&sim;110 cm) still affects San Marco and low quaysides. Download the Ci.Venezia app for 48-hour tide forecasts.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- NEW TIPS -->
+  <section class="section" id="sec-new">
+    <div class="section-head">
+      <div class="sh-left"><span class="sh-pip sp-new"></span><span class="sh-title">New for 2026</span></div>
+      <span class="sh-date">Added March 2026</span>
+    </div>
+
+    <div class="card">
+      <div class="card-bar cb-new"></div>
+      <div class="card-body">
+        <div class="card-place">Access Fee &mdash; overnight guests still need a QR code</div>
+        <div class="card-text">If you are staying overnight in Venice, you are <strong>exempt</strong> from paying the Access Fee &mdash; but you are <strong>not exempt from registering</strong>. On applicable dates, you must obtain an exemption QR code at <strong>cda.ve.it</strong> or through your hotel. Many hotels now handle this automatically and email the code with your booking confirmation. If yours does not, register yourself. Inspectors check documents including at the train station and Piazzale Roma. Showing nothing when asked is treated the same as not paying.</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-bar cb-new"></div>
+      <div class="card-body">
+        <div class="card-place">Islands not subject to Access Fee</div>
+        <div class="card-text">In 2026, the Access Fee does <strong>not apply</strong> to visits to the minor lagoon islands: Murano, Burano, Torcello, Lido, Pellestrina, and smaller islands. If you enter Venice only to take a vaporetto to Murano without setting foot in the historic centre, no fee is required. However, stopping in the historic centre en route on a chargeable date triggers the obligation.</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-bar cb-new"></div>
+      <div class="card-body">
+        <div class="card-place">Visiting after 16:00 &mdash; fee does not apply</div>
+        <div class="card-text">The Access Fee applies only between <strong>08:30 and 16:00</strong> on chargeable dates. Arriving in Venice after 16:00 for dinner, a concert, or an evening walk does not require payment or registration, even for day visitors. This is a practical option for those staying on the mainland (Mestre, Padova) who want to experience Venice in the evening.</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-bar cb-new"></div>
+      <div class="card-body">
+        <div class="card-place">San Marco Basilica &mdash; bag deposit before entry</div>
+        <div class="card-text">Bags larger than a small purse or daypack are <strong>not permitted inside</strong> and must be checked before entry at the Ateneo San Basso on Piazzetta dei Leoncini, about 1 minute from the main entrance. The service is free. Factor this into your timing: the deposit has its own queue in peak season. Backpacks, rolling luggage, and large shoulder bags are all affected.</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-bar cb-new"></div>
+      <div class="card-body">
+        <div class="card-place">AVM Venezia Official App &mdash; buy passes on your phone</div>
+        <div class="card-text">The official ACTV app now allows purchasing and validating vaporetto passes directly on your phone without needing a physical card or queuing at booths. Download <strong>AVM Venezia Official</strong> before arrival. The app also shows real-time vaporetto arrivals at every stop &mdash; useful for avoiding long waits when a different line or walking would be faster.</div>
+      </div>
+    </div>
+
+  </section>
+
+  <!-- SEASONAL ALERTS -->
+  <section class="section" id="sec-seasonal">
+    <div class="section-head">
+      <div class="sh-left"><span class="sh-pip sp-warn"></span><span class="sh-title">Seasonal Alerts</span></div>
+      <span class="sh-date">2026 Calendar</span>
+    </div>
+
+    <div class="alert alert-warn">
+      <div class="alert-head">Dates that will affect your visit</div>
+      <div class="alert-text">Venice is affected by its own events, Italian national holidays, and the Access Fee calendar. These are the dates that require specific planning.</div>
+    </div>
+
+    <div class="ok-list">
+      <div class="ok-row">
+        <div class="ok-badge" style="background:var(--bad-pale);color:var(--bad)">!</div>
+        <div class="ok-text"><strong>Carnevale (late February &mdash; dates vary with Easter)</strong> Crowds rival August, prices match. Piazza San Marco becomes impassable during peak Carnevale afternoons. If you want Carnevale, book accommodation 3&ndash;4 months ahead; prices triple. If you do not want Carnevale, avoid the two weekends and the week between.</div>
+      </div>
+      <div class="ok-row">
+        <div class="ok-badge" style="background:var(--bad-pale);color:var(--bad)">!</div>
+        <div class="ok-text"><strong>Easter weekend (April 4&ndash;6, 2026)</strong> Italian families flood the city for the long weekend. Restaurants require reservations days ahead. Piazza San Marco impassable. All three days fall within the Access Fee window. Book accommodation by January.</div>
+      </div>
+      <div class="ok-row">
+        <div class="ok-badge" style="background:var(--bad-pale);color:var(--bad)">!</div>
+        <div class="ok-text"><strong>April 25 + May 1 ponte (Apr 24&ndash;30 / Apr 29&ndash;May 3)</strong> Both national holidays fall within a major Access Fee window (April 24&ndash;30 is entirely subject to the fee). The bridge weekends Italians construct around these dates push accommodation to peak prices across the whole region.</div>
+      </div>
+      <div class="ok-row">
+        <div class="ok-badge" style="background:var(--warn-pale);color:var(--warn)">!</div>
+        <div class="ok-text"><strong>Festa del Redentore (third weekend of July &mdash; July 18&ndash;19, 2026)</strong> Saturday night fireworks over the Giudecca Canal are extraordinary. Boats crowd every waterway. The city fills with Venetians reclaiming their city for one night. The Access Fee applies. If you want the fireworks, arrive before 22:00 and stay on the Zattere or Giudecca waterfront.</div>
+      </div>
+      <div class="ok-row">
+        <div class="ok-badge" style="background:var(--warn-pale);color:var(--warn)">!</div>
+        <div class="ok-text"><strong>Acqua alta season (October&ndash;March)</strong> With MOSE now operational, the most extreme events (&gt;130 cm) are largely prevented. Moderate events (100&ndash;110 cm) still flood Piazza San Marco and low quaysides for 2&ndash;3 hours. Download the Ci.Venezia app. Rubber overshoes (&euro;5&ndash;10) available everywhere in the city. Follow the raised passerelle walkways.</div>
+      </div>
+      <div class="ok-row">
+        <div class="ok-badge" style="background:var(--warn-pale);color:var(--warn)">!</div>
+        <div class="ok-text"><strong>New Year's Eve &mdash; Piazza San Marco concert</strong> A public concert and midnight fireworks. The piazza fills from early evening. Prices spike from Christmas through January 6 (Epiphany) and then drop sharply. January 2&ndash;early February is among the cheapest and quietest periods of the year.</div>
+      </div>
+      <div class="ok-row">
+        <div class="ok-badge" style="background:var(--ok-pale);color:var(--ok)">&#10003;</div>
+        <div class="ok-text"><strong>Best timing for most visitors &mdash; late May, early June</strong> Spring warmth, long days, Access Fee applies only on weekends. Crowds below summer peak. The city is fully operational. Outdoor dining works. Islands are rewarding.</div>
+      </div>
+      <div class="ok-row">
+        <div class="ok-badge" style="background:var(--ok-pale);color:var(--ok)">&#10003;</div>
+        <div class="ok-text"><strong>Best low-cost window &mdash; November (excluding Salute weekend) to mid-December</strong> Minimum tourists, lowest prices, atmospheric fog. Acqua alta possible but manageable with MOSE. The Accademia without a queue. Bacari without a wait. The city feels inhabited again.</div>
+      </div>
+    </div>
+
+    <div class="changelog" style="margin-top:1.5rem">
+      <div class="cl-head">Annual review schedule &mdash; every March</div>
+      <div class="cl-row">
+        <div class="cl-year">2026</div>
+        <div class="cl-dot cd-active"></div>
+        <div class="cl-text">Full review completed March 2026 &mdash; 18 items verified. Access Fee two-tier pricing documented (&euro;5/&euro;10), 60 applicable dates listed, overnight guest QR requirement added, vaporetto and museum prices confirmed, MOSE status updated. <span class="cl-badge">Active</span></div>
+      </div>
+      <div class="cl-row">
+        <div class="cl-year">2027</div>
+        <div class="cl-dot cd-sched"></div>
+        <div class="cl-text sched">Scheduled review &mdash; March 2027.</div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="footer-gold">
+    <div>
+      <div class="footer-brand">No-Stress Guides</div>
+      <div class="footer-brand-sub">Venice Travel Guide &mdash; 2026</div>
+    </div>
+  </div>
+  <div class="footer-body">
+    <p class="footer-promise">This page is reviewed every March. No sponsored content. No affiliate links. Every price comes from the official source.</p>
+    <p class="footer-contact">Questions or corrections: <a href="mailto:info@nostressguides.com">info@nostressguides.com</a></p>
+    <p class="footer-legal">&copy; 2026 No-Stress Guides. For personal travel use only.</p>
+  </div>
+</footer>
+
+<script>
+document.querySelectorAll('.section').forEach(function(s, i) {
+  setTimeout(function() { s.classList.add('visible'); }, 100 + i * 80);
+});
+var headerEl = document.querySelector('.header');
+document.querySelectorAll('.h-tab').forEach(function(btn) {
+  btn.addEventListener('click', function() {
+    var target = this.getAttribute('data-target');
+    document.querySelectorAll('.h-tab').forEach(function(t) { t.classList.remove('active'); });
+    btn.classList.add('active');
+    var el = document.getElementById(target);
+    if (!el) return;
+    var hh = headerEl ? headerEl.offsetHeight : 0;
+    window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY - hh - 8, behavior: 'smooth' });
+  });
+});
+var sIds = ['sec-changed','sec-confirmed','sec-new','sec-seasonal'];
+var allTabs = document.querySelectorAll('.h-tab');
+function updateTab() {
+  var hh = headerEl ? headerEl.offsetHeight : 0;
+  var active = 0;
+  sIds.forEach(function(id, i) {
+    var el = document.getElementById(id);
+    if (el && el.getBoundingClientRect().top <= hh + 20) active = i;
+  });
+  allTabs.forEach(function(t, i) { t.classList.toggle('active', i === active); });
+}
+window.addEventListener('scroll', updateTab, { passive: true });
+updateTab();
+</script>
+</body>
+</html>
