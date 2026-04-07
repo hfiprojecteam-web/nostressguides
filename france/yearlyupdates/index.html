@@ -1,1 +1,450 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>2026 Updates &mdash; The No-Stress France Travel Guide</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@300;400;500;600;700&family=Lato:ital,wght@0,300;0,400;0,700;1,300&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#112244;--navy-mid:#1B3566;--navy-light:#254580;
+  --gold:#F5C842;--gold-dark:#C89A10;--gold-pale:#FDF6DC;
+  --bg:#F0F4FB;--white:#FFFFFF;
+  --text:#1A2340;--text-mid:#3A4A6A;--text-muted:#6A7A9A;
+  --bad:#8C2020;--bad-pale:#FBF0F0;
+  --warn:#B36A10;--warn-pale:#FDF3E3;
+  --ok:#1A5C30;--ok-pale:#E4F5EB;
+  --new:#1A4A80;--new-pale:#E4EEF8;
+  --border:#C8D6EE;--border-lt:#E2EAF8;
+  --radius:10px;--shadow:0 2px 12px rgba(17,34,68,0.08);
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html{font-size:16px;-webkit-text-size-adjust:100%;scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:'Lato',sans-serif;font-weight:300;line-height:1.65;min-height:100vh;-webkit-font-smoothing:antialiased}
+.header{background:var(--navy);background-image:radial-gradient(ellipse at 80% 0%,rgba(37,69,128,0.8) 0%,transparent 60%);padding:2rem 1.5rem 0;position:sticky;top:0;z-index:100;overflow:hidden}
+.header::before{content:'';position:absolute;inset:0;background-image:radial-gradient(rgba(255,255,255,0.06) 1px,transparent 1px);background-size:20px 20px;pointer-events:none}
+.stamp{position:relative;z-index:1;margin-bottom:1.5rem}
+.stamp-inner{border:2.5px solid var(--gold);border-radius:4px;padding:1.1rem 1.3rem 1rem;background:rgba(17,34,68,0.55);backdrop-filter:blur(4px);position:relative}
+.stamp-inner::before{content:'';position:absolute;top:-9px;left:8px;right:8px;height:8px;background:repeating-linear-gradient(90deg,transparent,transparent 5px,var(--bg) 5px,var(--bg) 10px);opacity:.6}
+.stamp-inner::after{content:'';position:absolute;bottom:-9px;left:8px;right:8px;height:8px;background:repeating-linear-gradient(90deg,transparent,transparent 5px,var(--bg) 5px,var(--bg) 10px);opacity:.6}
+.stamp-label{font-family:'Oswald',sans-serif;font-size:.55rem;font-weight:400;letter-spacing:.28em;text-transform:uppercase;color:var(--gold);opacity:.8;margin-bottom:.35rem}
+.stamp-title{font-family:'Oswald',sans-serif;font-size:2rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:#fff;line-height:1.05;margin-bottom:.55rem}
+.stamp-dest{font-family:'Oswald',sans-serif;font-size:.75rem;font-weight:300;letter-spacing:.22em;text-transform:uppercase;color:rgba(255,255,255,.7)}
+.year-badge{display:inline-block;background:var(--gold);color:var(--navy);font-family:'Oswald',sans-serif;font-size:.7rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;padding:.18rem .65rem;border-radius:3px;margin-bottom:.55rem}
+.header-tabs{position:relative;z-index:1;display:flex;gap:0;margin-top:auto}
+.h-tab{flex:1;padding:.55rem .4rem;text-align:center;font-family:'Oswald',sans-serif;font-size:.58rem;font-weight:400;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.55);border-bottom:3px solid transparent;cursor:pointer;transition:all .2s;border-radius:3px 3px 0 0;background:none;border-top:none;border-left:none;border-right:none}
+.h-tab:hover{color:rgba(255,255,255,.8)}
+.h-tab.active{color:var(--gold);border-bottom-color:var(--gold);background:rgba(245,200,66,.06)}
+.transparency{background:var(--gold-pale);border:1px solid rgba(200,154,16,.3);border-radius:var(--radius);padding:.9rem 1rem;margin-bottom:1.2rem}
+.t-head{font-family:'Oswald',sans-serif;font-size:.6rem;font-weight:500;letter-spacing:.18em;text-transform:uppercase;color:var(--gold-dark);margin-bottom:.35rem}
+.t-text{font-size:.78rem;color:var(--text-mid);line-height:1.5}
+.content{max-width:640px;margin:0 auto;padding:1.2rem 1.1rem 2rem}
+.section{margin-bottom:3rem;opacity:0;transform:translateY(14px);transition:opacity .45s ease,transform .45s ease}
+.section.visible{opacity:1;transform:translateY(0)}
+.section-head{position:sticky;top:0;z-index:10;background:var(--bg);display:flex;align-items:center;justify-content:space-between;padding:.6rem 0 .55rem;margin-bottom:.9rem;border-bottom:2.5px solid var(--navy);box-shadow:0 4px 12px rgba(240,244,251,.95)}
+.sh-left{display:flex;align-items:center;gap:.55rem}
+.sh-pip{width:10px;height:10px;border-radius:2px;flex-shrink:0}
+.sp-bad{background:var(--bad)}.sp-warn{background:var(--warn)}.sp-ok{background:var(--ok)}.sp-new{background:var(--new)}
+.sh-title{font-family:'Oswald',sans-serif;font-size:1rem;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--navy)}
+.sh-date{font-size:.6rem;color:var(--text-muted);letter-spacing:.04em;white-space:nowrap}
+.zone{display:flex;align-items:center;gap:.55rem;margin:1.1rem 0 .6rem}
+.zone-label{font-family:'Oswald',sans-serif;font-size:.6rem;font-weight:500;letter-spacing:.22em;text-transform:uppercase;color:var(--gold-dark);white-space:nowrap}
+.zone-line{flex:1;height:1px;background:var(--border)}
+.card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:.55rem;overflow:hidden;position:relative;box-shadow:var(--shadow)}
+.card-bar{position:absolute;left:0;top:0;bottom:0;width:4px}
+.cb-bad{background:var(--bad)}.cb-warn{background:var(--warn)}.cb-new{background:var(--new)}.cb-ok{background:var(--ok)}
+.card-body{padding:.88rem 1rem .88rem 1.3rem}
+.card-place{font-family:'Oswald',sans-serif;font-size:.58rem;font-weight:300;letter-spacing:.18em;text-transform:uppercase;color:var(--text-muted);margin-bottom:.18rem}
+.card-text{font-size:.85rem;color:var(--text-mid);line-height:1.58}
+.card-text strong{color:var(--text);font-weight:700}
+.card-text em{font-style:italic;color:var(--text-muted)}
+.price-row{display:flex;align-items:center;gap:.45rem;margin-top:.6rem;padding-top:.5rem;border-top:1px solid var(--border-lt);flex-wrap:wrap}
+.pr-old{font-size:.76rem;color:var(--text-muted);text-decoration:line-through}
+.pr-arrow{font-size:.6rem;color:var(--text-muted)}
+.pr-new{font-size:.86rem;font-weight:700;color:var(--bad)}
+.pr-ok{font-size:.86rem;font-weight:700;color:var(--ok)}
+.pr-src{font-size:.65rem;color:var(--text-muted);margin-left:auto}
+.alert-block{border-radius:var(--radius);padding:.85rem 1rem;margin-bottom:.55rem;border:1px solid}
+.ab-bad{background:var(--bad-pale);border-color:rgba(140,32,32,.2)}
+.ab-new{background:var(--new-pale);border-color:rgba(26,74,128,.2)}
+.ab-warn{background:var(--warn-pale);border-color:rgba(179,106,16,.2)}
+.alert-head{font-family:'Oswald',sans-serif;font-size:.62rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;margin-bottom:.25rem}
+.ah-bad{color:var(--bad)}.ah-new{color:var(--new)}.ah-warn{color:var(--warn)}
+.alert-text{font-size:.8rem;color:var(--text-mid);line-height:1.5}
+.ok-list{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow)}
+.ok-row{display:flex;gap:.7rem;align-items:flex-start;padding:.75rem 1rem;border-bottom:1px solid var(--border-lt)}
+.ok-row:last-child{border-bottom:none}
+.ok-badge{width:20px;height:20px;border-radius:50%;background:var(--ok-pale);color:var(--ok);font-size:.65rem;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:.08rem}
+.ok-text{font-size:.83rem;color:var(--text-mid);line-height:1.48}
+.ok-text strong{color:var(--text);font-weight:700;display:block;font-size:.77rem;margin-bottom:.08rem}
+.changelog{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow)}
+.cl-head{background:var(--navy);padding:.65rem 1rem;font-family:'Oswald',sans-serif;font-size:.62rem;font-weight:400;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,.8)}
+.cl-row{display:flex;gap:.8rem;align-items:flex-start;padding:.7rem 1rem;border-bottom:1px solid var(--border-lt)}
+.cl-row:last-child{border-bottom:none}
+.cl-year{font-family:'Oswald',sans-serif;font-size:.72rem;font-weight:600;color:var(--navy);min-width:38px;flex-shrink:0;padding-top:.05rem}
+.cl-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:.28rem}
+.cd-active{background:var(--ok)}.cd-sched{background:var(--border)}
+.cl-text{font-size:.78rem;color:var(--text-mid);line-height:1.45}
+.cl-text.sched{color:var(--text-muted);font-style:italic}
+.cl-badge{display:inline-block;background:var(--ok-pale);color:var(--ok);font-family:'Oswald',sans-serif;font-size:.55rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;padding:.1rem .45rem;border-radius:3px;margin-left:.4rem;vertical-align:middle}
+footer{background:var(--navy)}
+.footer-gold{background:var(--gold);padding:1.1rem 1.5rem;display:flex;align-items:center;justify-content:center}
+.footer-brand{font-family:'Oswald',sans-serif;font-size:1rem;font-weight:700;color:var(--navy);letter-spacing:.14em;text-transform:uppercase}
+.footer-brand-sub{font-family:'Oswald',sans-serif;font-size:.58rem;font-weight:300;letter-spacing:.16em;text-transform:uppercase;color:var(--navy);opacity:.6;margin-top:.15rem}
+.footer-body{padding:1.5rem 1.5rem 2rem;color:rgba(255,255,255,.75)}
+.footer-promise{font-size:.8rem;line-height:1.6;margin-bottom:1rem;color:rgba(255,255,255,.85)}
+.footer-contact{font-size:.75rem;color:rgba(255,255,255,.55);margin-bottom:1rem}
+.footer-contact a{color:var(--gold);text-decoration:none}
+.footer-legal{font-size:.68rem;color:rgba(255,255,255,.35);line-height:1.55}
+@media(min-width:600px){.stamp-title{font-size:2.5rem}.content{padding:1.5rem 1.5rem 3rem}}
+</style>
+</head>
+<body>
+<header class="header">
+  <div class="stamp">
+    <div class="stamp-inner">
+      <div class="stamp-label">No-Stress Guides &mdash; Digital Companion</div>
+      <div class="year-badge">2026 Edition</div>
+      <div class="stamp-title">France</div>
+      <div class="stamp-dest">Yearly Updates</div>
+    </div>
+  </div>
+  <div class="header-tabs">
+    <button class="h-tab active" data-target="sec-changed">What Changed</button>
+    <button class="h-tab" data-target="sec-confirmed">Confirmed</button>
+    <button class="h-tab" data-target="sec-new">New Tips</button>
+    <button class="h-tab" data-target="sec-seasonal">Seasonal Alerts</button>
+  </div>
+</header>
 
+<main class="content">
+  <div class="transparency">
+    <div class="t-head">How this page works</div>
+    <div class="t-text">Every item verified for 2026 against official sources: RATP, Île-de-France Mobilités, toureiffel.paris, louvre.fr, SNCF Connect. Check 3&ndash;5 days before departure for any last-minute changes. Email us if something has shifted.</div>
+  </div>
+
+  <!-- WHAT CHANGED -->
+  <section class="section" id="sec-changed">
+    <div class="section-head">
+      <div class="sh-left"><span class="sh-pip sp-bad"></span><span class="sh-title">What Changed</span></div>
+      <span class="sh-date">Verified March 2026</span>
+    </div>
+
+    <div class="zone"><span class="zone-label">Paris transport &mdash; multiple changes</span><span class="zone-line"></span></div>
+
+    <div class="alert-block ab-bad">
+      <div class="alert-head ah-bad">Paper tickets being eliminated &mdash; action required</div>
+      <div class="alert-text">Magnetic paper tickets are being phased out permanently. They stopped working on Paris buses in <strong>May 2026</strong> and will stop working on the entire metro, RER, and train network in <strong>June 2026</strong>. If you show up with an old paper ticket at a turnstile after these dates, it will not work. You now need a <strong>Navigo Easy card</strong> (physical, &euro;2 one-time fee) or the <strong>&Icirc;le-de-France Mobilit&eacute;s app</strong> on your smartphone. The book refers to the carnet being phased out &mdash; the situation has now gone further: the entire paper ticket system is being retired.</div>
+    </div>
+
+    <div class="card">
+      <div class="card-bar cb-bad"></div>
+      <div class="card-body">
+        <div class="card-place">Paris M&eacute;tro, RER, bus &mdash; single ride</div>
+        <div class="card-text">Single ticket (Ticket t+) price increased from <strong>&euro;2.15 to &euro;2.55</strong> on 1 January 2026. A journey within central Paris (Zones 1&ndash;2) covers all métro lines, RER within the city boundary, and bus connections within 90 minutes of validation. The ticket must be loaded onto a Navigo Easy card or smartphone app &mdash; no more paper tickets.</div>
+        <div class="price-row">
+          <span class="pr-old">&euro;2.15 (book)</span>
+          <span class="pr-arrow">&rarr;</span>
+          <span class="pr-new">&euro;2.55 (2026)</span>
+          <span class="pr-src">RATP official</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-bar cb-bad"></div>
+      <div class="card-body">
+        <div class="card-place">Paris &mdash; Navigo Semaine (weekly pass, all zones)</div>
+        <div class="card-text">The Navigo Semaine weekly pass increased to <strong>&euro;32.40</strong> for all zones (Zones 1&ndash;5). Valid Monday 00:00 through Sunday 23:59 &mdash; not seven days from purchase. If you arrive on a Wednesday, the pass runs until Sunday only; you lose Monday and Tuesday. Plan accordingly or use a Navigo Jour daily pass (&euro;8.65) for the partial days. The pass requires a Navigo D&eacute;couverte card (&euro;5, one-time, bring a small passport photo) or the smartphone app (free, no photo needed). <strong>Critical update: CDG Airport no longer sells Navigo D&eacute;couverte cards as of August 2025.</strong> Buy your card at Gare du Nord or any central metro station on arrival.</div>
+        <div class="price-row">
+          <span class="pr-old">&euro;30.75 (book)</span>
+          <span class="pr-arrow">&rarr;</span>
+          <span class="pr-new">&euro;32.40 (2026)</span>
+          <span class="pr-src">iledefrance-mobilites.fr</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-bar cb-bad"></div>
+      <div class="card-body">
+        <div class="card-place">CDG Airport &rarr; Paris &mdash; RER B</div>
+        <div class="card-text">The RER B airport-to-Paris ticket is now a dedicated <strong>&ldquo;Paris R&eacute;gion &harr; A&eacute;roports&rdquo; ticket at &euro;14</strong> (up from &euro;11.80 listed in the book). The journey to Gare du Nord takes 25 minutes, Ch&acirc;telet&ndash;Les Halles 28 minutes. Trains every 10&ndash;15 minutes from approximately 05:00 to 23:30. Load the ticket onto a Navigo Easy card at machines in the terminal. Note: <strong>The Navigo Semaine weekly pass (if already loaded) covers CDG on RER B without any additional ticket</strong> &mdash; the &euro;14 ticket is only needed for single-trip visitors or those without the weekly pass.</div>
+        <div class="price-row">
+          <span class="pr-old">&euro;11.80 (book)</span>
+          <span class="pr-arrow">&rarr;</span>
+          <span class="pr-new">&euro;14 (2026)</span>
+          <span class="pr-src">RATP / SNCF</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-bar cb-bad"></div>
+      <div class="card-body">
+        <div class="card-place">CDG Airport &rarr; Paris &mdash; RoissyBus</div>
+        <div class="card-text">The book mentions the Orlybus reaching Denfert-Roch&eacute;reau for &euro;11.50. This refers to Orly airport &mdash; that bus service has also changed (see New Tips). More critically: the <strong>RoissyBus</strong> (direct bus CDG&ndash;Op&eacute;ra) was <strong>permanently discontinued on 1 March 2026</strong>. It no longer exists. For CDG arrivals, use the RER B (&euro;14, 25&ndash;30 min to central Paris) or Metro Line 14 via shuttle. There is no equivalent direct bus replacement.</div>
+        <div class="price-row">
+          <span class="pr-new">RoissyBus: permanently discontinued March 2026</span>
+          <span class="pr-src">RATP</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="zone"><span class="zone-label">Attractions</span><span class="zone-line"></span></div>
+
+    <div class="card">
+      <div class="card-bar cb-warn"></div>
+      <div class="card-body">
+        <div class="card-place">Eiffel Tower &mdash; official toureiffel.paris</div>
+        <div class="card-text">Prices have increased significantly. The book lists &euro;12&ndash;29; the 2026 official price range is <strong>&euro;14.80 to &euro;36.70 for adults</strong> depending on floor (2nd floor vs. summit) and access method (stairs vs. elevator). The summit by elevator is the most expensive option. <strong>Book exactly 60 days ahead</strong> when tickets for that date are released &mdash; summit slots sell out within hours during peak season. Stairs to the 2nd floor remain available at shorter notice and at lower cost.</div>
+        <div class="price-row">
+          <span class="pr-old">&euro;12&ndash;29 (book)</span>
+          <span class="pr-arrow">&rarr;</span>
+          <span class="pr-new">&euro;14.80&ndash;36.70 (2026)</span>
+          <span class="pr-src">toureiffel.paris</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-bar cb-new"></div>
+      <div class="card-body">
+        <div class="card-place">Notre-Dame de Paris</div>
+        <div class="card-text">Notre-Dame <strong>reopened in December 2024</strong> after five years of restoration following the 2019 fire. Entry to the cathedral itself remains free, but <strong>timed tickets are required</strong> during busy periods and must be booked in advance at notre-dame.paris or via the official app. The towers and rooftop are a <strong>separate ticketed experience</strong> and also require advance booking. The exterior and surrounding &Icirc;le de la Cit&eacute; are freely accessible at any time. Morning visits before 10:00 are calmest. The book references Notre-Dame in itineraries &mdash; all references are now accurate for the reopened building.</div>
+        <div class="price-row">
+          <span class="pr-ok">Cathedral entry: free (timed ticket required in peak season)</span>
+          <span class="pr-src">notre-dame.paris</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="zone"><span class="zone-label">Entry requirements</span><span class="zone-line"></span></div>
+
+    <div class="card">
+      <div class="card-bar cb-warn"></div>
+      <div class="card-body">
+        <div class="card-place">ETIAS &mdash; US, UK, Canadian, Australian travelers</div>
+        <div class="card-text">The book correctly notes ETIAS has been <strong>delayed repeatedly</strong> and may be implemented during the lifespan of this guide. As of early 2026, ETIAS is still not in force. Check current requirements at etiasvisa.com or the official EU website before travel. When it does launch: the process will be entirely online, cost around &euro;7, and the authorization will be valid for three years. It is not a visa &mdash; it is a pre-authorization similar to the US ESTA. Non-EU citizens who currently need no visa for France will need ETIAS once implemented.</div>
+      </div>
+    </div>
+
+  </section>
+
+  <!-- CONFIRMED -->
+  <section class="section" id="sec-confirmed">
+    <div class="section-head">
+      <div class="sh-left"><span class="sh-pip sp-ok"></span><span class="sh-title">Confirmed Correct</span></div>
+      <span class="sh-date">Verified March 2026</span>
+    </div>
+
+    <div class="ok-list">
+      <div class="ok-row">
+        <div class="ok-badge">&#10003;</div>
+        <div class="ok-text"><strong>Louvre &mdash; &euro;22</strong> Standard adult ticket confirmed. Closed Tuesdays. Book timed entry at louvre.fr at least 1&ndash;2 weeks ahead in peak season. EU residents under 26 free. French national museums free first Sunday November&ndash;March.</div>
+      </div>
+      <div class="ok-row">
+        <div class="ok-badge">&#10003;</div>
+        <div class="ok-text"><strong>Mus&eacute;e d&rsquo;Orsay &mdash; &euro;16</strong> Confirmed. Closed Mondays. Impressionist and Post-Impressionist collection. Book ahead April&ndash;October. Note the different closing day from the Louvre &mdash; plan accordingly if using the Paris Museum Pass.</div>
+      </div>
+      <div class="ok-row">
+        <div class="ok-badge">&#10003;</div>
+        <div class="ok-text"><strong>Paris Museum Pass &mdash; &euro;62 / &euro;77 / &euro;92</strong> (2 / 4 / 6 days) Covers 50+ museums and monuments including Louvre, Orsay, Versailles, Sainte-Chapelle, Arc de Triomphe. Does not include the Eiffel Tower (book separately). Allows skip-the-ticket-line at most sites (security checks still apply). Worth it for visits to 3+ major museums per day. Not worth it for casual visits of one or two sites daily.</div>
+      </div>
+      <div class="ok-row">
+        <div class="ok-badge">&#10003;</div>
+        <div class="ok-text"><strong>Centre Pompidou &mdash; &euro;15 &middot; Orangerie &mdash; &euro;12.50</strong> Both confirmed. Pompidou for modern and contemporary art. Orangerie for Monet&rsquo;s water lily rooms (Nymph&eacute;as) &mdash; book timed entry in advance; the large oval rooms are worth the effort.</div>
+      </div>
+      <div class="ok-row">
+        <div class="ok-badge">&#10003;</div>
+        <div class="ok-text"><strong>Versailles &mdash; &euro;19.50 (palace only) / &euro;22 (full estate)</strong> Confirmed. Book morning timed entry and take the RER C from Saint-Michel or Invalides. Arrive at the Versailles station by 08:30 to reach the palace before crowds. The full estate including gardens and Trianons justifies the higher ticket if you have a full day.</div>
+      </div>
+      <div class="ok-row">
+        <div class="ok-badge">&#10003;</div>
+        <div class="ok-text"><strong>TGV booking strategy confirmed</strong> Book as early as possible. SNCF releases tickets approximately 4 months ahead. Paris&ndash;Lyon can be &euro;29 booked 6+ weeks ahead or &euro;120 two days before. Prem&rsquo;s fares are non-refundable; mid-price fares allow changes for a fee. Book via SNCF Connect (English available).</div>
+      </div>
+      <div class="ok-row">
+        <div class="ok-badge">&#10003;</div>
+        <div class="ok-text"><strong>Navigo Jour (daily pass) &mdash; &euro;8.65</strong> Central Paris (Zones 1&ndash;2). Confirmed. Good for single-day heavy transit use or partial weeks where the Navigo Semaine is not efficient. Valid from activation to end of the calendar day.</div>
+      </div>
+      <div class="ok-row">
+        <div class="ok-badge">&#10003;</div>
+        <div class="ok-text"><strong>CDG flat-rate taxi: &euro;56 (Right Bank) / &euro;65 (Left Bank)</strong> Confirmed. Fixed regulated fares. Taxis must honor these rates from CDG. Night surcharges apply after 17:00 and before 10:00 on weekdays, and all day on weekends and public holidays &mdash; this pushes the rate higher in those windows.</div>
+      </div>
+      <div class="ok-row">
+        <div class="ok-badge">&#10003;</div>
+        <div class="ok-text"><strong>Orly Airport &rarr; Paris &mdash; Metro Line 14</strong> Since its extension, Metro Line 14 now connects Orly Airport directly to central Paris in approximately 35 minutes. The Orlybus mentioned in the book (to Denfert-Roch&eacute;reau for &euro;11.50) has been permanently discontinued. Use Metro Line 14 instead.</div>
+      </div>
+      <div class="ok-row">
+        <div class="ok-badge">&#10003;</div>
+        <div class="ok-text"><strong>V&eacute;lib&rsquo; bike share &mdash; &euro;5 / day (regular), &euro;10 / day (electric)</strong> Confirmed. Available at thousands of docking stations across Paris. Register via the V&eacute;lib&rsquo; app. First 30 minutes of each ride included; additional time billed at per-minute rates. Practical for short trips in good weather.</div>
+      </div>
+      <div class="ok-row">
+        <div class="ok-badge">&#10003;</div>
+        <div class="ok-text"><strong>Taxe de s&eacute;jour (tourist tax) &mdash; &euro;1&ndash;5 per person per night</strong> Confirmed. Higher-rated Paris hotels charge the upper end. Often not included in quoted rates &mdash; appears at checkout. Typically comes with no Guest Card equivalent (unlike Switzerland). Budget accordingly for the full stay.</div>
+      </div>
+      <div class="ok-row">
+        <div class="ok-badge">&#10003;</div>
+        <div class="ok-text"><strong>ZFE Crit&rsquo;Air low emission zones</strong> Confirmed active in Paris, Lyon, Marseille, and other cities. Rental cars should arrive with the sticker applied &mdash; verify at pickup. Without a sticker in a restricted zone: &euro;68 fine. Foreign-registered vehicles are not exempt.</div>
+      </div>
+      <div class="ok-row">
+        <div class="ok-badge">&#10003;</div>
+        <div class="ok-text"><strong>Free entry: French national museums, first Sunday November&ndash;March</strong> Confirmed. Lines form early at the Louvre and Orsay on these dates. Arrive at opening or accept the queue.</div>
+      </div>
+      <div class="ok-row">
+        <div class="ok-badge">&#10003;</div>
+        <div class="ok-text"><strong>EU residents under 26 &mdash; free entry to national museums any day</strong> Confirmed year-round. Covers the Louvre, Orsay, Centre Pompidou, and all French national museums. Requires proof of EU residency at the ticket window.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- NEW TIPS -->
+  <section class="section" id="sec-new">
+    <div class="section-head">
+      <div class="sh-left"><span class="sh-pip sp-new"></span><span class="sh-title">New for 2026</span></div>
+      <span class="sh-date">Added March 2026</span>
+    </div>
+
+    <div class="card">
+      <div class="card-bar cb-new"></div>
+      <div class="card-body">
+        <div class="card-place">Paris transport &mdash; phone tap-to-ride rolling out</div>
+        <div class="card-text">Contactless bank card payment (tap Visa or Mastercard directly at the turnstile) is being gradually rolled out on Paris buses throughout 2026. For the m&eacute;tro, you still need a Navigo Easy card or the smartphone app. <strong>If you have NFC on your phone, download the &Icirc;le-de-France Mobilit&eacute;s app before arrival</strong>, create a virtual Navigo D&eacute;couverte (free, requires a photo), and load your tickets or weekly pass digitally. No physical card, no queue at the machine, no passport photo needed for the phone version.</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-bar cb-new"></div>
+      <div class="card-body">
+        <div class="card-place">CDG Airport &mdash; Navigo cards not sold at airport</div>
+        <div class="card-text">As of August 2025, <strong>CDG Airport train stations no longer sell Navigo D&eacute;couverte cards</strong>. If you want the physical card, buy it at Gare du Nord (5-minute walk from the RER B platform) or any major metro station once you arrive in central Paris. The single-journey Paris R&eacute;gion &harr; A&eacute;roports ticket (&euro;14) is still sold at CDG machines and covers the RER B into the city &mdash; this is your option for the first leg. Alternatively: set up the digital Navigo on your phone before flying and load the airport ticket digitally.</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-bar cb-new"></div>
+      <div class="card-body">
+        <div class="card-place">Notre-Dame &mdash; free entry with timed tickets required</div>
+        <div class="card-text">The reopened Notre-Dame is drawing enormous crowds. While entry to the cathedral floor remains free, <strong>book a timed entry slot in advance</strong> at notre-dame.paris during busy periods (spring through autumn, all school holidays). Show up without a booking and you may face a 2&ndash;3 hour queue or be turned away if capacity is reached. The towers and roof panorama require a <strong>separate paid ticket</strong> booked well in advance &mdash; these slots release on a rolling basis and sell out quickly in high season.</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-bar cb-new"></div>
+      <div class="card-body">
+        <div class="card-place">Orly Airport &mdash; Orlybus discontinued, use Metro 14</div>
+        <div class="card-text">The Orlybus service between Orly and Denfert-Roch&eacute;reau mentioned in the book has been permanently discontinued. The correct route is now <strong>Metro Line 14</strong>, which reaches Orly Airport directly. The journey to central Paris (Gare de Lyon or Ch&acirc;telet) takes approximately 30&ndash;35 minutes. The Navigo Semaine weekly pass covers this journey within Zone 4. A single trip requires the Paris R&eacute;gion &harr; A&eacute;roports ticket (&euro;14).</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-bar cb-new"></div>
+      <div class="card-body">
+        <div class="card-place">TGV &mdash; Ouigo and low-cost options</div>
+        <div class="card-text">SNCF&rsquo;s low-cost Ouigo brand operates on many TGV routes at significantly lower prices, sometimes &euro;5&ndash;15 for routes that cost &euro;30&ndash;50 on standard TGV. The tradeoffs: Ouigo departs from suburban stations (Marne-la-Vall&eacute;e, Massy, Lyon-Saint-Exup&eacute;ry) not central Paris stations; no seat selection included; luggage fees apply for anything beyond a small bag; no onboard catering. <strong>For short trips or when saving &euro;30+ justifies the suburban station inconvenience</strong>, Ouigo represents genuine value. Always compare both options on SNCF Connect before booking.</div>
+      </div>
+    </div>
+
+  </section>
+
+  <!-- SEASONAL ALERTS -->
+  <section class="section" id="sec-seasonal">
+    <div class="section-head">
+      <div class="sh-left"><span class="sh-pip sp-warn"></span><span class="sh-title">Seasonal Alerts</span></div>
+      <span class="sh-date">2026 Calendar</span>
+    </div>
+
+    <div class="ok-list">
+      <div class="ok-row">
+        <div class="ok-badge" style="background:var(--bad-pale);color:var(--bad)">!</div>
+        <div class="ok-text"><strong>French school holiday zones (Zones A, B, C) &mdash; crowding cascade</strong> France divides school holidays into three regional zones that stagger their breaks. When Zone C (Paris region) finishes its vacation, Zone A begins. This creates rolling crowd surges at major attractions. The practical effect: anywhere popular fills rapidly during school breaks, which cover roughly two weeks in February, two weeks at Easter, and all of July and August. Check the official calendar (education.gouv.fr) for exact 2026 dates against your travel window.</div>
+      </div>
+      <div class="ok-row">
+        <div class="ok-badge" style="background:var(--bad-pale);color:var(--bad)">!</div>
+        <div class="ok-text"><strong>July&ndash;August &mdash; Paris empties of locals, fills with tourists</strong> French residents leave Paris in August. Restaurants, local cafes, and neighborhood shops close for two to four weeks. What remains is tourist infrastructure at peak prices. The Louvre queue is shorter in August than June (fewer school groups), but hotel prices peak, streets swelter at 30&ndash;35&deg;C, and the city has lost the Parisian atmosphere you came for. Shoulder season (May&ndash;June, September&ndash;October) consistently delivers a better experience at 20&ndash;40% lower prices.</div>
+      </div>
+      <div class="ok-row">
+        <div class="ok-badge" style="background:var(--bad-pale);color:var(--bad)">!</div>
+        <div class="ok-text"><strong>Tour de France &mdash; late June / early July 2026</strong> Stage finishes on the Champs-&Eacute;lys&eacute;es and stages passing through tourist regions draw massive crowds. Transport disruptions and road closures affect wherever the race passes. The Rivi&egrave;ra coast in particular sees spillover. Plan around it unless watching the race is your purpose.</div>
+      </div>
+      <div class="ok-row">
+        <div class="ok-badge" style="background:var(--bad-pale);color:var(--bad)">!</div>
+        <div class="ok-text"><strong>Cannes Film Festival &mdash; mid-May 2026</strong> The Rivi&egrave;ra coast, Nice, and Cannes specifically: hotel prices triple, accommodation disappears months ahead. If your dates overlap, book immediately or adjust. The city feels different even if you are not attending.</div>
+      </div>
+      <div class="ok-row">
+        <div class="ok-badge" style="background:var(--warn-pale);color:var(--warn)">!</div>
+        <div class="ok-text"><strong>Paris Fashion Weeks &mdash; January, March, June, October</strong> Twice yearly (womenswear in March and October, menswear/couture in January and June). Hotels in good Paris arrondissements fill and prices spike. If your dates overlap with fashion week and you want a central hotel, book months ahead or accept elevated rates.</div>
+      </div>
+      <div class="ok-row">
+        <div class="ok-badge" style="background:var(--ok-pale);color:var(--ok)">&#10003;</div>
+        <div class="ok-text"><strong>Best windows &mdash; mid-May to mid-June and September&ndash;October</strong> Consistent pattern: spring weather, full facilities, prices below summer peak, manageable crowds. The Loire Valley in May. Provence in June before the heat. Normandy in September. Burgundy in October during harvest. These are the months the guide was written for.</div>
+      </div>
+      <div class="ok-row">
+        <div class="ok-badge" style="background:var(--ok-pale);color:var(--ok)">&#10003;</div>
+        <div class="ok-text"><strong>Free museum Sundays &mdash; November through March, first Sunday of month</strong> National museums free for all on these dates. Lines at the Louvre and Orsay start forming before opening. Arrive at opening time or accept a 30&ndash;60 minute queue. Worth planning around if your trip falls in this period.</div>
+      </div>
+    </div>
+
+    <div class="changelog" style="margin-top:1.5rem">
+      <div class="cl-head">Annual review schedule &mdash; every March</div>
+      <div class="cl-row">
+        <div class="cl-year">2026</div>
+        <div class="cl-dot cd-active"></div>
+        <div class="cl-text">Full review completed March 2026 &mdash; 19 items verified. Metro ticket &euro;2.15&rarr;2.55. Navigo Semaine &euro;30.75&rarr;32.40. CDG RER B &euro;11.80&rarr;14. Paper tickets phase-out May/June 2026 documented. RoissyBus discontinued March 2026. Orlybus discontinued, Metro 14 replacement. CDG Navigo card sales stopped August 2025. Eiffel Tower &euro;14.80&ndash;36.70 updated. Notre-Dame reopen process documented. ETIAS status confirmed still pending. <span class="cl-badge">Active</span></div>
+      </div>
+      <div class="cl-row">
+        <div class="cl-year">2027</div>
+        <div class="cl-dot cd-sched"></div>
+        <div class="cl-text sched">Scheduled review &mdash; March 2027. ETIAS implementation expected to be confirmed by then.</div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="footer-gold">
+    <div>
+      <div class="footer-brand">No-Stress Guides</div>
+      <div class="footer-brand-sub">France Travel Guide &mdash; 2026</div>
+    </div>
+  </div>
+  <div class="footer-body">
+    <p class="footer-promise">This page is reviewed every March. No sponsored content. No affiliate links. Every price comes from the official source.</p>
+    <p class="footer-contact">Questions or corrections: <a href="mailto:info@nostressguides.com">info@nostressguides.com</a></p>
+    <p class="footer-legal">&copy; 2026 No-Stress Guides. For personal travel use only.</p>
+  </div>
+</footer>
+
+<script>
+document.querySelectorAll('.section').forEach(function(s, i) {
+  setTimeout(function() { s.classList.add('visible'); }, 100 + i * 80);
+});
+var headerEl = document.querySelector('.header');
+document.querySelectorAll('.h-tab').forEach(function(btn) {
+  btn.addEventListener('click', function() {
+    var target = this.getAttribute('data-target');
+    document.querySelectorAll('.h-tab').forEach(function(t) { t.classList.remove('active'); });
+    btn.classList.add('active');
+    var el = document.getElementById(target);
+    if (!el) return;
+    var hh = headerEl ? headerEl.offsetHeight : 0;
+    window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY - hh - 8, behavior: 'smooth' });
+  });
+});
+var sIds = ['sec-changed','sec-confirmed','sec-new','sec-seasonal'];
+var allTabs = document.querySelectorAll('.h-tab');
+function updateTab() {
+  var hh = headerEl ? headerEl.offsetHeight : 0;
+  var active = 0;
+  sIds.forEach(function(id, i) {
+    var el = document.getElementById(id);
+    if (el && el.getBoundingClientRect().top <= hh + 20) active = i;
+  });
+  allTabs.forEach(function(t, i) { t.classList.toggle('active', i === active); });
+}
+window.addEventListener('scroll', updateTab, { passive: true });
+updateTab();
+</script>
+</body>
+</html>
