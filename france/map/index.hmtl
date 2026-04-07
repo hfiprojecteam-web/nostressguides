@@ -1,1 +1,684 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>France No-Stress -- Interactive Map</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Serif+Display&display=swap" rel="stylesheet">
+<style>
+:root{--p:#112244;--r:#c4533a;--a:#e8a838;--l:#f5f1eb;--d:#2c2c2c;--g:#2d6a4f;--bd:#e0d8cc}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'DM Sans',sans-serif;background:var(--l);color:var(--d);overflow:hidden}
+.hdr{position:fixed;top:0;left:0;right:0;height:50px;background:var(--p);color:#fff;display:flex;align-items:center;justify-content:space-between;padding:0 16px;z-index:1001;box-shadow:0 2px 12px rgba(0,0,0,.15)}
+.hdr-logo{display:flex;align-items:baseline;gap:8px}
+.hdr-main{font-family:'DM Serif Display',serif;font-size:1.3rem}
+.hdr-sub{font-size:.65rem;font-weight:500;opacity:.8;text-transform:uppercase;letter-spacing:.1em}
+.hdr-badge{background:var(--r);padding:4px 10px;border-radius:20px;font-size:.7rem;font-weight:600}
+#map{position:fixed;top:50px;left:0;right:0;bottom:0;z-index:1}
+.fab{display:none;position:fixed;bottom:20px;right:20px;width:56px;height:56px;background:var(--r);color:#fff;border:none;border-radius:50%;font-size:1.4rem;cursor:pointer;z-index:1002;box-shadow:0 4px 12px rgba(0,0,0,.3);align-items:center;justify-content:center}
+.panel{position:fixed;top:70px;left:20px;width:360px;background:#fff;border-radius:12px;box-shadow:0 4px 24px rgba(0,0,0,.12);z-index:1000;overflow:hidden;max-height:calc(100vh - 100px);display:flex;flex-direction:column}
+.tabs{display:flex;background:var(--p);flex-shrink:0}
+.tbtn{flex:1;padding:10px 4px;text-align:center;font-size:.65rem;font-weight:600;color:rgba(255,255,255,.6);cursor:pointer;border:none;background:none;transition:all .2s}
+.tbtn.on{color:#fff;background:rgba(255,255,255,.15)}
+.tbtn:hover{color:#fff}
+.px{background:none;border:none;color:#fff;font-size:1.4rem;cursor:pointer;padding:0 12px;display:none}
+.pane{display:none;overflow-y:auto;flex:1;padding:12px}
+.pane.on{display:block}
+.sec-ttl{font-family:'DM Serif Display',serif;font-size:.95rem;color:var(--p);margin-bottom:8px}
+.rt-label{display:block;font-size:.7rem;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:#888;margin-bottom:4px;margin-top:10px}
+.rt-sel{width:100%;padding:8px 10px;border:1.5px solid var(--bd);border-radius:8px;font-size:.82rem;font-family:'DM Sans',sans-serif;background:#fff;color:var(--d)}
+.rt-sel:focus{outline:none;border-color:var(--p)}
+.rt-result{display:none;background:var(--l);border-radius:8px;padding:10px 12px;margin-top:10px}
+.rt-result.on{display:block;animation:fadeIn .2s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+.rt-main{font-size:.92rem;font-weight:700;color:var(--p);margin-bottom:4px}
+.rt-detail{font-size:.78rem;color:#666;margin-bottom:4px}
+.rt-tip{font-size:.74rem;color:#6b5a00;background:#fff8e6;border-left:3px solid var(--a);padding:5px 8px;margin-top:6px;border-radius:0 4px 4px 0}
+.itin-card{background:var(--l);border-radius:10px;padding:12px;margin-bottom:8px;cursor:pointer;border:2px solid transparent;transition:all .2s}
+.itin-card:hover{border-color:var(--p)}
+.itin-card.on{border-color:var(--r);background:#fff}
+.itin-card h3{font-family:'DM Serif Display',serif;font-size:.95rem;color:var(--p);margin-bottom:3px}
+.imeta{font-size:.72rem;color:#666;margin-bottom:4px}
+.idesc{font-size:.76rem;color:#555;line-height:1.4}
+.dtabs{display:none;flex-wrap:wrap;gap:4px;margin-top:10px}
+.dtabs.on{display:flex}
+.dbtn{padding:5px 10px;border-radius:20px;font-size:.64rem;font-weight:600;border:1.5px solid var(--bd);background:#fff;color:var(--p);cursor:pointer;transition:all .15s}
+.dbtn.on{background:var(--r);border-color:var(--r);color:#fff}
+.bld-intro{font-size:.76rem;color:#666;margin-bottom:10px;padding:8px 10px;background:var(--l);border-radius:8px;line-height:1.5}
+.bld-stops{display:flex;flex-direction:column;gap:6px;margin-bottom:8px}
+.bld-stop{display:flex;align-items:center;gap:6px;padding:8px 10px;background:#fff;border:1.5px solid var(--bd);border-radius:8px;transition:all .2s}
+.bld-stop:hover{border-color:var(--p)}
+.bld-handle{cursor:grab;color:#bbb;font-size:.95rem;flex-shrink:0}
+.bld-num{width:20px;height:20px;border-radius:50%;background:var(--r);color:#fff;display:flex;align-items:center;justify-content:center;font-size:.65rem;font-weight:700;flex-shrink:0}
+.bld-sel{flex:1;padding:6px 8px;border:1px solid #ddd;border-radius:6px;font-size:.78rem;background:#fff;font-family:'DM Sans',sans-serif}
+.bld-sel:focus{outline:none;border-color:var(--p)}
+.bld-rm{width:22px;height:22px;border:none;background:#f5f5f5;border-radius:50%;cursor:pointer;color:#999;font-size:1rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;padding:0}
+.bld-rm:hover{background:#ffebee;color:var(--r)}
+.bld-add{width:100%;padding:9px;border:2px dashed #ccc;background:transparent;border-radius:8px;cursor:pointer;font-size:.8rem;color:#666;transition:all .2s;font-family:'DM Sans',sans-serif;margin-bottom:8px}
+.bld-add:hover{border-color:var(--p);color:var(--p)}
+.bld-actions{display:flex;gap:8px;margin-bottom:4px}
+.bld-calc{flex:1;padding:10px;background:var(--r);color:#fff;border:none;border-radius:8px;font-weight:600;cursor:pointer;font-size:.82rem;font-family:'DM Sans',sans-serif;transition:opacity .2s}
+.bld-calc:disabled{opacity:.45;cursor:not-allowed}
+.bld-clear{padding:10px 14px;background:#f5f5f5;color:#666;border:none;border-radius:8px;cursor:pointer;font-size:.78rem;font-family:'DM Sans',sans-serif}
+.bld-results{margin-top:10px}
+.bld-leg{background:#fff;border:1px solid var(--bd);border-radius:8px;padding:10px 12px;margin-bottom:6px}
+.bld-leg-head{font-weight:700;font-size:.82rem;color:var(--p);margin-bottom:3px}
+.bld-leg-detail{font-size:.74rem;color:#555;line-height:1.5}
+.bld-leg-tip{font-size:.69rem;color:#6b5a00;background:#fff8e6;border-left:2px solid var(--a);padding:4px 7px;margin-top:5px;border-radius:0 3px 3px 0}
+.bld-stop.dragging{opacity:.5;border-style:dashed}
+.bld-stop.drag-over{border-color:var(--r);background:#fff5f3}
+.stops{position:fixed;bottom:20px;left:20px;width:360px;background:#fff;border-radius:12px;box-shadow:0 4px 24px rgba(0,0,0,.12);z-index:1000;display:none;overflow:hidden;max-height:44vh}
+.stops.on{display:block;animation:up .25s ease}
+@keyframes up{from{transform:translateY(16px);opacity:0}to{transform:translateY(0);opacity:1}}
+.stops-hd{background:var(--g);color:#fff;padding:11px 14px;display:flex;align-items:center;justify-content:space-between}
+.stops-hd h3{font-family:'DM Serif Display',serif;font-size:.95rem;font-weight:400}
+.sx{background:none;border:none;color:#fff;font-size:1.3rem;cursor:pointer;line-height:1}
+.stops-bd{overflow-y:auto;max-height:calc(44vh - 46px)}
+.srow{padding:11px 14px;border-bottom:1px solid #eee}
+.srow:last-child{border-bottom:none}
+.snum{display:inline-flex;align-items:center;justify-content:center;width:21px;height:21px;border-radius:50%;background:var(--r);color:#fff;font-size:.7rem;font-weight:700;margin-right:7px;vertical-align:middle;flex-shrink:0}
+.sname{font-weight:600;font-size:.88rem;vertical-align:middle}
+.stime{font-size:.7rem;color:var(--p);margin-left:6px;font-weight:600}
+.stip{font-size:.73rem;color:#666;margin-top:3px;padding-left:28px}
+.legend{position:fixed;bottom:20px;right:20px;background:#fff;padding:12px 15px;border-radius:10px;box-shadow:0 4px 16px rgba(0,0,0,.1);z-index:1000}
+.legend h4{font-size:.66rem;font-weight:700;text-transform:uppercase;color:#888;margin-bottom:7px;letter-spacing:.04em}
+.legr{display:flex;align-items:center;gap:7px;margin-bottom:5px;font-size:.75rem;color:#555}
+.legr:last-child{margin-bottom:0}
+.legdot{width:12px;height:12px;border-radius:50%;flex-shrink:0}
+.dtable{width:100%;border-collapse:collapse;font-size:.76rem;margin-top:6px}
+.dtable th{background:var(--p);color:#fff;padding:5px 8px;text-align:left;font-size:.62rem;letter-spacing:.05em;text-transform:uppercase;font-weight:500}
+.dtable td{padding:5px 8px;border-bottom:1px solid var(--bd);color:#555}
+.dtable tr:last-child td{border-bottom:none}
+.pu{padding:12px 14px;min-width:185px}
+.pu-name{font-family:'DM Serif Display',serif;font-size:.98rem;color:var(--p);margin-bottom:2px}
+.pu-type{font-size:.6rem;text-transform:uppercase;letter-spacing:.08em;color:#999;margin-bottom:6px}
+.pu-row{font-size:.74rem;color:#555;margin-bottom:3px;line-height:1.4}
+.pu-row b{color:var(--d)}
+.pu-tip{background:var(--l);border-radius:4px;padding:5px 7px;font-size:.7rem;color:#6b5a00;margin-top:5px}
+.stop-lbl{margin-top:2px;font-size:10px;font-weight:600;color:#222;text-shadow:1px 1px 2px #fff,-1px -1px 2px #fff;white-space:nowrap;text-align:center}
+@media(max-width:768px){
+  .panel{position:fixed;top:auto;bottom:0;left:0;right:0;width:100%;border-radius:16px 16px 0 0;transform:translateY(100%);max-height:75vh;transition:transform .3s ease}
+  .panel.open{transform:translateY(0)}
+  .px{display:block}
+  .stops{bottom:0;left:0;right:0;width:100%;border-radius:16px 16px 0 0;max-height:50vh}
+  .legend{display:none}
+  .fab{display:flex}
+}
+</style>
+</head>
+<body>
+<header class="hdr">
+  <div class="hdr-logo">
+    <span class="hdr-main">France</span>
+    <span class="hdr-sub">No-Stress Travel Guide</span>
+  </div>
+  <span class="hdr-badge">Interactive Map</span>
+</header>
+<div id="map"></div>
+<button class="fab" id="fab">&#9776;</button>
 
+<div class="panel" id="panel">
+  <div class="tabs">
+    <button class="tbtn on" onclick="showPane('itin',this)">&#128197; Itineraries</button>
+    <button class="tbtn"    onclick="showPane('routes',this)">&#128674; Routes</button>
+    <button class="tbtn"    onclick="showPane('byt',this)">&#128466; Build Your Trip</button>
+    <button class="px" id="px">&#215;</button>
+  </div>
+
+  <div class="pane on" id="pane-itin"><div id="itinList"></div></div>
+
+  <div class="pane" id="pane-routes">
+    <div style="margin-bottom:16px">
+      <div class="sec-ttl">TGV Journey Calculator</div>
+      <p style="font-size:.74rem;color:#666;margin-bottom:10px;line-height:1.5">Select two cities to draw the route and see journey time, fare, and booking tip.</p>
+      <label class="rt-label">From</label>
+      <select class="rt-sel" id="selFrom"><option value="">Select origin...</option></select>
+      <label class="rt-label">To</label>
+      <select class="rt-sel" id="selTo"><option value="">Select destination...</option></select>
+      <div class="rt-result" id="rtResult">
+        <div class="rt-main" id="rtMain"></div>
+        <div class="rt-detail" id="rtDetail"></div>
+        <div class="rt-tip" id="rtTip"></div>
+      </div>
+    </div>
+    <div>
+      <div class="sec-ttl">Key journey times from Paris</div>
+      <table class="dtable">
+        <thead><tr><th>Destination</th><th>TGV time</th><th>Fare (advance)</th></tr></thead>
+        <tbody>
+          <tr><td>Lyon</td><td>2h</td><td>from €29</td></tr>
+          <tr><td>Bordeaux</td><td>2h</td><td>from €29</td></tr>
+          <tr><td>Marseille</td><td>3h 20min</td><td>from €35</td></tr>
+          <tr><td>Nantes</td><td>2h 10min</td><td>from €29</td></tr>
+          <tr><td>Strasbourg</td><td>1h 50min</td><td>from €25</td></tr>
+          <tr><td>Toulouse</td><td>4h 20min</td><td>from €39</td></tr>
+          <tr><td>Nice</td><td>5h 30min</td><td>from €49</td></tr>
+          <tr><td>Tours (Loire)</td><td>1h 10min</td><td>from €19</td></tr>
+          <tr><td>Avignon</td><td>2h 40min</td><td>from €35</td></tr>
+          <tr><td>Rennes</td><td>1h 30min</td><td>from €25</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="pane" id="pane-byt">
+    <div class="bld-intro">Build your custom France itinerary. Add cities in order, then calculate to see TGV times and tips for each leg.</div>
+    <div class="bld-stops" id="bldStops">
+      <div class="bld-stop" data-index="0">
+        <span class="bld-handle">&#9776;</span>
+        <span class="bld-num">1</span>
+        <select class="bld-sel" data-index="0"><option value="">Add first stop...</option></select>
+        <button class="bld-rm" data-index="0">&#215;</button>
+      </div>
+    </div>
+    <button class="bld-add" id="bldAdd">+ Add Stop</button>
+    <div class="bld-actions">
+      <button class="bld-calc" id="bldCalc" disabled>Calculate Route</button>
+      <button class="bld-clear" id="bldClear">Clear</button>
+    </div>
+    <div class="bld-results" id="bldResults"></div>
+  </div>
+</div>
+
+<div class="stops" id="stops">
+  <div class="stops-hd">
+    <h3 id="stopsTitle">Itinerary</h3>
+    <button class="sx" onclick="document.getElementById('stops').classList.remove('on')">&#215;</button>
+  </div>
+  <div class="stops-bd" id="stopsBd"></div>
+</div>
+
+<div class="legend">
+  <h4>Legend</h4>
+  <div class="legr"><div class="legdot" style="background:#1a3a5c"></div>Major city / TGV hub</div>
+  <div class="legr"><div class="legdot" style="background:#2d6a4f"></div>Coastal / Riviera</div>
+  <div class="legr"><div class="legdot" style="background:#8a5a10"></div>Historic region</div>
+  <div class="legr"><div class="legdot" style="background:#6a2a2a"></div>Day-trip destination</div>
+  <div class="legr" style="margin-top:6px"><div style="width:22px;height:0;border-top:3px dashed #2d6a4f"></div>Itinerary route</div>
+  <div class="legr"><div style="width:22px;height:3px;background:#c4533a;border-radius:2px"></div>Active route</div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script>
+var nsMap, markersLayer, activeRouteObjs;
+activeRouteObjs = [];
+
+var DESTS = [
+  {id:'paris',     n:'Paris',          lat:48.8566, lng:2.3522,  type:'hub',
+   tag:'Capital and TGV hub for all regions', best:'May-June, Sept-Oct. Avoid August.',
+   days:'3-5 days', eat:'Marais interior, Oberkampf, Canal Saint-Martin. Avoid Champs-Elysees and monument-facing restaurants.',
+   tip:'Book Louvre and Eiffel Tower weeks ahead. Eiffel Tower summit: book exactly 60 days ahead. Museum Pass worth it for 3+ museums per day.'},
+  {id:'lyon',      n:'Lyon',           lat:45.7640, lng:4.8357,  type:'hub',
+   tag:'Gastronomic capital and southeast hub', best:'April-October.',
+   days:'2-3 days', eat:'Bouchons in Vieux Lyon. Les Halles de Lyon Paul Bocuse for market browsing.',
+   tip:'2h from Paris by TGV. Secondary hub for Provence, Alps, Burgundy. Vieux Lyon UNESCO historic district.'},
+  {id:'marseille', n:'Marseille',      lat:43.2965, lng:5.3698,  type:'coastal',
+   tag:'Mediterranean port and Provence gateway', best:'May-September.',
+   days:'2 days', eat:'Cours Julien neighbourhood. Avoid port tourist restaurants for bouillabaisse - ask locals.',
+   tip:'3h 20min from Paris. Gateway to Provence by car. MuCEM (11euros) excellent. Calanques half-day boat trip from Vieux-Port.'},
+  {id:'nice',      n:'Nice',           lat:43.7102, lng:7.2620,  type:'coastal',
+   tag:'Riviera base and Cote dAzur hub', best:'May-June, Sept-Oct. Avoid July-August peak.',
+   days:'2-3 days', eat:'Vieux Nice interior streets. Cours Saleya market morning. Avoid Promenade des Anglais restaurants.',
+   tip:'5h 30min from Paris by TGV or fly direct. Base for Monaco (20 min), Antibes (30 min), Cannes (40 min) by regional train.'},
+  {id:'bordeaux',  n:'Bordeaux',       lat:44.8378, lng:-0.5792, type:'hub',
+   tag:'Wine capital and Atlantic gateway', best:'September-October for harvest. May-June pleasant.',
+   days:'2 days', eat:'Saint-Pierre neighbourhood. Rue Saint-Remi for wine bars.',
+   tip:'2h from Paris. Gateway to Saint-Emilion (40 min train), Medoc (car needed), Dordogne. Wine tasting in Chartrons neighbourhood.'},
+  {id:'toulouse',  n:'Toulouse',       lat:43.6047, lng:1.4442,  type:'hub',
+   tag:'Pink city and Southwest gateway', best:'April-June, September-October.',
+   days:'1-2 days', eat:'Capitole neighbourhood side streets. Carmes market area.',
+   tip:'4h 20min from Paris. Gateway to Pyrenees and Carcassonne (50 min train). Airbus factory tours bookable in advance.'},
+  {id:'strasbourg',n:'Strasbourg',     lat:48.5734, lng:7.7521,  type:'hub',
+   tag:'Alsace capital and Christmas market city', best:'December for Christmas markets. May-September for Alsace villages.',
+   days:'1-2 days', eat:'Petite France neighbourhood. Winstubs (Alsatian taverns) for choucroute garnie.',
+   tip:'1h 50min from Paris. Base for Alsace wine route villages (car ideal). November-December Christmas markets are Europes best.'},
+  {id:'nantes',    n:'Nantes',         lat:47.2184, lng:-1.5536, type:'hub',
+   tag:'Loire gateway and Atlantic city', best:'May-September.',
+   days:'1-2 days', eat:'Bouffay neighbourhood. Talensac market.',
+   tip:'2h 10min from Paris. Gateway to Loire Valley chateaux and Brittany. Les Machines de lile: extraordinary mechanical elephant.'},
+  {id:'avignon',   n:'Avignon',        lat:43.9493, lng:4.8055,  type:'historic',
+   tag:'Papal city and Provence base', best:'April-June, Sept-Oct. Avoid July festival crowds.',
+   days:'1-2 days', eat:'Rue des Teinturiers. Avoid main-square tourist menus.',
+   tip:'2h 40min from Paris, 70 min from Lyon. Base for Luberon villages (car needed), Arles (20 min train), Pont du Gard (bus/car).'},
+  {id:'tours',     n:'Tours',          lat:47.3941, lng:0.6848,  type:'historic',
+   tag:'Loire Valley chateau gateway', best:'April-June, September.',
+   days:'1-2 days base', eat:'Place Plumereau. Side streets off main square.',
+   tip:'1h 10min from Paris Montparnasse. Best TGV base for Loire chateaux. Chenonceau 30 min, Chambord 45 min, Amboise 20 min. Car rental at station essential.'},
+  {id:'bayeux',    n:'Bayeux',         lat:49.2764, lng:-0.7024, type:'historic',
+   tag:'D-Day beaches and Norman tapestry', best:'May-September.',
+   days:'1-2 days', eat:'Rue Saint-Martin. Simple Norman restaurants serving local cider and Camembert.',
+   tip:'2h 20min from Paris (change Caen). Base for D-Day beaches by car or tour. Famous tapestry museum in town. Mont Saint-Michel 1h 30min by car.'},
+  {id:'rennes',    n:'Rennes',         lat:48.1173, lng:-1.6778, type:'hub',
+   tag:'Brittany gateway', best:'June-September.',
+   days:'1 day en route', eat:'Place des Lices Saturday market. Rue Saint-Malo for crêperies.',
+   tip:'1h 30min from Paris. Gateway to Brittany and Mont Saint-Michel (1h 30min by shuttle bus). Useful transit hub, not a primary destination.'},
+  {id:'montsaintmichel', n:'Mont Saint-Michel', lat:48.6360, lng:-1.5115, type:'daytripicon',
+   tag:'Iconic island abbey - day trip from Bayeux or Rennes', best:'May-June, September-October.',
+   days:'Day trip only', eat:'Bring your own food or eat in Pontorson (mainland). Island restaurants are overpriced and mediocre.',
+   tip:'Access by shuttle bus from parking area. Abbey entry 11euros. Book timed entry in advance. Arrive before 10:00 AM. Crowds peak 11-16:00. Stay on island overnight for magical empty-island experience.'},
+  {id:'versailles', n:'Versailles',    lat:48.8049, lng:2.1204,  type:'daytripicon',
+   tag:'Palace of Versailles - day trip from Paris', best:'Weekdays, avoid school holidays.',
+   days:'Full day trip', eat:'Bring picnic for gardens. Town of Versailles has decent cafes.',
+   tip:'45 min from Paris RER C (Versailles Rive Gauche). Closed Mondays. Book timed entry online. Arrive 09:00. Allow full day for palace plus Trianons and gardens. 19.50euros palace, 22euros full estate.'},
+  {id:'arles',     n:'Arles',          lat:43.6769, lng:4.6278,  type:'historic',
+   tag:'Van Gogh country and Roman amphitheatre', best:'April-June, September-October.',
+   days:'1-2 days', eat:'Quartier des Arenes. Markets Saturday morning at Boulevard des Lices.',
+   tip:'20 min from Avignon by train. Roman amphitheatre still in use for bullfights. Van Gogh trail through the town. Camargue wetlands 30 min south by car.'},
+  {id:'aix',       n:'Aix-en-Provence',lat:43.5297, lng:5.4474,  type:'historic',
+   tag:'Cezanne country and Provencal elegance', best:'April-June, September-October.',
+   days:'1-2 days', eat:'Quartier Mazarin. Morning market on Place Richelme.',
+   tip:'30 min from Marseille by TGV or bus. Cours Mirabeau is the main boulevard. Cezanne atelier 6euros. Sainte-Victoire mountain visible from town - hike or drive up.'},
+  {id:'cannes',    n:'Cannes',         lat:43.5528, lng:7.0174,  type:'coastal',
+   tag:'Film Festival city and Riviera beach town', best:'September-October or May outside festival.',
+   days:'1 day from Nice', eat:'Interior streets of old town Le Suquet. Avoid Croisette promenade restaurants.',
+   tip:'40 min from Nice by regional train. Outside Film Festival (mid-May), pleasant beach town. Marche Forville for market picnics. Lerins islands accessible by ferry - quieter beaches.'},
+  {id:'dijon',     n:'Dijon',          lat:47.3220, lng:5.0415,  type:'historic',
+   tag:'Burgundy capital and wine gateway', best:'September-October for harvest.',
+   days:'1-2 days', eat:'Rue Amiral Roussin. Local mustard and wine shops.',
+   tip:'1h 35min from Paris. Gateway to Cote dOr wine villages by car. Les Halles Dijon covered market. 90 min from Lyon by TGV or car.'}
+];
+
+var ROUTES = {
+  'paris-lyon':         {t:'2h',        d:'465 km', m:'TGV (every 30-60 min)', tip:'From €29 booked ahead, €120+ last-minute. Most frequent TGV route in France. Departs Gare de Lyon.'},
+  'paris-bordeaux':     {t:'2h',        d:'580 km', m:'TGV (every 1-2 hours)', tip:'From €29 advance. Departs Montparnasse. Book early for weekend departures - they fill fast.'},
+  'paris-marseille':    {t:'3h 20min',  d:'775 km', m:'TGV (every 30-60 min)', tip:'From €35 advance. Departs Gare de Lyon. Change not required - direct. Lyon stop often on route.'},
+  'paris-nice':         {t:'5h 30min',  d:'930 km', m:'TGV (3-4 daily direct)', tip:'From €49 advance. Departs Gare de Lyon. Consider flying if price equivalent - total journey time similar.'},
+  'paris-strasbourg':   {t:'1h 50min',  d:'490 km', m:'TGV (every 60-90 min)', tip:'From €25 advance. Departs Gare de lEst. Fastest TGV route per kilometer. Direct, no changes.'},
+  'paris-toulouse':     {t:'4h 20min',  d:'680 km', m:'TGV (every 1-2 hours)', tip:'From €39 advance. Departs Montparnasse. Bordeaux often stop on route (2h). Change sometimes required.'},
+  'paris-nantes':       {t:'2h 10min',  d:'390 km', m:'TGV (every 60-90 min)', tip:'From €29 advance. Departs Montparnasse. Rennes stop en route (1h 30min). Gateway to Loire and Brittany.'},
+  'paris-avignon':      {t:'2h 40min',  d:'690 km', m:'TGV (3-4 daily)', tip:'From €35 advance. Departs Gare de Lyon. Avignon TGV station is 10 min from old city by shuttle. Provence base.'},
+  'paris-tours':        {t:'1h 10min',  d:'235 km', m:'TGV (every 60-90 min)', tip:'From €19 advance. Departs Montparnasse. Best base for Loire chateaux. Rent car at Tours station.'},
+  'paris-rennes':       {t:'1h 30min',  d:'355 km', m:'TGV (every 60-90 min)', tip:'From €25 advance. Departs Montparnasse. Change here for Brittany or take shuttle to Mont Saint-Michel.'},
+  'paris-dijon':        {t:'1h 35min',  d:'315 km', m:'TGV (every 60-90 min)', tip:'From €22 advance. Departs Gare de Lyon. Wine country base. 90 min further south to Lyon.'},
+  'paris-versailles':   {t:'45 min',    d:'23 km',  m:'RER C (every 15 min)', tip:'RER C from Saint-Michel or Invalides to Versailles Rive Gauche. €6.30 with Navigo zones or €7.20 separate ticket. No TGV needed.'},
+  'lyon-marseille':     {t:'1h 40min',  d:'315 km', m:'TGV (hourly)', tip:'From €19 advance. Key south corridor. Change here if routing Paris-Lyon-Marseille.'},
+  'lyon-avignon':       {t:'1h',        d:'220 km', m:'TGV (hourly)', tip:'70 min direct. Provence connection from Lyon hub. Often on Paris-Marseille route.'},
+  'lyon-nice':          {t:'2h 45min',  d:'445 km', m:'TGV (3-4 daily)', tip:'From €25 advance. Lyon to Riviera without backtracking to Paris. Marseille stop often en route.'},
+  'lyon-dijon':         {t:'1h 35min',  d:'195 km', m:'TGV or regional', tip:'Wine corridor. Dijon-Lyon by TGV 1h 35min. By car: 1h 30min, allows stops in Cote dOr villages.'},
+  'bordeaux-toulouse':  {t:'2h 10min',  d:'245 km', m:'TGV or Intercites', tip:'From €19 advance. Southwest corridor. No TGV high-speed for all of route - some sections regional.'},
+  'marseille-nice':     {t:'2h 30min',  d:'200 km', m:'TGV or regional', tip:'Regional trains run along coast, more scenic but slower. TGV faster but misses coastal views.'},
+  'marseille-avignon':  {t:'35 min',    d:'100 km', m:'TGV (frequent)', tip:'Fast and cheap corridor. Marseille-Avignon-Lyon the main Provence-north axis.'},
+  'nice-cannes':        {t:'40 min',    d:'33 km',  m:'TER regional (every 30 min)', tip:'€6-8 regional train runs along the coast. No TGV needed. Villefranche, Antibes, Juan-les-Pins all on this line.'},
+  'avignon-arles':      {t:'20 min',    d:'37 km',  m:'TER regional (hourly)', tip:'€5-7. Short regional hop. Or bus. Drive: 35 min. Arles is the best day trip from Avignon.'},
+  'avignon-aix':        {t:'1h',        d:'85 km',  m:'TGV or bus', tip:'Train less direct. Bus from Avignon to Aix-en-Provence TGV station: 1h 15min, reliable, cheap.'},
+  'tours-bayeux':       {t:'3h',        d:'330 km', m:'TGV via Paris or Caen', tip:'No direct train. Best route: Tours to Paris (1h 10min), Paris to Caen (2h), Caen to Bayeux (20 min). Or: drive 3h direct.'},
+  'rennes-montsaintmichel':{t:'1h 30min',d:'70 km', m:'Bus + shuttle', tip:'No direct train. Coach from Rennes bus station (1h 15min) then shuttle to island. Or drive 1h 30min. Book shuttle bus ahead in summer.'},
+  'bordeaux-aix':       {t:'4h',        d:'480 km', m:'TGV via Marseille', tip:'Bordeaux to Marseille (3h 30min), Marseille to Aix 30min by bus/train. No direct southwest-southeast TGV.'},
+  'nantes-tours':       {t:'1h 25min',  d:'130 km', m:'TER regional', tip:'Loire corridor connection. Regional train - no TGV needed. Connects Atlantic (Nantes) to Loire chateaux (Tours).'}
+};
+
+var ITINS = [
+  {id:'firsttimer', n:'The First-Timer', days:'7 days', transport:'TGV + rental car for day 5-6',
+   desc:'Paris essentials, one day trip, one region in depth. The framework that works for a first visit.',
+   dl:[
+     {lbl:'Days 1-2 — Paris',
+      stops:[{loc:'paris',n:'Paris arrival and orientation',time:'Day 1',tip:'Orientation walk in your neighbourhood. Simple dinner nearby. Do not plan anything ambitious on arrival day.'},
+             {loc:'paris',n:'Paris Icons — Louvre and Arc de Triomphe',time:'Day 2',tip:'Louvre morning (book timed entry). Tuileries walk. Champs-Elysees to Arc de Triomphe. Dinner in Saint-Germain or Marais.'}],
+      routes:[]},
+     {lbl:'Day 3 — Paris continued',
+      stops:[{loc:'paris',n:'Eiffel Tower and Orsay',time:'Day 3',tip:'Eiffel Tower morning (book summit 60 days ahead). Musee dOrsay afternoon (closed Mondays). Seine walk at dusk for Eiffel sparkle.'}],
+      routes:[]},
+     {lbl:'Day 4 — Versailles day trip',
+      stops:[{loc:'paris',n:'Paris depart early',time:'08:30',tip:'RER C from Invalides or Saint-Michel. 45 min to Versailles Rive Gauche.'},
+             {loc:'versailles',n:'Versailles — full day',time:'09:30-17:00',tip:'Book timed entry online in advance. Palace + Trianons + gardens. Closed Mondays. Avoid school holidays. Return to Paris for dinner.'}],
+      routes:[{f:'paris',t:'versailles'}]},
+     {lbl:'Day 5-6 — Loire Valley',
+      stops:[{loc:'paris',n:'Paris Montparnasse depart',time:'Day 5 morning',tip:'TGV to Tours: 1h 10min. From €19. Pick up rental car at station.'},
+             {loc:'tours',n:'Tours — Loire base',time:'Day 5 afternoon',tip:'Settle in, afternoon at Amboise and Clos Luce (Leonardo da Vincis final home). Evening in Tours.'},
+             {loc:'tours',n:'Chambord and Chenonceau',time:'Day 6',tip:'Chambord at 09:00 (arrive at opening). Lunch in village. Afternoon at Chenonceau, the most elegant Loire chateau. Return car and TGV back to Paris.'}],
+      routes:[{f:'paris',t:'tours'}]},
+     {lbl:'Day 7 — Paris, slow',
+      stops:[{loc:'paris',n:'Montmartre and neighbourhood day',time:'Day 7',tip:'No monuments. Morning Montmartre (avoid Place du Tertre - go toward Abbesses). Afternoon in Marais. Final dinner in your favourite neighbourhood.'}],
+      routes:[]}
+   ]
+  },
+  {id:'grandtour', n:'The Classic Grand Tour', days:'14 days', transport:'TGV throughout + car for Provence',
+   desc:'Paris, Loire Valley, Bordeaux, Provence, and the Riviera. The full southern arc of France by high-speed rail.',
+   dl:[
+     {lbl:'Days 1-4 — Paris',
+      stops:[{loc:'paris',n:'Paris — 4 nights',time:'Days 1-4',tip:'Louvre, Orsay, Eiffel Tower, Versailles day trip. Museum Pass worth it for this pace. Book all major attractions before departure.'},
+             {loc:'versailles',n:'Versailles day trip',time:'Day 4',tip:'Full day RER C from Paris. Book timed entry in advance.'}],
+      routes:[{f:'paris',t:'versailles'}]},
+     {lbl:'Days 5-6 — Loire Valley',
+      stops:[{loc:'paris',n:'Paris Montparnasse depart',time:'Day 5',tip:'TGV Tours 1h 10min from €19. Rent car at Tours station.'},
+             {loc:'tours',n:'Loire chateaux — 2 nights',time:'Days 5-6',tip:'Chenonceau, Chambord, Amboise. Move slowly. The chateau density here is unlike anywhere else.'}],
+      routes:[{f:'paris',t:'tours'}]},
+     {lbl:'Days 7-8 — Bordeaux',
+      stops:[{loc:'tours',n:'Tours to Bordeaux',time:'Day 7',tip:'Train via Paris or drive 3h direct (more scenic). Bordeaux: 2 nights.'},
+             {loc:'bordeaux',n:'Bordeaux — wine and city',time:'Days 7-8',tip:'Chartrons wine neighbourhood. Saint-Emilion day trip (40 min train). Cite du Vin museum.'}],
+      routes:[{f:'tours',t:'bordeaux'}]},
+     {lbl:'Days 9-10 — Provence',
+      stops:[{loc:'bordeaux',n:'Bordeaux to Avignon',time:'Day 9',tip:'TGV via Marseille, 3h 30min total. Avignon: 2 nights.'},
+             {loc:'avignon',n:'Avignon and Arles',time:'Days 9-10',tip:'Palais des Papes. Arles day trip (20 min train) - Van Gogh trail, Roman amphitheatre. Pont du Gard by car or tour.'}],
+      routes:[{f:'bordeaux',t:'avignon'},{f:'avignon',t:'arles'}]},
+     {lbl:'Days 11-14 — Riviera',
+      stops:[{loc:'avignon',n:'Avignon to Nice',time:'Day 11',tip:'TGV via Marseille: 3h. Nice: 4 nights. Best Riviera base.'},
+             {loc:'nice',n:'Nice and Riviera exploration',time:'Days 11-13',tip:'Vieux Nice. Monaco day trip (20 min train). Antibes (30 min). Cannes (40 min). Cours Saleya morning market. Colline du Chateau for free views.'},
+             {loc:'cannes',n:'Cannes day trip',time:'Day 12',tip:'40 min from Nice. Lerins islands by ferry. Old town Le Suquet. Market at Forville.'}],
+      routes:[{f:'avignon',t:'nice'},{f:'nice',t:'cannes'}]}
+   ]
+  },
+  {id:'normandy', n:'Normandy and the North', days:'7-10 days', transport:'TGV + rental car for D-Day',
+   desc:'Paris, Versailles, Loire Valley, and Normandy. The itinerary for history and the iconic northwest.',
+   dl:[
+     {lbl:'Days 1-3 — Paris',
+      stops:[{loc:'paris',n:'Paris — 3 nights',time:'Days 1-3',tip:'Louvre, Orsay, Eiffel Tower. Montmartre. One neighbourhood day with no monuments.'}],
+      routes:[]},
+     {lbl:'Day 4 — Versailles',
+      stops:[{loc:'paris',n:'Paris depart RER C',time:'Morning',tip:'45 min. Full day at Versailles. Return Paris for evening.'},
+             {loc:'versailles',n:'Versailles full day',time:'Day 4',tip:'Palace, Trianons, gardens. Closed Mondays. Book online. 19.50euros palace or 22euros full estate.'}],
+      routes:[{f:'paris',t:'versailles'}]},
+     {lbl:'Days 5-6 — Loire Valley',
+      stops:[{loc:'paris',n:'Paris to Tours by TGV',time:'Day 5 morning',tip:'1h 10min from Montparnasse. Car rental at station essential for chateaux.'},
+             {loc:'tours',n:'Loire chateaux — 2 nights',time:'Days 5-6',tip:'Chenonceau first afternoon. Chambord full morning Day 6. Amboise and Clos Luce afternoon. Return to Paris evening Day 6.'}],
+      routes:[{f:'paris',t:'tours'}]},
+     {lbl:'Days 7-9 — Normandy',
+      stops:[{loc:'paris',n:'Paris to Bayeux',time:'Day 7',tip:'Train via Caen: 2h 20min total. Bayeux: 2 nights. Pick up car on arrival.'},
+             {loc:'bayeux',n:'Bayeux Tapestry and town',time:'Day 7 afternoon',tip:'Famous tapestry museum in town. Medieval city centre. Excellent base for beaches.'},
+             {loc:'bayeux',n:'D-Day Beaches — full day',time:'Day 8',tip:'American Cemetery, Omaha Beach, Pointe du Hoc, Arromanches 360 cinema. Allow a full day. This is emotionally significant; do not rush.'},
+             {loc:'montsaintmichel',n:'Mont Saint-Michel day trip',time:'Day 9',tip:'1h 30min from Bayeux by car. Arrive before 10:00 AM. Book abbey entry in advance (11euros). Return Bayeux then train Paris.'}],
+      routes:[{f:'paris',t:'bayeux'},{f:'bayeux',t:'montsaintmichel'}]}
+   ]
+  },
+  {id:'weekend', n:'Weekend City Breaks', days:'2-3 days', transport:'TGV only',
+   desc:'Three self-contained weekend options: Lyon (food), Bordeaux (wine), or Strasbourg (Alsace). All reachable from Paris in under 2 hours.',
+   dl:[
+     {lbl:'Option A — Lyon (food capital)',
+      stops:[{loc:'paris',n:'Paris to Lyon',time:'Friday evening',tip:'TGV 2h from Gare de Lyon. From €29. Arrive evening, dinner in Vieux Lyon bouchon.'},
+             {loc:'lyon',n:'Lyon — 2 nights',time:'Sat-Sun',tip:'Saturday: Vieux Lyon, Fourviere basilica (free views). Croix-Rousse neighbourhood, Halles Bocuse market. Bouchon lunch.'},
+             {loc:'lyon',n:'Sunday return',time:'Sunday evening',tip:'Musee des Confluences (free Sunday PM). Return TGV to Paris by 20:00.'}],
+      routes:[{f:'paris',t:'lyon'}]},
+     {lbl:'Option B — Bordeaux (wine and design)',
+      stops:[{loc:'paris',n:'Paris to Bordeaux',time:'Friday evening',tip:'TGV 2h from Montparnasse. From €29. Chartrons neighbourhood for wine bars on arrival.'},
+             {loc:'bordeaux',n:'Bordeaux — 2 nights',time:'Sat-Sun',tip:'Saturday: Cite du Vin wine museum (20euros). Saint-Emilion day trip (40 min train, medieval wine village). Sunday: morning market, Miroir dEau fountain.'}],
+      routes:[{f:'paris',t:'bordeaux'}]},
+     {lbl:'Option C — Strasbourg (Alsace)',
+      stops:[{loc:'paris',n:'Paris to Strasbourg',time:'Friday evening',tip:'TGV 1h 50min from Gare de lEst. From €25. Fastest TGV in France. Petite France neighbourhood on arrival.'},
+             {loc:'strasbourg',n:'Strasbourg — 2 nights',time:'Sat-Sun',tip:'Saturday: Petite France half-timbered neighbourhood, Cathedrale Notre-Dame (tower climb 8euros). Winstub for dinner. Sunday: Alsace wine route villages by car or organised tour. Colmar 30 min by train.'}],
+      routes:[{f:'paris',t:'strasbourg'}]}
+   ]
+  }
+];
+
+var _activeItinId = null, _globalStops = [];
+
+function buildGlobalStops(it) {
+  var res=[], n=1;
+  it.dl.forEach(function(day,di){
+    var prev=null;
+    day.stops.forEach(function(s){
+      var d=getDestById(s.loc);
+      var xy=d?[d.lat,d.lng]:null;
+      if(!xy)return;
+      if(s.loc===prev){if(res.length>0&&res[res.length-1].dayIdx===di)res[res.length-1].label+=' + '+s.n;return;}
+      prev=s.loc;
+      res.push({locId:s.loc,coords:xy,label:s.n,num:n++,dayIdx:di});
+    });
+  });
+  return res;
+}
+
+function activateItinerary(it){_activeItinId=it.id;_globalStops=buildGlobalStops(it);}
+
+function mkIcon(type) {
+  var conf={hub:{col:'#1a3a5c'},coastal:{col:'#2d6a4f'},historic:{col:'#8a5a10'},daytripicon:{col:'#6a2a2a'}};
+  var c=(conf[type]||conf.hub).col;
+  var letter={'hub':'H','coastal':'C','historic':'H','daytripicon':'D'}[type]||'H';
+  return L.divIcon({html:'<div style="width:30px;height:30px;border-radius:50%;background:'+c+';border:2.5px solid white;box-shadow:0 2px 8px rgba(0,0,0,.4);display:flex;align-items:center;justify-content:center;color:white;font-size:11px;font-weight:700;">'+letter+'</div>',iconSize:[30,30],iconAnchor:[15,15],popupAnchor:[0,-18],className:''});
+}
+
+function getDestById(id){for(var i=0;i<DESTS.length;i++)if(DESTS[i].id===id)return DESTS[i];return null;}
+
+window.onload = function(){
+  nsMap=L.map('map',{zoomControl:true}).setView([46.5,2.5],6);
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',{attribution:'&copy; OpenStreetMap &copy; CARTO',subdomains:'abcd',maxZoom:19}).addTo(nsMap);
+  markersLayer=L.layerGroup().addTo(nsMap);
+  placeLandmarkMarkers();
+  buildItinList();
+  fillSelects();
+  fillBldSelect(document.querySelector('.bld-sel[data-index="0"]'));
+  document.querySelector('.bld-rm[data-index="0"]').addEventListener('click',function(){removeBldStop(0);});
+  setupBldDrag();updateBldState();
+  document.getElementById('bldAdd').addEventListener('click',addBldStop);
+  document.getElementById('bldCalc').addEventListener('click',calcBldRoute);
+  document.getElementById('bldClear').addEventListener('click',clearBld);
+  document.getElementById('px').addEventListener('click',function(){document.getElementById('panel').classList.remove('open');});
+  document.getElementById('fab').addEventListener('click',function(){document.getElementById('panel').classList.toggle('open');});
+};
+
+function placeLandmarkMarkers(){
+  markersLayer.clearLayers();
+  DESTS.forEach(function(d){
+    var html='<div class="pu"><div class="pu-name">'+d.n+'</div><div class="pu-type">'+d.tag+'</div><div class="pu-row"><b>Best time:</b> '+d.best+'</div><div class="pu-row"><b>Stay:</b> '+d.days+'</div><div class="pu-tip">'+d.tip+'</div></div>';
+    L.marker([d.lat,d.lng],{icon:mkIcon(d.type)}).bindPopup(html,{maxWidth:260}).addTo(markersLayer);
+  });
+}
+
+function buildItinList(){
+  var cont=document.getElementById('itinList');
+  ITINS.forEach(function(it){
+    var card=document.createElement('div');
+    card.className='itin-card';
+    var btns=it.dl.map(function(d,i){return '<button class="dbtn'+(i===0?' on':'')+'" data-itin="'+it.id+'" data-idx="'+i+'">'+d.lbl+'</button>';}).join('');
+    card.innerHTML='<h3>'+it.n+'</h3><div class="imeta">'+it.days+'&nbsp;&nbsp;'+it.transport+'</div><div class="idesc">'+it.desc+'</div><div class="dtabs" id="dtabs-'+it.id+'">'+btns+'</div>';
+    card.addEventListener('click',function(e){
+      if(e.target.closest&&e.target.closest('.dbtn'))return;
+      var isOn=card.classList.contains('on');
+      document.querySelectorAll('.itin-card').forEach(function(c){c.classList.remove('on');});
+      document.querySelectorAll('.dtabs').forEach(function(t){t.classList.remove('on');});
+      clearRoutes();
+      if(!isOn){
+        card.classList.add('on');
+        document.getElementById('dtabs-'+it.id).classList.add('on');
+        activateItinerary(it);
+        drawDay(it,0);
+        document.querySelectorAll('#dtabs-'+it.id+' .dbtn').forEach(function(b,i){b.classList.toggle('on',i===0);});
+      }
+    });
+    cont.appendChild(card);
+  });
+  cont.addEventListener('click',function(e){
+    var btn=e.target.closest('[data-itin]');
+    if(!btn)return;
+    e.stopPropagation();
+    var itId=btn.getAttribute('data-itin'),idx=parseInt(btn.getAttribute('data-idx'));
+    var it2=null;for(var i=0;i<ITINS.length;i++){if(ITINS[i].id===itId){it2=ITINS[i];break;}}
+    if(!it2)return;
+    if(_activeItinId!==itId)activateItinerary(it2);
+    document.querySelectorAll('#dtabs-'+itId+' .dbtn').forEach(function(b){b.classList.remove('on');});
+    btn.classList.add('on');
+    drawDay(it2,idx);
+  });
+}
+
+function clearRoutes(){
+  activeRouteObjs.forEach(function(o){nsMap.removeLayer(o);});
+  activeRouteObjs=[];
+  document.getElementById('stops').classList.remove('on');
+}
+
+function drawDay(it,dayIdx){
+  clearRoutes();
+  var day=it.dl[dayIdx];
+  if(!day)return;
+  DESTS.forEach(function(d){activeRouteObjs.push(L.circleMarker([d.lat,d.lng],{radius:4,color:'#fff',fillColor:'#b0bccc',fillOpacity:.35,weight:1,interactive:false}).addTo(nsMap));});
+  var dayStops=_globalStops.filter(function(s){return s.dayIdx===dayIdx;});
+  var prevLast=null;
+  if(dayIdx>0){var prev=_globalStops.filter(function(s){return s.dayIdx===dayIdx-1;});if(prev.length)prevLast=prev[prev.length-1];}
+  if(prevLast&&dayStops.length>0&&prevLast.locId!==dayStops[0].locId){
+    activeRouteObjs.push(L.polyline([prevLast.coords,dayStops[0].coords],{color:'#e8a838',weight:3,opacity:.75,dashArray:'8,5',lineCap:'round'}).addTo(nsMap));
+    activeRouteObjs.push(L.marker(prevLast.coords,{icon:L.divIcon({className:'',html:'<div style="width:22px;height:22px;border-radius:50%;background:#99a8bb;border:2px solid white;box-shadow:0 1px 5px rgba(0,0,0,.2);display:flex;align-items:center;justify-content:center;color:white;font-size:10px;font-weight:600;">'+prevLast.num+'</div>',iconSize:[22,22],iconAnchor:[11,11],zIndexOffset:350}),zIndexOffset:350}).addTo(nsMap));
+  }
+  for(var j=0;j<dayStops.length-1;j++){
+    if(dayStops[j].locId===dayStops[j+1].locId)continue;
+    activeRouteObjs.push(L.polyline([dayStops[j].coords,dayStops[j+1].coords],{color:'#2d6a4f',weight:5,opacity:1,dashArray:'10,6',lineCap:'round',lineJoin:'round'}).addTo(nsMap));
+  }
+  var bCoords=[];
+  dayStops.forEach(function(s){
+    bCoords.push(s.coords);
+    var lbl=s.label.length>24?s.label.substring(0,22)+'...':s.label;
+    var icon=L.divIcon({className:'',html:'<div style="text-align:center;width:130px;"><div style="width:30px;height:30px;border-radius:50%;background:#c4533a;border:3px solid white;box-shadow:0 2px 10px rgba(0,0,0,.4);display:flex;align-items:center;justify-content:center;color:white;font-size:12px;font-weight:700;margin:0 auto;">'+s.num+'</div><div style="margin-top:3px;font-size:10px;font-weight:700;color:#112244;background:rgba(255,255,255,.92);border-radius:3px;padding:1px 4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:130px;display:inline-block;">'+lbl+'</div></div>',iconSize:[130,46],iconAnchor:[65,15],zIndexOffset:700});
+    activeRouteObjs.push(L.marker(s.coords,{icon:icon,zIndexOffset:700}).addTo(nsMap));
+  });
+  if(prevLast&&prevLast.locId!==dayStops[0].locId)bCoords.push(prevLast.coords);
+  var seen={},uniq=[];
+  bCoords.forEach(function(xy){var k=xy[0].toFixed(2)+','+xy[1].toFixed(2);if(!seen[k]){seen[k]=true;uniq.push(xy);}});
+  if(uniq.length>1)nsMap.fitBounds(L.latLngBounds(uniq),{paddingTopLeft:[380,70],paddingBottomRight:[80,90],animate:true,maxZoom:10});
+  else if(uniq.length===1)nsMap.setView(uniq[0],9,{animate:true});
+  document.getElementById('stopsTitle').textContent=it.n+' — '+day.lbl;
+  document.getElementById('stopsBd').innerHTML=day.stops.map(function(s,i){return '<div class="srow"><span class="snum">'+(i+1)+'</span><span class="sname">'+s.n+'</span>'+(s.time?'<span class="stime">'+s.time+'</span>':'')+(s.tip?'<div class="stip">'+s.tip+'</div>':'')+'</div>';}).join('');
+  document.getElementById('stops').classList.add('on');
+  if(window.innerWidth<=768)document.getElementById('panel').classList.remove('open');
+}
+
+function getRoute(from,to){return ROUTES[from+'-'+to]||ROUTES[to+'-'+from]||null;}
+
+function fillSelects(){
+  ['selFrom','selTo'].forEach(function(sid){
+    var sel=document.getElementById(sid);
+    if(!sel)return;
+    DESTS.forEach(function(d){var opt=document.createElement('option');opt.value=d.id;opt.textContent=d.n;sel.appendChild(opt);});
+    sel.addEventListener('change',liveRoute);
+  });
+}
+
+function liveRoute(){
+  var from=document.getElementById('selFrom').value;
+  var to=document.getElementById('selTo').value;
+  var res=document.getElementById('rtResult');
+  if(!from||!to||from===to){res.classList.remove('on');clearRoutes();placeLandmarkMarkers();return;}
+  var A=getDestById(from),B=getDestById(to);
+  if(!A||!B)return;
+  var r=getRoute(from,to);
+  clearRoutes();placeLandmarkMarkers();
+  var line=L.polyline([[A.lat,A.lng],[B.lat,B.lng]],{color:'#c4533a',weight:5,opacity:.95,dashArray:'9,6',lineCap:'round'}).addTo(nsMap);
+  activeRouteObjs.push(line);
+  [{d:A,lbl:'A'},{d:B,lbl:'B'}].forEach(function(pt){
+    var icon=L.divIcon({className:'',html:'<div style="text-align:center;width:100px;"><div style="width:28px;height:28px;border-radius:50%;background:#c4533a;border:3px solid white;box-shadow:0 2px 10px rgba(0,0,0,.35);display:flex;align-items:center;justify-content:center;color:white;font-size:11px;font-weight:700;margin:0 auto;">'+pt.lbl+'</div><div style="margin-top:3px;font-size:10px;font-weight:700;color:#112244;background:rgba(255,255,255,.9);border-radius:3px;padding:1px 4px;white-space:nowrap;max-width:100px;overflow:hidden;text-overflow:ellipsis;display:inline-block;">'+pt.d.n+'</div></div>',iconSize:[100,40],iconAnchor:[50,14],zIndexOffset:600});
+    activeRouteObjs.push(L.marker([pt.d.lat,pt.d.lng],{icon:icon,zIndexOffset:600}).addTo(nsMap));
+  });
+  nsMap.fitBounds(L.latLngBounds([[A.lat,A.lng],[B.lat,B.lng]]),{paddingTopLeft:[380,60],paddingBottomRight:[80,60],animate:true,maxZoom:9});
+  if(r){
+    document.getElementById('rtMain').textContent=A.n+' \u2192 '+B.n+' \u2014 '+r.t;
+    document.getElementById('rtDetail').textContent='Distance: '+r.d+' \u00b7 Mode: '+r.m;
+    document.getElementById('rtTip').textContent=r.tip;
+  } else {
+    document.getElementById('rtMain').textContent=A.n+' \u2192 '+B.n;
+    document.getElementById('rtDetail').textContent='Indicative straight line. Check SNCF Connect for exact connections.';
+    document.getElementById('rtTip').textContent='Most French cities connect via TGV with at most 1 change. Book at sncf-connect.com for live schedules and prices.';
+  }
+  res.classList.add('on');
+}
+
+function fillBldSelect(sel){
+  if(!sel)return;
+  DESTS.forEach(function(d){var opt=document.createElement('option');opt.value=d.id;opt.textContent=d.n;sel.appendChild(opt);});
+  sel.addEventListener('change',updateBldState);
+}
+
+function addBldStop(){
+  var container=document.getElementById('bldStops');
+  var idx=container.querySelectorAll('.bld-stop').length;
+  var div=document.createElement('div');div.className='bld-stop';div.setAttribute('data-index',idx);
+  div.innerHTML='<span class="bld-handle">&#9776;</span><span class="bld-num">'+(idx+1)+'</span><select class="bld-sel" data-index="'+idx+'"><option value="">Select destination...</option></select><button class="bld-rm" data-index="'+idx+'">&#215;</button>';
+  container.appendChild(div);
+  fillBldSelect(div.querySelector('.bld-sel'));
+  div.querySelector('.bld-rm').addEventListener('click',function(){removeBldStop(parseInt(this.getAttribute('data-index')));});
+  setupBldDrag();updateBldState();
+}
+
+function removeBldStop(idx){
+  var container=document.getElementById('bldStops');
+  if(container.querySelectorAll('.bld-stop').length<=1)return;
+  var el=container.querySelector('.bld-stop[data-index="'+idx+'"]');
+  if(el)el.remove();
+  renumberBld();updateBldState();
+}
+
+function renumberBld(){
+  document.querySelectorAll('.bld-stop').forEach(function(s,i){
+    s.setAttribute('data-index',i);s.querySelector('.bld-num').textContent=i+1;
+    var sel=s.querySelector('.bld-sel');if(sel)sel.setAttribute('data-index',i);
+    var rm=s.querySelector('.bld-rm');if(rm)rm.setAttribute('data-index',i);
+  });
+}
+
+function updateBldState(){
+  var vals=Array.from(document.querySelectorAll('.bld-sel')).map(function(s){return s.value;}).filter(Boolean);
+  document.getElementById('bldCalc').disabled=vals.length<2;
+}
+
+function setupBldDrag(){
+  document.querySelectorAll('.bld-stop').forEach(function(s){
+    s.setAttribute('draggable','true');
+    s.ondragstart=function(e){this.classList.add('dragging');e.dataTransfer.setData('text/plain',this.getAttribute('data-index'));};
+    s.ondragend=function(){this.classList.remove('dragging');document.querySelectorAll('.bld-stop').forEach(function(x){x.classList.remove('drag-over');});};
+    s.ondragover=function(e){e.preventDefault();this.classList.add('drag-over');};
+    s.ondragleave=function(){this.classList.remove('drag-over');};
+    s.ondrop=function(e){
+      e.preventDefault();this.classList.remove('drag-over');
+      var fromIdx=parseInt(e.dataTransfer.getData('text/plain'));
+      var toIdx=parseInt(this.getAttribute('data-index'));
+      if(fromIdx===toIdx)return;
+      var container=document.getElementById('bldStops');
+      var all=Array.from(container.querySelectorAll('.bld-stop'));
+      var moved=all.splice(fromIdx,1)[0];all.splice(toIdx,0,moved);
+      all.forEach(function(x){container.appendChild(x);});
+      renumberBld();updateBldState();
+    };
+  });
+}
+
+function clearBld(){
+  var container=document.getElementById('bldStops');
+  container.innerHTML='<div class="bld-stop" data-index="0"><span class="bld-handle">&#9776;</span><span class="bld-num">1</span><select class="bld-sel" data-index="0"><option value="">Add first stop...</option></select><button class="bld-rm" data-index="0">&#215;</button></div>';
+  fillBldSelect(container.querySelector('.bld-sel'));
+  container.querySelector('.bld-rm').addEventListener('click',function(){removeBldStop(0);});
+  setupBldDrag();document.getElementById('bldResults').innerHTML='';document.getElementById('bldCalc').disabled=true;
+  clearRoutes();placeLandmarkMarkers();
+}
+
+function calcBldRoute(){
+  var stops=Array.from(document.querySelectorAll('.bld-sel')).map(function(s){return s.value;}).filter(Boolean);
+  if(stops.length<2)return;
+  clearRoutes();placeLandmarkMarkers();
+  var legs=[],coords=[];
+  for(var i=0;i<stops.length-1;i++){
+    var A=getDestById(stops[i]),B=getDestById(stops[i+1]);
+    if(!A||!B)continue;
+    var r=getRoute(stops[i],stops[i+1]);
+    legs.push({A:A,B:B,r:r});
+    activeRouteObjs.push(L.polyline([[A.lat,A.lng],[B.lat,B.lng]],{color:'#c4533a',weight:4,opacity:.9,dashArray:'7,5',lineCap:'round'}).addTo(nsMap));
+    coords.push([A.lat,A.lng]);
+  }
+  var last=getDestById(stops[stops.length-1]);if(last)coords.push([last.lat,last.lng]);
+  stops.forEach(function(id,i){
+    var d=getDestById(id);if(!d)return;
+    var icon=L.divIcon({className:'',html:'<div style="text-align:center;width:110px;"><div style="width:30px;height:30px;border-radius:50%;background:#c4533a;border:3px solid white;box-shadow:0 2px 10px rgba(0,0,0,.4);display:flex;align-items:center;justify-content:center;color:white;font-size:12px;font-weight:700;margin:0 auto;">'+(i+1)+'</div><div style="margin-top:3px;font-size:10px;font-weight:700;color:#112244;background:rgba(255,255,255,.9);border-radius:3px;padding:1px 4px;white-space:nowrap;max-width:110px;overflow:hidden;text-overflow:ellipsis;display:inline-block;">'+d.n+'</div></div>',iconSize:[120,38],iconAnchor:[60,11]});
+    activeRouteObjs.push(L.marker([d.lat,d.lng],{icon:icon,zIndexOffset:500}).addTo(nsMap));
+  });
+  if(coords.length>1)nsMap.fitBounds(L.latLngBounds(coords),{padding:[80,80],animate:true});
+  var html='';
+  legs.forEach(function(leg){
+    html+='<div class="bld-leg"><div class="bld-leg-head">'+leg.A.n+' &rarr; '+leg.B.n+(leg.r?' &mdash; '+leg.r.t:'')+'</div>';
+    if(leg.r)html+='<div class="bld-leg-detail"><b>Distance:</b> '+leg.r.d+' &middot; <b>Mode:</b> '+leg.r.m+'</div><div class="bld-leg-tip">'+leg.r.tip+'</div>';
+    else html+='<div class="bld-leg-detail">Check sncf-connect.com for connections.</div>';
+    html+='</div>';
+  });
+  document.getElementById('bldResults').innerHTML=html;
+}
+
+function showPane(id,btn){
+  clearRoutes();
+  document.querySelectorAll('.itin-card').forEach(function(c){c.classList.remove('on');});
+  document.querySelectorAll('.dtabs').forEach(function(t){t.classList.remove('on');});
+  var rtr=document.getElementById('rtResult');if(rtr)rtr.classList.remove('on');
+  document.querySelectorAll('.tbtn').forEach(function(b){b.classList.remove('on');});
+  document.querySelectorAll('.pane').forEach(function(p){p.classList.remove('on');});
+  btn.classList.add('on');document.getElementById('pane-'+id).classList.add('on');
+  placeLandmarkMarkers();
+}
+</script>
+</body>
+</html>
