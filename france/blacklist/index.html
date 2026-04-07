@@ -1,1 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>The Black List &mdash; The No-Stress France Travel Guide</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@300;400;500;600;700&family=Lato:ital,wght@0,300;0,400;0,700;1,300&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#112244;--navy-mid:#1B3566;
+  --gold:#F5C842;--gold-dark:#C89A10;
+  --bg:#F0F4FB;--white:#FFFFFF;
+  --text:#1A2340;--text-mid:#3A4A6A;--text-muted:#6A7A9A;
+  --bad:#8C2020;--bad-pale:#FBF0F0;
+  --warn:#B36A10;--warn-pale:#FDF3E3;
+  --trap:#1A6B5A;--trap-pale:#E3F5EE;
+  --tour:#8A5A10;--tour-pale:#FDF0DC;
+  --mistake:#5A3A8A;--mistake-pale:#EEEAF8;
+  --border:#C8D6EE;--border-lt:#E2EAF8;
+  --radius:10px;--shadow:0 2px 12px rgba(17,34,68,0.08);
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html{font-size:16px;-webkit-text-size-adjust:100%;scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:'Lato',sans-serif;font-weight:300;line-height:1.65;min-height:100vh;-webkit-font-smoothing:antialiased}
+.header{background:var(--navy);background-image:radial-gradient(ellipse at 80% 0%,rgba(37,69,128,0.8) 0%,transparent 60%),radial-gradient(ellipse at 20% 100%,rgba(17,34,68,0.9) 0%,transparent 50%);padding:2rem 1.5rem 0;position:relative;overflow:hidden}
+.header::before{content:'';position:absolute;inset:0;background-image:radial-gradient(rgba(255,255,255,0.06) 1px,transparent 1px);background-size:20px 20px;pointer-events:none}
+.stamp{position:relative;z-index:1;margin-bottom:1.5rem}
+.stamp-inner{border:2.5px solid var(--gold);border-radius:4px;padding:1.1rem 1.3rem 1rem;background:rgba(17,34,68,0.55);backdrop-filter:blur(4px);position:relative}
+.stamp-inner::before{content:'';position:absolute;top:-9px;left:8px;right:8px;height:8px;background:repeating-linear-gradient(90deg,transparent 0px,transparent 3px,var(--gold) 3px,var(--gold) 7px,transparent 7px,transparent 10px);opacity:.5}
+.stamp-inner::after{content:'';position:absolute;bottom:-9px;left:8px;right:8px;height:8px;background:repeating-linear-gradient(90deg,transparent 0px,transparent 3px,var(--gold) 3px,var(--gold) 7px,transparent 7px,transparent 10px);opacity:.5}
+.stamp-eyebrow{font-family:'Oswald',sans-serif;font-size:.56rem;font-weight:300;letter-spacing:.24em;text-transform:uppercase;color:rgba(245,200,66,.7);margin-bottom:.5rem}
+.stamp-the{font-family:'Oswald',sans-serif;font-size:.78rem;font-weight:300;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,.6);line-height:1}
+.stamp-city{font-family:'Oswald',sans-serif;font-size:3.6rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--white);line-height:.85}
+.stamp-guide{font-family:'Oswald',sans-serif;font-size:.82rem;font-weight:300;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,.6);margin-top:.15rem}
+.stamp-blacklist{font-family:'Oswald',sans-serif;font-size:2rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--gold);line-height:1;margin-top:.4rem}
+.stamp-rule{height:1px;background:linear-gradient(90deg,rgba(245,200,66,.5),transparent);margin:.85rem 0 .7rem}
+.stamp-footer{display:flex;align-items:center;justify-content:space-between}
+.stamp-footer-tag{font-family:'Oswald',sans-serif;font-size:.58rem;font-weight:400;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);opacity:.85}
+.stamp-year{font-family:'Oswald',sans-serif;font-size:1.2rem;font-weight:700;color:var(--gold);letter-spacing:.06em}
+.header-sub{position:relative;z-index:1;display:flex;align-items:center;gap:.75rem;padding-bottom:1.3rem;flex-wrap:wrap}
+.bl-badge{display:inline-flex;align-items:center;gap:.38rem;background:rgba(140,32,32,.18);border:1px solid rgba(140,32,32,.35);border-radius:2rem;padding:.3rem .8rem;font-family:'Oswald',sans-serif;font-size:.62rem;font-weight:400;letter-spacing:.12em;text-transform:uppercase;color:#E07A7A;min-height:44px}
+.header-note{font-size:.67rem;color:rgba(255,255,255,.28);letter-spacing:.02em}
+.intro-bar{background:var(--bad);color:#fff;padding:.85rem 1.4rem;display:flex;gap:.65rem;align-items:flex-start;font-size:.8rem;font-weight:400;line-height:1.55}
+.intro-bar svg{flex-shrink:0;margin-top:.12rem;opacity:.85}
+.disclaimer{background:var(--white);border-left:4px solid var(--navy-mid);padding:.9rem 1.4rem;font-size:.78rem;color:var(--text-mid);line-height:1.6}
+.disclaimer-label{font-family:'Oswald',sans-serif;font-size:.6rem;font-weight:500;letter-spacing:.18em;text-transform:uppercase;color:var(--navy-mid);display:block;margin-bottom:.35rem}
+main{padding:1.6rem 1.25rem 6rem;max-width:560px;margin:0 auto}
+.legend{display:flex;gap:.4rem;flex-wrap:wrap;margin-bottom:1.8rem}
+.leg{display:inline-flex;align-items:center;gap:.32rem;background:var(--white);border:1px solid var(--border);border-radius:2rem;padding:.3rem .7rem;font-family:'Oswald',sans-serif;font-size:.62rem;font-weight:400;letter-spacing:.1em;text-transform:uppercase;color:var(--text-mid);min-height:44px}
+.leg-pip{width:7px;height:7px;border-radius:2px;flex-shrink:0}
+.lp-scam{background:var(--bad)}.lp-trap{background:var(--trap)}.lp-tour{background:var(--tour)}.lp-mistake{background:var(--mistake)}
+.section{margin-bottom:3rem;opacity:0;transform:translateY(14px);transition:opacity .45s ease,transform .45s ease}
+.section.visible{opacity:1;transform:translateY(0)}
+.section-head{position:sticky;top:0;z-index:10;background:var(--bg);display:flex;align-items:center;justify-content:space-between;padding:.6rem 0 .55rem;margin-bottom:.9rem;border-bottom:2.5px solid var(--navy);box-shadow:0 4px 12px rgba(240,244,251,.95)}
+.sh-left{display:flex;align-items:center;gap:.55rem}
+.sh-pip{width:10px;height:10px;border-radius:2px;flex-shrink:0}
+.sp-scam{background:var(--bad)}.sp-trap{background:var(--trap)}.sp-tour{background:var(--tour)}.sp-mistake{background:var(--mistake)}
+.sh-title{font-family:'Oswald',sans-serif;font-size:1rem;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--navy)}
+.sh-count{font-size:.6rem;color:var(--text-muted);letter-spacing:.04em;white-space:nowrap}
+.zone{display:flex;align-items:center;gap:.55rem;margin:1.1rem 0 .6rem}
+.zone-label{font-family:'Oswald',sans-serif;font-size:.6rem;font-weight:500;letter-spacing:.22em;text-transform:uppercase;color:var(--gold-dark);white-space:nowrap}
+.zone-line{flex:1;height:1px;background:var(--border)}
+.card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:.55rem;overflow:hidden;position:relative;box-shadow:var(--shadow)}
+.card-bar{position:absolute;left:0;top:0;bottom:0;width:4px}
+.cb-scam{background:var(--bad)}.cb-trap{background:var(--trap)}.cb-tour{background:var(--tour)}.cb-mistake{background:var(--mistake)}
+.card-body{padding:.88rem 1rem .88rem 1.3rem}
+.card-place{font-family:'Oswald',sans-serif;font-size:.58rem;font-weight:300;letter-spacing:.18em;text-transform:uppercase;color:var(--text-muted);margin-bottom:.18rem}
+.card-title{font-family:'Oswald',sans-serif;font-size:.92rem;font-weight:600;color:var(--text);letter-spacing:.02em;margin-bottom:.3rem;line-height:1.2}
+.card-text{font-size:.85rem;color:var(--text-mid);line-height:1.58}
+.card-text strong{color:var(--text);font-weight:700}
+.card-text em{font-style:italic;color:var(--text-muted)}
+.signal{margin-top:.65rem;padding:.55rem .75rem;border-radius:6px;font-size:.77rem;line-height:1.55}
+.signal-label{font-family:'Oswald',sans-serif;font-size:.58rem;font-weight:500;letter-spacing:.16em;text-transform:uppercase;display:block;margin-bottom:.22rem;opacity:.8}
+.sig-trap{background:var(--trap-pale);color:var(--trap)}.sig-scam{background:var(--bad-pale);color:var(--bad)}.sig-warn{background:var(--warn-pale);color:var(--warn)}.sig-mistake{background:var(--mistake-pale);color:var(--mistake)}
+footer{background:var(--navy)}
+.footer-gold{background:var(--gold);padding:1.1rem 1.5rem;display:flex;align-items:center;justify-content:center;gap:.55rem}
+.footer-brand{font-family:'Oswald',sans-serif;font-size:1.4rem;font-weight:700;color:var(--navy);letter-spacing:.14em;text-transform:uppercase;line-height:1}
+.footer-brand-sub{font-family:'Oswald',sans-serif;font-size:.9rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--navy);opacity:.85;margin-top:.25rem;text-align:center}
+.footer-body{padding:2rem 1.5rem 3rem;text-align:center}
+.footer-promise{background:rgba(255,255,255,.04);border:1px solid rgba(245,200,66,.2);border-radius:8px;padding:1rem 1.2rem;font-size:.76rem;color:rgba(255,255,255,.58);line-height:1.7;text-align:left;margin-bottom:1.6rem;max-width:360px;display:inline-block}
+.fp-title{font-family:'Oswald',sans-serif;font-size:.62rem;font-weight:500;letter-spacing:.18em;text-transform:uppercase;color:rgba(245,200,66,.7);display:block;margin-bottom:.55rem}
+.footer-contact{font-size:.75rem;color:rgba(255,255,255,.4);margin-bottom:.5rem}
+.footer-contact a{color:var(--gold);text-decoration:none}
+.footer-legal{font-size:.65rem;color:rgba(255,255,255,.28);line-height:1.6}
+@media(min-width:600px){.stamp-city{font-size:4.5rem}main{padding:2rem 1.5rem 6rem}}
+</style>
+</head>
+<body>
+<header class="header">
+  <div class="stamp">
+    <div class="stamp-inner">
+      <div class="stamp-eyebrow">No-Stress Guides &mdash; Digital Companion</div>
+      <div class="stamp-the">The No-Stress</div>
+      <div class="stamp-city">France</div>
+      <div class="stamp-guide">Travel Guide &middot; 2026</div>
+      <div class="stamp-blacklist">The Black List</div>
+      <div class="stamp-rule"></div>
+      <div class="stamp-footer">
+        <span class="stamp-footer-tag">What the other guides won&rsquo;t tell you</span>
+        <span class="stamp-year">2026</span>
+      </div>
+    </div>
+  </div>
+  <div class="header-sub">
+    <span class="bl-badge">
+      <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><circle cx="6" cy="6" r="5.5" stroke="#E07A7A"/><line x1="6" y1="3" x2="6" y2="6.5" stroke="#E07A7A" stroke-width="1.5" stroke-linecap="round"/><circle cx="6" cy="8.5" r=".75" fill="#E07A7A"/></svg>
+      No sponsored content
+    </span>
+    <span class="header-note">Updated March 2026</span>
+  </div>
+</header>
 
+<div class="intro-bar">
+  <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M9 1L1 16h16L9 1z" stroke="white" stroke-width="1.5" stroke-linejoin="round"/><line x1="9" y1="7" x2="9" y2="11" stroke="white" stroke-width="1.5" stroke-linecap="round"/><circle cx="9" cy="13.5" r=".75" fill="white"/></svg>
+  The restaurants below are overpriced. The transport traps are specific and common. The cultural mistakes cost goodwill, not money &mdash; but they shape your entire experience. Every entry comes from the manuscript or verified 2026 reports.
+</div>
+
+<div class="disclaimer">
+  <span class="disclaimer-label">How to read this</span>
+  No individual businesses are named negatively &mdash; patterns and zones are identified. France is not a scam-heavy destination. Most entries here are structural traps and avoidable mistakes.
+</div>
+
+<main>
+  <div class="legend">
+    <div class="leg"><span class="leg-pip lp-trap"></span>Tourist trap</div>
+    <div class="leg"><span class="leg-pip lp-scam"></span>Active scam / financial trap</div>
+    <div class="leg"><span class="leg-pip lp-mistake"></span>Classic mistake</div>
+    <div class="leg"><span class="leg-pip lp-tour"></span>Not worth it</div>
+  </div>
+
+  <!-- RESTAURANTS -->
+  <section class="section" id="sec-restaurants">
+    <div class="section-head">
+      <div class="sh-left"><span class="sh-pip sp-trap"></span><span class="sh-title">Restaurants to Avoid</span></div>
+      <span class="sh-count">5 patterns</span>
+    </div>
+
+    <div class="card">
+      <div class="card-bar cb-trap"></div>
+      <div class="card-body">
+        <div class="card-place">Paris &middot; France-wide</div>
+        <div class="card-title">Any restaurant directly facing a major monument</div>
+        <div class="card-text">The restaurants directly facing Notre-Dame, the Eiffel Tower, and the Louvre charge tourist prices for food prepared without care. This is the clearest and most reliable signal in French dining: proximity to a landmark correlates almost perfectly with overpriced mediocrity. The same principle applies throughout France &mdash; restaurants on the main square of any famous village, the waterfront promenade in every Rivi&egrave;ra town, and anything in sight of Versailles. <strong>Walk two blocks in any direction and quality improves while prices drop.</strong></div>
+        <div class="signal sig-trap"><span class="signal-label">Where to go instead in Paris</span>The 11th around Oberkampf and Charonne. The 10th near Canal Saint-Martin. The 5th around Rue Mouffetard but off the main drag. The Marais interior streets rather than Place des Vosges itself. The 6th away from Boulevard Saint-Germain.</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-bar cb-trap"></div>
+      <div class="card-body">
+        <div class="card-place">Paris &middot; France-wide</div>
+        <div class="card-title">Photo menus displayed outside &middot; touts at the door</div>
+        <div class="card-text">Any restaurant displaying photographs of dishes on the menu outside is optimised for tourist throughput, not cooking. Any restaurant with staff actively trying to pull you in from the street has already answered the question of whether it needs to. Good French restaurants &mdash; even casual ones &mdash; fill on reputation. They do not recruit pedestrians.</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-bar cb-trap"></div>
+      <div class="card-place">Paris</div>
+      <div class="card-body">
+        <div class="card-place">Paris &middot; Champs-&Eacute;lys&eacute;es</div>
+        <div class="card-title">Any restaurant on the Champs-&Eacute;lys&eacute;es</div>
+        <div class="card-text">The avenue is spectacular as an urban experience. Every restaurant on it is overpriced and mediocre. This is not a general warning &mdash; it is a specific, consistent, well-documented fact. The Champs-&Eacute;lys&eacute;es is lined with chains, tourist-oriented brasseries, and cafes that charge Arc de Triomphe-view premiums for food that would embarrass a suburban mall food court. Have a coffee if you want the experience; do not eat a meal here.</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-bar cb-trap"></div>
+      <div class="card-body">
+        <div class="card-place">Paris &mdash; Montmartre</div>
+        <div class="card-title">Place du Tertre and the blocks around Anvers station</div>
+        <div class="card-text">Place du Tertre &mdash; the square near Sacr&eacute;-C&oelig;ur famous for portrait artists &mdash; is surrounded by restaurants priced for the captured audience of tourists who have just climbed the hill. The streets near Anvers station and below the basilica concentrate pushy vendors and tourist menus. <strong>Walk a few streets further toward Abbesses and Lamarck-Caulaincourt</strong> for the actual Montmartre neighbourhood &mdash; real cafes, local prices, the village atmosphere that the postcard version has replaced near the tourist core.</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-bar cb-trap"></div>
+      <div class="card-body">
+        <div class="card-place">French Rivi&egrave;ra &middot; Nice, Cannes, Monaco</div>
+        <div class="card-title">Promenade and waterfront restaurants on the Rivi&egrave;ra</div>
+        <div class="card-text">The Promenade des Anglais in Nice, the Croisette in Cannes, and the port area in Monaco charge location premiums that the food does not justify. A lunch formule in the interior streets of Vieux Nice costs &euro;18&ndash;25; the same meal on the Promenade costs &euro;35&ndash;50. <strong>Monaco specifically: do not eat there.</strong> Hotels cost &euro;300&ndash;500 for basic rooms; restaurants are priced for the principality&rsquo;s tax structure. Visit Monaco for half a day and return to Nice for every meal.</div>
+        <div class="signal sig-trap"><span class="signal-label">The Rivi&egrave;ra formula</span>Cours Saleya market in Nice, March&eacute; Provençal in Antibes, March&eacute; Forville in Cannes sell excellent produce for picnics. Bread, cheese, charcuterie, and wine on the beach costs a fraction of any table on the promenade.</div>
+      </div>
+    </div>
+
+  </section>
+
+  <!-- TRANSPORT TRAPS -->
+  <section class="section" id="sec-transport">
+    <div class="section-head">
+      <div class="sh-left"><span class="sh-pip sp-scam"></span><span class="sh-title">Transport Traps</span></div>
+      <span class="sh-count">5 traps</span>
+    </div>
+
+    <div class="card">
+      <div class="card-bar cb-scam"></div>
+      <div class="card-body">
+        <div class="card-place">Beauvais Airport &mdash; 85 km north of Paris</div>
+        <div class="card-title">Beauvais is not a Paris airport</div>
+        <div class="card-text">Ryanair and certain low-cost carriers market Beauvais as &ldquo;Paris Beauvais.&rdquo; The airport sits 85 kilometres north of the city. The shuttle bus to Porte Maillot takes 75&ndash;90 minutes in good traffic and costs &euro;17 each way. Add this to your actual flight time and the &euro;29 headline fare becomes &euro;63 just in airport transfers, before adding any luggage fees. <strong>Beauvais makes sense only when the total price difference versus CDG or Orly exceeds &euro;60&ndash;70 and you have no time pressure.</strong> For most travelers, the suburban airport erases the savings and adds friction on both ends of the trip.</div>
+        <div class="signal sig-scam"><span class="signal-label">The calculation</span>Always compare total cost: flight + airport transfer + time value. A &euro;29 Ryanair fare from Beauvais vs a &euro;89 Air France fare from CDG may actually cost the same once &euro;34 in round-trip transfers and 3+ hours of extra journey time are factored in.</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-bar cb-scam"></div>
+      <div class="card-body">
+        <div class="card-place">All airports &middot; tourist zones</div>
+        <div class="card-title">Airport currency exchange counters</div>
+        <div class="card-text">Currency exchange offices at French airports and tourist areas offer rates 5&ndash;10% worse than ATM rates. Never use them. Use the ATM attached to a French bank (BNP Paribas, Soci&eacute;t&eacute; G&eacute;n&eacute;rale, Cr&eacute;dit Agricole) instead. If you arrive with no euros at all, the airport ATM is acceptable; the exchange counter next to it is not. Withdraw &euro;100&ndash;200 at a time to minimize per-transaction fees.</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-bar cb-scam"></div>
+      <div class="card-body">
+        <div class="card-place">Card terminals &mdash; everywhere in France</div>
+        <div class="card-title">Dynamic Currency Conversion &mdash; always decline</div>
+        <div class="card-text">When paying by card, terminals regularly offer to charge you in dollars or pounds instead of euros. <strong>Always select euros.</strong> The exchange rate offered by the merchant includes a markup of 3&ndash;7% above your bank&rsquo;s rate. Your bank&rsquo;s foreign transaction fee (typically 1&ndash;3%) applies at the real rate and is still cheaper than Dynamic Currency Conversion. This appears at hotels, restaurants, shops, and ticket machines throughout France. Decline it every time.</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-bar cb-trap"></div>
+      <div class="card-body">
+        <div class="card-place">Budget airlines &mdash; Ryanair, EasyJet, Vueling</div>
+        <div class="card-title">The budget airline true cost calculation</div>
+        <div class="card-text">The &euro;35 headline fare becomes &euro;85&ndash;100 once checked baggage (&euro;25&ndash;45 Ryanair, &euro;20&ndash;35 EasyJet), seat selection (&euro;5&ndash;15), and priority boarding if needed (&euro;6&ndash;8 on Ryanair to guarantee overhead bin space) are added. Add airport transfer costs: Beauvais &euro;17 each way, Orly or CDG &euro;11.80&ndash;14 by transit. The non-refundable, non-changeable fare structure means a flight that needs changing costs the full new fare. <strong>Calculate the total cost before booking</strong>, including all fees and transfers, and compare directly to a legacy carrier fare that may include luggage.</div>
+        <div class="signal sig-scam"><span class="signal-label">The schedule trap within the budget trap</span>A 6:30 AM departure requires leaving at 03:30&ndash;04:00. If a hotel near the airport is needed, add &euro;80&ndash;120. The &euro;40 saved on the fare evaporates. Price the next departure for &euro;30 more: it often removes all these complications.</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-bar cb-trap"></div>
+      <div class="card-body">
+        <div class="card-place">Paris transport</div>
+        <div class="card-title">Buying paper tickets or using old magnetic tickets in 2026</div>
+        <div class="card-text">Paper/magnetic tickets stop working on Paris buses in May 2026 and on the full metro and RER network in June 2026. Travelers who show up with old paper tickets or try to buy them will find they do not work. The replacement is the <strong>Navigo Easy card (&euro;2 one-time cost)</strong> or the <strong>&Icirc;le-de-France Mobilit&eacute;s smartphone app</strong>. Buy the physical card at any metro station except CDG Airport (which stopped selling Navigo cards in August 2025). Set up the app before arrival if you have a compatible phone. The Navigo card requires a small passport photo at machines that issue them.</div>
+      </div>
+    </div>
+
+  </section>
+
+  <!-- TOURIST TRAPS -->
+  <section class="section" id="sec-traps">
+    <div class="section-head">
+      <div class="sh-left"><span class="sh-pip sp-trap"></span><span class="sh-title">Tourist Traps</span></div>
+      <span class="sh-count">5 zones</span>
+    </div>
+
+    <div class="zone"><span class="zone-label">Paris</span><span class="zone-line"></span></div>
+
+    <div class="card">
+      <div class="card-bar cb-trap"></div>
+      <div class="card-body">
+        <div class="card-place">Paris &middot; 8th arrondissement</div>
+        <div class="card-title">Champs-&Eacute;lys&eacute;es area for accommodation</div>
+        <div class="card-text">Hotels near the Champs-&Eacute;lys&eacute;es charge significant premiums for a location that is inconvenient for most of what visitors come to Paris to see. The Louvre, Orsay, and Marais are far enough to require daily metro trips. The neighbourhood is dominated by luxury flagships, tourist cafes, and chain restaurants. The same money buys far better positioning &mdash; and a more Parisian experience &mdash; in the 7th (for Left Bank attractions), the 3rd or 4th (for the Marais), or the 11th (for authentic neighbourhood life at lower prices).</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-bar cb-trap"></div>
+      <div class="card-body">
+        <div class="card-place">Paris &middot; 7th arrondissement near the Eiffel Tower</div>
+        <div class="card-title">Dinner near the Eiffel Tower</div>
+        <div class="card-text">Restaurants within sight of the Eiffel Tower charge altitude-of-fame premiums. A meal that costs &euro;25&ndash;35 in a neighbourhood bistro two arrondissements away costs &euro;40&ndash;55 in the 7th near the tower. The tower is worth seeing lit up after dark; the dinner does not have to happen there. Consider eating in the 6th, 5th, or 15th and returning later for the light show &mdash; the tower sparkles on the hour from nightfall to 1:00 AM, and the view from the Champ de Mars or Trocad&eacute;ro is free.</div>
+      </div>
+    </div>
+
+    <div class="zone"><span class="zone-label">Versailles</span><span class="zone-line"></span></div>
+
+    <div class="card">
+      <div class="card-bar cb-tour"></div>
+      <div class="card-body">
+        <div class="card-place">Versailles &middot; all visitors</div>
+        <div class="card-title">Visiting Versailles without a full day and advance booking</div>
+        <div class="card-text">Versailles is genuinely extraordinary, but visiting it without planning makes it exhausting and expensive. The traps are specific: arriving at the main gate instead of booking timed entry online (hour-long queue in peak season); entering on a Monday when the palace is closed; skipping the gardens and Trianons after three hours in the main palace &mdash; the Grand Trianon and Petit Trianon are where visitors who have exhausted themselves inside miss the most personal and intimate parts of the estate. <strong>If you have only three hours available, skip Versailles entirely</strong> and return when you have a full day. A rushed Versailles wastes the ticket price and the journey.</div>
+        <div class="signal sig-warn"><span class="signal-label">Days and hours to note</span>Palace closed Mondays. Avoid French school holidays and weekends in summer. Morning arrival via RER C from Paris (Versailles Rive Gauche stop, closest to the palace). Book timed entry online in advance.</div>
+      </div>
+    </div>
+
+    <div class="zone"><span class="zone-label">The French Rivi&egrave;ra</span><span class="zone-line"></span></div>
+
+    <div class="card">
+      <div class="card-bar cb-trap"></div>
+      <div class="card-body">
+        <div class="card-place">French Rivi&egrave;ra &middot; Cannes, Monaco</div>
+        <div class="card-title">Cannes outside the Film Festival &middot; sleeping in Monaco</div>
+        <div class="card-text">Cannes markets itself on the Film Festival mystique. Outside May, it is a pleasant but unremarkable beach town with expensive hotels, private or crowded beaches, and little of Nice&rsquo;s depth or history. Unless the Croisette specifically calls to you, choose Nice instead &mdash; better food, better museums, better transport connections, and at &euro;120&ndash;180 for a mid-range double versus Cannes&rsquo;s &euro;150&ndash;220+.<br><br>
+        Monaco: visit for half a day. Casinos, the royal palace, and the clifftop views are worth a few hours. Hotels cost &euro;300&ndash;500 for basic rooms; the principality has almost no budget options. Staying in Monaco makes no practical sense. Return to Nice for dinner.</div>
+      </div>
+    </div>
+
+    <div class="zone"><span class="zone-label">Nationwide</span><span class="zone-line"></span></div>
+
+    <div class="card">
+      <div class="card-bar cb-trap"></div>
+      <div class="card-body">
+        <div class="card-place">France-wide &middot; scenic villages</div>
+        <div class="card-title">Main square restaurants in famous villages</div>
+        <div class="card-text">Les Baux-de-Provence, Saint-Paul-de-Vence, Gordes, Mont Saint-Michel, and every other famous scenic village in France shares the same pattern: the restaurants on or directly adjacent to the main square serve overpriced food to a captive audience. The view from the terrace is often genuinely beautiful. The food rarely is. <strong>Walk one street back.</strong> In every French village that has been discovered by tourism, the street behind the main square consistently offers better food at 30&ndash;40% lower prices. The view from a side terrace is almost identical.</div>
+      </div>
+    </div>
+
+  </section>
+
+  <!-- CLASSIC MISTAKES -->
+  <section class="section" id="sec-mistakes">
+    <div class="section-head">
+      <div class="sh-left"><span class="sh-pip sp-mistake"></span><span class="sh-title">Classic First-Timer Mistakes</span></div>
+      <span class="sh-count">7 mistakes</span>
+    </div>
+
+    <div class="card">
+      <div class="card-bar cb-mistake"></div>
+      <div class="card-body">
+        <div class="card-place">Culture &mdash; the most consequential mistake in France</div>
+        <div class="card-title">Not saying bonjour before anything else</div>
+        <div class="card-text">In French culture, entering a shop, approaching a counter, or beginning any interaction without first saying &ldquo;bonjour&rdquo; signals that you see the other person purely as a service provider rather than a human being. <strong>The interaction starts badly and rarely recovers.</strong> Many complaints about &ldquo;rude French people&rdquo; trace directly to this single cultural mismatch. The word costs nothing; two seconds of genuine greeting changes everything.<br><br>
+        Pronounce it &ldquo;bohn-ZHOOR.&rdquo; Make brief eye contact. Add &ldquo;madame&rdquo; or &ldquo;monsieur&rdquo; for warmth. When leaving: &ldquo;merci, au revoir.&rdquo; These rituals transform transactions into interactions and open doors that American-style directness keeps permanently closed.</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-bar cb-mistake"></div>
+      <div class="card-body">
+        <div class="card-place">Museum planning &mdash; Paris</div>
+        <div class="card-title">Not knowing which museums close on which days</div>
+        <div class="card-text">The Mus&eacute;e d&rsquo;Orsay is closed on <strong>Mondays</strong>. The Louvre is closed on <strong>Tuesdays</strong>. These are different days, and this difference trips up visitors who assume both major museums share the same closure. Building your Paris itinerary around the Orsay on a Monday or the Louvre on a Tuesday wastes a significant portion of your visit. Additionally: Versailles is closed Mondays. Most French national museums and many restaurants take one full day off per week. Verify hours for any attraction before building your day around it.</div>
+        <div class="signal sig-mistake"><span class="signal-label">The Paris Museum Pass implication</span>If you activate a 2-day Paris Museum Pass on a Monday, you lose the Orsay on the first day. If you activate it on a Tuesday, you lose the Louvre. Start the pass on a Wednesday, Thursday, or Friday.</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-bar cb-mistake"></div>
+      <div class="card-body">
+        <div class="card-place">TGV booking</div>
+        <div class="card-title">Booking TGV tickets late</div>
+        <div class="card-text">TGV prices are dynamic. Paris&ndash;Lyon can be &euro;29 booked six weeks ahead or &euro;120 booked two days before departure. This is not a small difference &mdash; it is 4&times; the price for the identical seat on the identical train. SNCF releases tickets approximately four months ahead. <strong>Book as soon as you know your dates.</strong> The cheapest Prem&rsquo;s tickets allow no changes or refunds; mid-price tickets allow changes for a fee. If your plans are uncertain, pay the mid-price fare for flexibility rather than the Prem&rsquo;s for savings you may lose entirely if plans change.</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-bar cb-mistake"></div>
+      <div class="card-body">
+        <div class="card-place">Dining &mdash; timing</div>
+        <div class="card-title">Trying to eat dinner before 19:30</div>
+        <div class="card-text">French restaurants open for dinner service at 19:00 at the earliest, typically 19:30. Arriving at 18:00 or 18:30 leaves you with tourist traps and brasseries serving warmed-up food as the only options. The correct approach: <strong>aperitif at 18:30&ndash;19:00</strong> (a glass of wine or kir at a cafe), then dinner at 20:00 when the kitchen is properly running. Lunch is the meal to budget for in France &mdash; the formule or menu du jour (two to three courses at &euro;14&ndash;22) at restaurants that charge &euro;45+ for dinner is identical food at half the price.</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-bar cb-mistake"></div>
+      <div class="card-body">
+        <div class="card-place">Hotel breakfast &mdash; France-wide</div>
+        <div class="card-title">Paying for hotel breakfast when a bakery is around the corner</div>
+        <div class="card-text">Hotel breakfasts in France cost &euro;12&ndash;18 and are rarely worth the price unless included in your room rate. A croissant (&euro;1.20&ndash;1.80) and coffee (&euro;2&ndash;3.50) at the café around the corner costs &euro;4&ndash;5 and is demonstrably more French. The bakery experience &mdash; ordering in French, eating at the counter or at a small table, watching the neighbourhood wake up &mdash; is one of the genuine pleasures of travel in France that hotel breakfast rooms systematically eliminate. If your hotel includes breakfast, eat it; if not, opt out and find a boulangerie.</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-bar cb-mistake"></div>
+      <div class="card-body">
+        <div class="card-place">Itinerary planning</div>
+        <div class="card-title">Trying to combine too many regions in one trip</div>
+        <div class="card-text">France is a large country. Paris to Nice takes 5h 40min by TGV. Bordeaux to Strasbourg takes 6+ hours with a change. Visitors who try to cover Paris, Provence, the Rivi&egrave;ra, the Loire Valley, and Normandy in seven days spend most of the trip on trains and in hotel lobbies, exhausted. <strong>Each French region rewards slow travel.</strong> Three days in Provence is better than half a day. Two days in Lyon is better than a rushed morning. Pick two or three regions, allocate genuine time, and you will understand why people come back to France every year.</div>
+        <div class="signal sig-mistake"><span class="signal-label">The 7-day framework that works</span>Paris (3 days) + one day trip (Versailles, Giverny, or Champagne) + one region in depth (Provence, Loire, or Normandy) + travel days. This is a coherent trip. Five regions in seven days is an itinerary on paper that becomes exhaustion in practice.</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-bar cb-mistake"></div>
+      <div class="card-body">
+        <div class="card-place">Sunday planning &mdash; France-wide</div>
+        <div class="card-title">Arriving in a French town on Sunday without a plan</div>
+        <div class="card-text">France takes Sunday seriously. Most shops outside city centers close, including many supermarkets. Numerous restaurants close Sunday evening or take Monday off instead. In small towns and villages, Sunday afternoon can mean closed doors everywhere. <strong>Plan Sunday specifically:</strong> know which markets operate (most finish by noon), which bakeries open (most do, mornings only), and where you will eat dinner. A Sunday in a beautiful French village with no advance planning can mean eating from a vending machine while admiring architecture that is fully closed to you.</div>
+      </div>
+    </div>
+
+  </section>
+</main>
+
+<footer>
+  <div class="footer-gold">
+    <div>
+      <div class="footer-brand">No-Stress Guides</div>
+      <div class="footer-brand-sub">France Travel Guide &middot; 2026</div>
+    </div>
+  </div>
+  <div class="footer-body">
+    <div class="footer-promise">
+      <span class="fp-title">The No-Stress Promise</span>
+      No sponsored content. No paid placements. No business paid to be excluded from or included in this guide. Every entry is based on the manuscript or verified 2025&ndash;2026 reports.
+    </div>
+    <p class="footer-contact">Questions or updates: <a href="mailto:info@nostressguides.com">info@nostressguides.com</a></p>
+    <p class="footer-legal">&copy; 2026 No-Stress Guides. For personal travel use only.</p>
+  </div>
+</footer>
+
+<script>
+document.querySelectorAll('.section').forEach(function(s, i) {
+  setTimeout(function() { s.classList.add('visible'); }, 100 + i * 80);
+});
+</script>
+</body>
+</html>
