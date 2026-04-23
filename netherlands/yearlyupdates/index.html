@@ -1,1 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>2026 Updates &mdash; The No-Stress Netherlands Travel Guide</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@300;400;500;600;700&family=Lato:ital,wght@0,300;0,400;0,700;1,300&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#112244;--navy-mid:#1B3566;--navy-light:#254580;
+  --gold:#F5C842;--gold-dark:#C89A10;--gold-pale:#FDF6DC;
+  --bg:#F0F4FB;--white:#FFFFFF;
+  --text:#1A2340;--text-mid:#3A4A6A;--text-muted:#6A7A9A;
+  --bad:#8C2020;--bad-pale:#FBF0F0;
+  --warn:#B36A10;--warn-pale:#FDF3E3;
+  --ok:#1A5C30;--ok-pale:#E4F5EB;
+  --new:#1A4A80;--new-pale:#E4EEF8;
+  --border:#C8D6EE;--border-lt:#E2EAF8;
+  --radius:10px;--shadow:0 2px 12px rgba(17,34,68,0.08);
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html{font-size:16px;-webkit-text-size-adjust:100%;scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:'Lato',sans-serif;font-weight:300;line-height:1.65;min-height:100vh;-webkit-font-smoothing:antialiased}
+.header{background:var(--navy);background-image:radial-gradient(ellipse at 80% 0%,rgba(37,69,128,0.8) 0%,transparent 60%);padding:2rem 1.5rem 0;position:sticky;top:0;z-index:100;overflow:hidden}
+.header::before{content:'';position:absolute;inset:0;background-image:radial-gradient(rgba(255,255,255,0.06) 1px,transparent 1px);background-size:20px 20px;pointer-events:none}
+.stamp{position:relative;z-index:1;margin-bottom:1.5rem}
+.stamp-inner{border:2.5px solid var(--gold);border-radius:4px;padding:1.1rem 1.3rem 1rem;background:rgba(17,34,68,0.55);backdrop-filter:blur(4px);position:relative}
+.stamp-inner::before{content:'';position:absolute;top:-9px;left:8px;right:8px;height:8px;background:repeating-linear-gradient(90deg,transparent,transparent 5px,var(--bg) 5px,var(--bg) 10px);opacity:.6}
+.stamp-inner::after{content:'';position:absolute;bottom:-9px;left:8px;right:8px;height:8px;background:repeating-linear-gradient(90deg,transparent,transparent 5px,var(--bg) 5px,var(--bg) 10px);opacity:.6}
+.stamp-label{font-family:'Oswald',sans-serif;font-size:.55rem;font-weight:400;letter-spacing:.28em;text-transform:uppercase;color:var(--gold);opacity:.8;margin-bottom:.35rem}
+.stamp-title{font-family:'Oswald',sans-serif;font-size:2rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:#fff;line-height:1.05;margin-bottom:.55rem}
+.stamp-dest{font-family:'Oswald',sans-serif;font-size:.75rem;font-weight:300;letter-spacing:.22em;text-transform:uppercase;color:rgba(255,255,255,.7)}
+.year-badge{display:inline-block;background:var(--gold);color:var(--navy);font-family:'Oswald',sans-serif;font-size:.7rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;padding:.18rem .65rem;border-radius:3px;margin-bottom:.55rem}
+.header-tabs{position:relative;z-index:1;display:flex;gap:0;margin-top:auto}
+.h-tab{flex:1;padding:.55rem .4rem;text-align:center;font-family:'Oswald',sans-serif;font-size:.58rem;font-weight:400;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.55);border-bottom:3px solid transparent;cursor:pointer;transition:all .2s;border-radius:3px 3px 0 0;background:none;border-top:none;border-left:none;border-right:none}
+.h-tab:hover{color:rgba(255,255,255,.8)}
+.h-tab.active{color:var(--gold);border-bottom-color:var(--gold);background:rgba(245,200,66,.06)}
+.transparency{background:var(--gold-pale);border:1px solid rgba(200,154,16,.3);border-radius:var(--radius);padding:.9rem 1rem;margin-bottom:1.2rem}
+.t-head{font-family:'Oswald',sans-serif;font-size:.6rem;font-weight:500;letter-spacing:.18em;text-transform:uppercase;color:var(--gold-dark);margin-bottom:.35rem}
+.t-text{font-size:.78rem;color:var(--text-mid);line-height:1.5}
+.content{max-width:640px;margin:0 auto;padding:1.2rem 1.1rem 2rem}
+.section{margin-bottom:3rem;opacity:0;transform:translateY(14px);transition:opacity .45s ease,transform .45s ease}
+.section.visible{opacity:1;transform:translateY(0)}
+.section-head{position:sticky;top:0;z-index:10;background:var(--bg);display:flex;align-items:center;justify-content:space-between;padding:.6rem 0 .55rem;margin-bottom:.9rem;border-bottom:2.5px solid var(--navy);box-shadow:0 4px 12px rgba(240,244,251,.95)}
+.sh-left{display:flex;align-items:center;gap:.55rem}
+.sh-pip{width:10px;height:10px;border-radius:2px;flex-shrink:0}
+.sp-bad{background:var(--bad)}.sp-warn{background:var(--warn)}.sp-ok{background:var(--ok)}.sp-new{background:var(--new)}
+.sh-title{font-family:'Oswald',sans-serif;font-size:1rem;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--navy)}
+.sh-date{font-size:.6rem;color:var(--text-muted);letter-spacing:.04em;white-space:nowrap}
+.zone{display:flex;align-items:center;gap:.55rem;margin:1.1rem 0 .6rem}
+.zone-label{font-family:'Oswald',sans-serif;font-size:.6rem;font-weight:500;letter-spacing:.22em;text-transform:uppercase;color:var(--gold-dark);white-space:nowrap}
+.zone-line{flex:1;height:1px;background:var(--border)}
+.card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:.55rem;overflow:hidden;position:relative;box-shadow:var(--shadow)}
+.card-bar{position:absolute;left:0;top:0;bottom:0;width:4px}
+.cb-bad{background:var(--bad)}.cb-warn{background:var(--warn)}.cb-new{background:var(--new)}.cb-ok{background:var(--ok)}
+.card-body{padding:.88rem 1rem .88rem 1.3rem}
+.card-place{font-family:'Oswald',sans-serif;font-size:.58rem;font-weight:300;letter-spacing:.18em;text-transform:uppercase;color:var(--text-muted);margin-bottom:.18rem}
+.card-text{font-size:.85rem;color:var(--text-mid);line-height:1.58}
+.card-text strong{color:var(--text);font-weight:700}
+.card-text em{font-style:italic;color:var(--text-muted)}
+.price-row{display:flex;align-items:center;gap:.45rem;margin-top:.6rem;padding-top:.5rem;border-top:1px solid var(--border-lt);flex-wrap:wrap}
+.pr-old{font-size:.76rem;color:var(--text-muted);text-decoration:line-through}
+.pr-arrow{font-size:.6rem;color:var(--text-muted)}
+.pr-new{font-size:.86rem;font-weight:700;color:var(--bad)}
+.pr-ok{font-size:.86rem;font-weight:700;color:var(--ok)}
+.pr-src{font-size:.65rem;color:var(--text-muted);margin-left:auto}
+.alert-block{border-radius:var(--radius);padding:.85rem 1rem;margin-bottom:.55rem;border:1px solid}
+.ab-bad{background:var(--bad-pale);border-color:rgba(140,32,32,.2)}
+.ab-new{background:var(--new-pale);border-color:rgba(26,74,128,.2)}
+.ab-warn{background:var(--warn-pale);border-color:rgba(179,106,16,.2)}
+.alert-head{font-family:'Oswald',sans-serif;font-size:.62rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;margin-bottom:.25rem}
+.ah-bad{color:var(--bad)}.ah-new{color:var(--new)}.ah-warn{color:var(--warn)}
+.alert-text{font-size:.8rem;color:var(--text-mid);line-height:1.5}
+.ok-list{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow)}
+.ok-row{display:flex;gap:.7rem;align-items:flex-start;padding:.75rem 1rem;border-bottom:1px solid var(--border-lt)}
+.ok-row:last-child{border-bottom:none}
+.ok-badge{width:20px;height:20px;border-radius:50%;background:var(--ok-pale);color:var(--ok);font-size:.65rem;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:.08rem}
+.ok-text{font-size:.83rem;color:var(--text-mid);line-height:1.48}
+.ok-text strong{color:var(--text);font-weight:700;display:block;font-size:.77rem;margin-bottom:.08rem}
+.changelog{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow)}
+.cl-head{background:var(--navy);padding:.65rem 1rem;font-family:'Oswald',sans-serif;font-size:.62rem;font-weight:400;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,.8)}
+.cl-row{display:flex;gap:.8rem;align-items:flex-start;padding:.7rem 1rem;border-bottom:1px solid var(--border-lt)}
+.cl-row:last-child{border-bottom:none}
+.cl-year{font-family:'Oswald',sans-serif;font-size:.72rem;font-weight:600;color:var(--navy);min-width:38px;flex-shrink:0;padding-top:.05rem}
+.cl-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:.28rem}
+.cd-active{background:var(--ok)}.cd-sched{background:var(--border)}
+.cl-text{font-size:.78rem;color:var(--text-mid);line-height:1.45}
+.cl-text.sched{color:var(--text-muted);font-style:italic}
+.cl-badge{display:inline-block;background:var(--ok-pale);color:var(--ok);font-family:'Oswald',sans-serif;font-size:.55rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;padding:.1rem .45rem;border-radius:3px;margin-left:.4rem;vertical-align:middle}
+footer{background:var(--navy)}
+.footer-gold{background:var(--gold);padding:1.1rem 1.5rem;display:flex;align-items:center;justify-content:center}
+.footer-brand{font-family:'Oswald',sans-serif;font-size:1rem;font-weight:700;color:var(--navy);letter-spacing:.14em;text-transform:uppercase}
+.footer-brand-sub{font-family:'Oswald',sans-serif;font-size:.58rem;font-weight:300;letter-spacing:.16em;text-transform:uppercase;color:var(--navy);opacity:.6;margin-top:.15rem}
+.footer-body{padding:1.5rem 1.5rem 2rem;color:rgba(255,255,255,.75)}
+.footer-promise{font-size:.8rem;line-height:1.6;margin-bottom:1rem;color:rgba(255,255,255,.85)}
+.footer-contact{font-size:.75rem;color:rgba(255,255,255,.55);margin-bottom:1rem}
+.footer-contact a{color:var(--gold);text-decoration:none}
+.footer-legal{font-size:.68rem;color:rgba(255,255,255,.35);line-height:1.55}
+@media(min-width:600px){.stamp-title{font-size:2.5rem}.content{padding:1.5rem 1.5rem 3rem}}
+</style>
+</head>
+<body>
+<header class="header">
+  <div class="stamp">
+    <div class="stamp-inner">
+      <div class="stamp-label">No-Stress Guides &mdash; Digital Companion</div>
+      <div class="year-badge">2026 Edition</div>
+      <div class="stamp-title">Netherlands</div>
+      <div class="stamp-dest">Yearly Updates</div>
+    </div>
+  </div>
+  <div class="header-tabs">
+    <button class="h-tab active" data-target="sec-changed">What Changed</button>
+    <button class="h-tab" data-target="sec-confirmed">Confirmed</button>
+    <button class="h-tab" data-target="sec-new">New Tips</button>
+    <button class="h-tab" data-target="sec-seasonal">Seasonal Alerts</button>
+  </div>
+</header>
+<main class="content">
+  <div class="transparency">
+    <div class="t-head">How this page works</div>
+    <div class="t-text">Every item verified for 2026 against official sources: NS (Nederlandse Spoorwegen), GVB Amsterdam, RET Rotterdam, HTM The Hague, amsterdam.nl, and direct attraction websites. Check 3&ndash;5 days before departure for any last-minute changes. Email us if something has shifted.</div>
+  </div>
 
+  <!-- WHAT CHANGED -->
+  <section class="section" id="sec-changed">
+    <div class="section-head">
+      <div class="sh-left"><span class="sh-pip sp-bad"></span><span class="sh-title">What Changed</span></div>
+      <span class="sh-date">Verified March 2026</span>
+    </div>
+
+    <div class="zone"><span class="zone-label">Amsterdam &mdash; tourist tax</span><span class="zone-line"></span></div>
+
+    <div class="alert-block ab-bad">
+      <div class="alert-head ah-bad">Amsterdam tourist tax now &euro;12.50 per person per night &mdash; highest in Europe</div>
+      <div class="alert-text">Amsterdam raised its overnight tourist tax (toeristenbelasting) to <strong>&euro;12.50 per person per night</strong> on 1 January 2026, up from &euro;10. This applies to every night spent in paid accommodation within Amsterdam municipality &mdash; hotel, hostel, apartment, or boat hotel. A couple staying 4 nights in Amsterdam now pays <strong>&euro;100 in tourist tax alone</strong>, on top of the room rate. Rotterdam charges &euro;9 per person per night; Utrecht and Haarlem charge significantly less. <strong>When budgeting multi-city trips, base-city choice matters more than ever.</strong></div>
+    </div>
+
+    <div class="zone"><span class="zone-label">NS rail &mdash; fares and passes</span><span class="zone-line"></span></div>
+
+    <div class="card">
+      <div class="card-bar cb-bad"></div>
+      <div class="card-body">
+        <div class="card-place">NS &mdash; domestic train fares increased January 2026</div>
+        <div class="card-text">NS increased all domestic train fares by approximately <strong>4.9%</strong> on 1 January 2026. Key routes: Amsterdam Centraal &ndash; Rotterdam Centraal (2nd class, peak) now <strong>&euro;17.90</strong>. Amsterdam &ndash; The Hague <strong>&euro;14.20</strong>. Amsterdam &ndash; Utrecht <strong>&euro;9.40</strong>. Amsterdam &ndash; Haarlem <strong>&euro;5.60</strong>. Amsterdam &ndash; Leiden <strong>&euro;9</strong>. Amsterdam &ndash; Delft <strong>&euro;13.10</strong>. Amsterdam &ndash; Maastricht <strong>&euro;27.50</strong>. Off-peak fares (Dal) are approximately 40% lower. All current fares at ns.nl.</div>
+        <div class="price-row">
+          <span class="pr-old">Amsterdam&ndash;Rotterdam: &euro;17.10 (book)</span>
+          <span class="pr-arrow">&rarr;</span>
+          <span class="pr-new">&euro;17.90 peak (2026)</span>
+          <span class="pr-src">ns.nl</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-bar cb-bad"></div>
+      <div class="card-body">
+        <div class="card-place">Schiphol Airport &mdash; train to Amsterdam Centraal</div>
+        <div class="card-text">The Schiphol Airport train supplement (a &ldquo;Schiphol supplement&rdquo; charged in addition to your standard ticket) now means a single journey from Schiphol to Amsterdam Centraal costs <strong>&euro;5.40</strong> with OV-Pay contactless tap-in. Journey time: 15&ndash;18 minutes, trains every 10 minutes daytime. <strong>Always tap in AND tap out</strong> &mdash; failing to tap out charges the maximum fare for the route. The NS International desk at Schiphol Arrival Hall 3 sells day passes, but for most visitors the OV-Pay tap-on-tap-off contactless bank card is the simplest option.</div>
+        <div class="price-row">
+          <span class="pr-old">&euro;5.10 (book)</span>
+          <span class="pr-arrow">&rarr;</span>
+          <span class="pr-new">&euro;5.40 (2026)</span>
+          <span class="pr-src">ns.nl / schiphol.nl</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="zone"><span class="zone-label">Attractions &mdash; key price and access changes</span><span class="zone-line"></span></div>
+
+    <div class="card">
+      <div class="card-bar cb-warn"></div>
+      <div class="card-body">
+        <div class="card-place">Amsterdam &mdash; Anne Frank House</div>
+        <div class="card-text">The Anne Frank House operates a <strong>fully mandatory advance-booking system</strong> with no walk-up tickets available &mdash; not now, not during low season, not on a Tuesday morning in November. Adult price: <strong>&euro;16</strong>. Book at annefrank.org. Tickets open 2 months ahead to the day at 09:00 Amsterdam time; peak season (March&ndash;October, all weekends) sells out within minutes of release. <strong>Book the moment your dates are fixed</strong> &mdash; this is the single most commonly missed booking in Amsterdam. Tickets are non-transferable and non-refundable.</div>
+        <div class="price-row">
+          <span class="pr-old">&euro;14 (book)</span>
+          <span class="pr-arrow">&rarr;</span>
+          <span class="pr-new">&euro;16 + no walk-ups, ever (2026)</span>
+          <span class="pr-src">annefrank.org</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-bar cb-warn"></div>
+      <div class="card-body">
+        <div class="card-place">Amsterdam &mdash; Rijksmuseum</div>
+        <div class="card-text">Rijksmuseum adult entry increased to <strong>&euro;22.50</strong>. Online advance booking is strongly recommended &mdash; the museum does not guarantee same-day walk-up entry during busy periods and queues on weekends can exceed 45 minutes. Book at rijksmuseum.nl. Permanent collection highlights: Rembrandt&rsquo;s <em>Night Watch</em>, Vermeer&rsquo;s <em>The Milkmaid</em>, and the largest collection of 17th-century Dutch master paintings in the world. Garden and library reading room remain free.</div>
+        <div class="price-row">
+          <span class="pr-old">&euro;20 (book)</span>
+          <span class="pr-arrow">&rarr;</span>
+          <span class="pr-new">&euro;22.50 (2026)</span>
+          <span class="pr-src">rijksmuseum.nl</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-bar cb-warn"></div>
+      <div class="card-body">
+        <div class="card-place">Amsterdam &mdash; Van Gogh Museum</div>
+        <div class="card-text">Van Gogh Museum adult entry is now <strong>&euro;22</strong>. Mandatory advance booking at vangoghmuseum.nl. No walk-up entry available on weekends or during school holidays. Timed-entry slots book out 3&ndash;4 weeks ahead in spring and summer. <strong>The museum holds the world&rsquo;s largest Van Gogh collection: 200 paintings, 500 drawings.</strong> Allow 2 hours minimum. The permanent collection is chronological &mdash; the Potato Eaters period is on level 0, the sunflowers on level 1.</div>
+        <div class="price-row">
+          <span class="pr-old">&euro;20 (book)</span>
+          <span class="pr-arrow">&rarr;</span>
+          <span class="pr-new">&euro;22 (2026)</span>
+          <span class="pr-src">vangoghmuseum.nl</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-bar cb-warn"></div>
+      <div class="card-body">
+        <div class="card-place">Lisse &mdash; Keukenhof Gardens</div>
+        <div class="card-text">Keukenhof 2026 opening season: <strong>19 March&ndash;17 May only</strong>. Closed the rest of the year. Adult entry: <strong>&euro;22</strong>, plus transport. Advance booking mandatory at keukenhof.nl &mdash; no walk-up ticket sales at the gate. Combine entry with Bus 858 from Schiphol (included in some ticket bundles) or Bus 854 from Leiden Centraal. <strong>Peak bloom is late April:</strong> 27 April (King&rsquo;s Day) typically coincides with near-peak tulips, but also with the highest visitor numbers of the season. If Keukenhof is a priority, aim for a weekday visit in the last week of April.</div>
+        <div class="price-row">
+          <span class="pr-old">&euro;19 (book)</span>
+          <span class="pr-arrow">&rarr;</span>
+          <span class="pr-new">&euro;22, advance only (2026)</span>
+          <span class="pr-src">keukenhof.nl</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="zone"><span class="zone-label">Entry requirements</span><span class="zone-line"></span></div>
+
+    <div class="card">
+      <div class="card-bar cb-warn"></div>
+      <div class="card-body">
+        <div class="card-place">ETIAS &mdash; US, UK, Canadian, Australian travelers</div>
+        <div class="card-text">The book correctly notes that ETIAS has been <strong>delayed repeatedly</strong>. As of early 2026, ETIAS is still not in force for the Netherlands or any Schengen country. Check current requirements at etiasvisa.com or the EU&rsquo;s official travel portal before departure. When it launches: fully online, approximately &euro;7, valid three years. Not a visa &mdash; a pre-travel authorisation similar to the US ESTA. Non-EU citizens who currently enter the Netherlands without a visa will need ETIAS once active.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONFIRMED -->
+  <section class="section" id="sec-confirmed">
+    <div class="section-head">
+      <div class="sh-left"><span class="sh-pip sp-ok"></span><span class="sh-title">Confirmed Correct</span></div>
+      <span class="sh-date">Verified March 2026</span>
+    </div>
+    <div class="ok-list">
+      <div class="ok-row">
+        <div class="ok-badge">&#10003;</div>
+        <div class="ok-text"><strong>OV-Pay &mdash; contactless bank card works at all major NS station gates</strong> OV-Pay (tap your Visa or Mastercard) is now accepted at virtually all NS train stations, GVB metro and tram stops in Amsterdam, and RET in Rotterdam. Tap in at the gate when boarding, tap out when leaving. Charged within 24 hours at the standard NS second-class fare. No registration required. This is now the most practical option for visitors who prefer not to buy an OV-chipkaart.</div>
+      </div>
+      <div class="ok-row">
+        <div class="ok-badge">&#10003;</div>
+        <div class="ok-text"><strong>NS Dal (off-peak) discount &mdash; approximately 40% off peak fares</strong> Confirmed. Off-peak travel (Mon&ndash;Fri departures after 09:00 and before 16:00, plus all day Sat&ndash;Sun) remains significantly cheaper. On a leisure itinerary, scheduling trains after 09:00 on weekdays saves meaningfully across a full trip. Tap OV-Pay or check &ldquo;dal&rdquo; fare at ns.nl.</div>
+      </div>
+      <div class="ok-row">
+        <div class="ok-badge">&#10003;</div>
+        <div class="ok-text"><strong>GVB Amsterdam &mdash; 24h pass &euro;9, 48h &euro;15, 72h &euro;21</strong> Confirmed for 2026. Covers all GVB metro, tram, and bus lines within Amsterdam. Does not cover NS trains or regional buses outside the city. Buy at any GVB ticket machine, the GVB app, or the Visitors Centre on Stationsplein. Validate before boarding every tram and bus (tap the card reader).</div>
+      </div>
+      <div class="ok-row">
+        <div class="ok-badge">&#10003;</div>
+        <div class="ok-text"><strong>Free GVB ferry &mdash; Amsterdam Centraal rear exit to Noord</strong> Confirmed free. The GVB passenger ferries from Amsterdam Centraal (rear of station, IJ-side) to Amsterdam Noord depart every 5&ndash;7 minutes, 24 hours a day, at no charge. No ticket, no card tap required. The NDSM ferry (Pier 15) reaches the creative district in 15 minutes, also free. Do not pay for tourist canal cruises to reach Noord.</div>
+      </div>
+      <div class="ok-row">
+        <div class="ok-badge">&#10003;</div>
+        <div class="ok-text"><strong>Mauritshuis, The Hague &mdash; &euro;18.50</strong> Confirmed. Girl with a Pearl Earring (Vermeer, c.1665) and The Goldfinch (Fabritius) are both on permanent display. Book at mauritshuis.nl. Closed Mondays. Queues are manageable outside of summer weekends &mdash; one of the Netherlands&rsquo; most civilised gallery experiences.</div>
+      </div>
+      <div class="ok-row">
+        <div class="ok-badge">&#10003;</div>
+        <div class="ok-text"><strong>Stedelijk Museum, Amsterdam &mdash; &euro;22.50</strong> Confirmed. The Netherlands&rsquo; premier modern and contemporary art museum. Mondrian, Malevich, Appel, Warhol, and the largest Mondrian collection in the world. Book at stedelijk.nl. Open daily. Located next to the Rijksmuseum on Museumplein.</div>
+      </div>
+      <div class="ok-row">
+        <div class="ok-badge">&#10003;</div>
+        <div class="ok-text"><strong>Kinderdijk windmills &mdash; &euro;17.50 (visitor centre + windmill interior)</strong> Confirmed. Book at kinderdijk.nl &mdash; peak season (April&ndash;September) fills up. Waterbus from Rotterdam Erasmusbrug: &euro;5.50 single, runs seasonally April&ndash;October (check schedule at waterbus.nl). Cycling along the dike costs nothing. Operating windmills are visible year-round from the path; the interior tour and visitor centre require the ticket.</div>
+      </div>
+      <div class="ok-row">
+        <div class="ok-badge">&#10003;</div>
+        <div class="ok-text"><strong>Rijksmuseum free &mdash; under-18 entry</strong> Confirmed. Children and teenagers under 18 enter the Rijksmuseum free. Also free: Van Gogh Museum for under-18 when accompanied by an adult ticket holder. Anne Frank House: reduced price for ages 10&ndash;17 (&euro;9), free under 10. Advance booking still required for all.</div>
+      </div>
+      <div class="ok-row">
+        <div class="ok-badge">&#10003;</div>
+        <div class="ok-text"><strong>Dom Tower, Utrecht &mdash; guided tour required to summit, &euro;15</strong> Confirmed. The 112-metre Dom Tower is the tallest church tower in the Netherlands. Access to the summit is by guided tour only &mdash; no self-guided ascent. Tours in English depart from the square at fixed times; book at domtoren.nl. The view takes in the entire Dutch lowland on a clear day.</div>
+      </div>
+      <div class="ok-row">
+        <div class="ok-badge">&#10003;</div>
+        <div class="ok-text"><strong>Cheese market, Alkmaar &mdash; free to watch, April to September, Friday mornings</strong> Confirmed. The Alkmaar traditional cheese market runs every Friday from 10:00&ndash;12:30 from the first Friday in April through the last Friday in September. Free to watch from the square. Train from Amsterdam Centraal: 35 minutes. Arrive before 10:00 to secure a good vantage point.</div>
+      </div>
+      <div class="ok-row">
+        <div class="ok-badge">&#10003;</div>
+        <div class="ok-text"><strong>Rotterdam &mdash; Euromast &euro;13.50, Markthal free entry</strong> Confirmed. The Euromast observation tower reaches 96 metres, with paid bungee jump from 100 metres. Markthal (the horseshoe-shaped food market hall, 2014) has free entry and one of Europe&rsquo;s most spectacular food market environments. Rotterdam tourist tax: &euro;9 per person per night &mdash; materially cheaper than Amsterdam.</div>
+      </div>
+      <div class="ok-row">
+        <div class="ok-badge">&#10003;</div>
+        <div class="ok-text"><strong>Dutch national museum free entry under 18 &mdash; all Rijksmusea</strong> Confirmed. All museums in the Rijksmuseum family (which includes the Rijksmuseum main, the Rijksmuseum Research Library, and Museum Volkenkunde in Leiden) are free for visitors under 18. Van Gogh Museum and Anne Frank House operate their own reduced-rate under-18 pricing.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- NEW TIPS -->
+  <section class="section" id="sec-new">
+    <div class="section-head">
+      <div class="sh-left"><span class="sh-pip sp-new"></span><span class="sh-title">New for 2026</span></div>
+      <span class="sh-date">Added March 2026</span>
+    </div>
+
+    <div class="card">
+      <div class="card-bar cb-new"></div>
+      <div class="card-body">
+        <div class="card-place">Amsterdam &mdash; I amsterdam City Card discontinued; Museum Card recommended instead</div>
+        <div class="card-text">The old I amsterdam City Card (which included transport) has been replaced by a restructured pass system. For museum-focused visitors, the <strong>Museumkaart</strong> (annual card, &euro;67.50) remains the best value if visiting 3+ major museums: covers Rijksmuseum, Van Gogh Museum, Stedelijk, Mauritshuis, and 400 others across the Netherlands. Non-residents can buy a trial month card at any participating museum. <strong>The Anne Frank House is not included</strong> and requires separate booking regardless of which card you hold. Confirm current pass terms at museumkaart.nl before purchase.</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-bar cb-new"></div>
+      <div class="card-body">
+        <div class="card-place">Netherlands-wide &mdash; OV-Pay replacing OV-chipkaart as primary visitor method</div>
+        <div class="card-text">NS and the main city transit operators have accelerated the rollout of <strong>OV-Pay contactless bank card payment</strong>. While OV-chipkaart remains valid (and anonymous OV-chipkaarts are still sold at station machines), OV-Pay is now the recommended entry point for visitors. <strong>Tap your Visa/Mastercard at the yellow card reader when boarding NS trains, GVB trams and metros, and RET metro.</strong> The main practical difference: OV-Pay requires tapping out to close the journey &mdash; if you forget, the system charges the maximum route fare. Set a reminder on your phone for your first few journeys until tapping out becomes automatic.</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-bar cb-new"></div>
+      <div class="card-body">
+        <div class="card-place">Amsterdam &mdash; city&rsquo;s 2026 visitor management measures</div>
+        <div class="card-text">Amsterdam has expanded several visitor management measures in 2026. The most significant for travelers: <strong>cruise ship arrivals have been rerouted away from the city centre</strong> (docking now at NDSM or IJmuiden instead of Central Station pier), meaningfully reducing morning pedestrian pressure in the canal district. Additionally, the city has <strong>banned new short-stay rental licences in the historic centre</strong> &mdash; Airbnb supply is constrained, pushing prices higher and booking windows longer. Plan accommodation 3&ndash;4 months ahead for summer travel.</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-bar cb-new"></div>
+      <div class="card-body">
+        <div class="card-place">Netherlands-wide &mdash; NS Flex subscription for longer stays</div>
+        <div class="card-text">For stays of a week or more making frequent rail journeys, <strong>NS Flex</strong> is worth considering: a subscription with a monthly fee that gives access to discounted &ldquo;Dal&rdquo; off-peak fares all day (including peak hours) and unlimited &ldquo;free&rdquo; travel during Dal hours on certain subscription tiers. Available at ns.nl. Requires a Dutch bank account or payment method for the subscription &mdash; check current availability for non-residents. Shorter-stay visitors are better served by OV-Pay and simply travelling off-peak.</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-bar cb-new"></div>
+      <div class="card-body">
+        <div class="card-place">Amsterdam &mdash; cannabis coffeeshop tourist ban from 2025</div>
+        <div class="card-text">Amsterdam banned <strong>tourists from cannabis coffeeshops</strong> in the city centre from May 2025 onward. The ban applies to non-Dutch-residents in coffeeshops in the designated area (covering most tourist neighbourhoods including the Jordaan, Centrum, and Red Light District). Enforcement is via ID checks. <strong>This changes the character of the Red Light District and several canal-adjacent streets significantly for visitors who had factored coffeeshop culture into their itinerary.</strong> The rest of the city&rsquo;s culture &mdash; its museums, food, cycling, architecture, and canal life &mdash; is entirely unaffected. Confirm current policy at amsterdam.nl before travel.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SEASONAL ALERTS -->
+  <section class="section" id="sec-seasonal">
+    <div class="section-head">
+      <div class="sh-left"><span class="sh-pip sp-warn"></span><span class="sh-title">Seasonal Alerts</span></div>
+      <span class="sh-date">2026 Calendar</span>
+    </div>
+    <div class="ok-list">
+      <div class="ok-row">
+        <div class="ok-badge" style="background:var(--bad-pale);color:var(--bad)">!</div>
+        <div class="ok-text"><strong>King&rsquo;s Day &mdash; 27 April</strong> The Netherlands&rsquo; largest national celebration turns the entire country, and Amsterdam in particular, into one enormous outdoor party. Millions descend on Amsterdam for the flea market, orange clothing, and street concerts. <strong>Accommodation in Amsterdam is fully booked months in advance and prices are 3&ndash;5&times; normal.</strong> If your dates overlap: either book 4+ months ahead and embrace the chaos, or base in Rotterdam, Utrecht, or Haarlem and join Amsterdam for the day. Trains run but are extremely crowded.</div>
+      </div>
+      <div class="ok-row">
+        <div class="ok-badge" style="background:var(--bad-pale);color:var(--bad)">!</div>
+        <div class="ok-text"><strong>Keukenhof &mdash; 19 March to 17 May only, and peak bloom pressure</strong> Keukenhof receives 1.4 million visitors in its 10-week season. The final two weeks of April represent peak bloom and peak crowds simultaneously. Weekends during this window are extremely busy. If tulips are the goal: a weekday visit in the last week of April is peak colour with manageable crowds. Book tickets and transport together at keukenhof.nl &mdash; parking is a serious problem; the bus from Leiden or Schiphol is the correct approach.</div>
+      </div>
+      <div class="ok-row">
+        <div class="ok-badge" style="background:var(--bad-pale);color:var(--bad)">!</div>
+        <div class="ok-text"><strong>Dutch school holidays &mdash; July and August crush</strong> Dutch summer holidays run approximately late June through late August. Amsterdam, Giethoorn, Zaanse Schans, and Kinderdijk all operate at absolute capacity on summer weekends. July and August weekday visits are manageable; weekend visits require very early arrival (before 10:00) or are best avoided at peak sites. September sees an immediate and significant drop in visitor volume with temperatures still warm.</div>
+      </div>
+      <div class="ok-row">
+        <div class="ok-badge" style="background:var(--bad-pale);color:var(--bad)">!</div>
+        <div class="ok-text"><strong>Dutch Design Week, Eindhoven &mdash; late October (18&ndash;26 October 2026)</strong> Eindhoven&rsquo;s Dutch Design Week is Europe&rsquo;s largest design event. Hotels in Eindhoven book out entirely. If your itinerary includes Eindhoven during this window, book accommodation 3+ months ahead or base in &rsquo;s-Hertogenbosch or Tilburg (30 minutes by train). The week is excellent if planned for; accommodation is genuinely impossible to find last minute.</div>
+      </div>
+      <div class="ok-row">
+        <div class="ok-badge" style="background:var(--bad-pale);color:var(--bad)">!</div>
+        <div class="ok-text"><strong>Giethoorn &mdash; summer weekends, operational disruption</strong> Giethoorn (the &ldquo;Venice of the Netherlands&rdquo;) has 2,500 residents and receives 1.5 million annual visitors, the large majority concentrated on summer weekends. The village has introduced informal visitor dispersal measures and the canals can become genuinely gridlocked with hire boats on Saturday afternoons in July and August. Weekday visits in May or September are a different experience entirely. Bus 70 from Steenwijk takes 25 minutes.</div>
+      </div>
+      <div class="ok-row">
+        <div class="ok-badge" style="background:var(--ok-pale);color:var(--ok)">&#10003;</div>
+        <div class="ok-text"><strong>Best windows &mdash; mid-April to late May and September&ndash;October</strong> Spring in the Netherlands peaks in the last two weeks of April: tulips at or near peak bloom, temperatures 12&ndash;18&deg;C, long golden-hour light, canals in full colour. September and October are the locals&rsquo; preferred months: summer crowds are gone, temperatures remain warm (16&ndash;20&deg;C in September), and museum queues halve. These are the months the guide was written for.</div>
+      </div>
+      <div class="ok-row">
+        <div class="ok-badge" style="background:var(--ok-pale);color:var(--ok)">&#10003;</div>
+        <div class="ok-text"><strong>Amsterdam Light Festival &mdash; late November through January</strong> The Amsterdam Light Festival runs along the Amstel and canal ring from late November through mid-January. Light art installations illuminate the canals and bridge crossings. Free to view on foot; ticketed boat cruises also available. One of Amsterdam&rsquo;s most atmospheric winter experiences, and one of the few that actually benefits from shorter days and earlier darkness. Check dates and map at amsterdamlightfestival.com.</div>
+      </div>
+    </div>
+    <div class="changelog" style="margin-top:1.5rem">
+      <div class="cl-head">Annual review schedule &mdash; every March</div>
+      <div class="cl-row">
+        <div class="cl-year">2026</div>
+        <div class="cl-dot cd-active"></div>
+        <div class="cl-text">Full review completed March 2026 &mdash; 19 items verified. NS fare increase +4.9% Jan 2026. Amsterdam tourist tax &euro;10&rarr;&euro;12.50. Rijksmuseum &euro;20&rarr;&euro;22.50. Van Gogh Museum &euro;20&rarr;&euro;22. Anne Frank House &euro;14&rarr;&euro;16, no walk-ups confirmed. Keukenhof &euro;19&rarr;&euro;22, advance booking mandatory. Schiphol train &euro;5.10&rarr;&euro;5.40. OV-Pay fully operational. Cannabis coffeeshop tourist ban in force. ETIAS still pending. <span class="cl-badge">Active</span></div>
+      </div>
+      <div class="cl-row">
+        <div class="cl-year">2027</div>
+        <div class="cl-dot cd-sched"></div>
+        <div class="cl-text sched">Scheduled review &mdash; March 2027. ETIAS implementation to be confirmed. Amsterdam tourist tax further increase possible. OV-chipkaart phase-out timeline to be verified.</div>
+      </div>
+    </div>
+  </section>
+</main>
+<footer>
+  <div class="footer-gold">
+    <div>
+      <div class="footer-brand">No-Stress Guides</div>
+      <div class="footer-brand-sub">Netherlands Travel Guide &mdash; 2026</div>
+    </div>
+  </div>
+  <div class="footer-body">
+    <p class="footer-promise">This page is reviewed every March. No sponsored content. No affiliate links. Every price comes from the official source.</p>
+    <p class="footer-contact">Questions or corrections: <a href="mailto:info@nostressguides.com">info@nostressguides.com</a></p>
+    <p class="footer-legal">&copy; 2026 No-Stress Guides. For personal travel use only.</p>
+  </div>
+</footer>
+<script>
+document.querySelectorAll('.section').forEach(function(s, i) {
+  setTimeout(function() { s.classList.add('visible'); }, 100 + i * 80);
+});
+var headerEl = document.querySelector('.header');
+document.querySelectorAll('.h-tab').forEach(function(btn) {
+  btn.addEventListener('click', function() {
+    var target = this.getAttribute('data-target');
+    document.querySelectorAll('.h-tab').forEach(function(t) { t.classList.remove('active'); });
+    btn.classList.add('active');
+    var el = document.getElementById(target);
+    if (!el) return;
+    var hh = headerEl ? headerEl.offsetHeight : 0;
+    window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY - hh - 8, behavior: 'smooth' });
+  });
+});
+var sIds = ['sec-changed','sec-confirmed','sec-new','sec-seasonal'];
+var allTabs = document.querySelectorAll('.h-tab');
+function updateTab() {
+  var hh = headerEl ? headerEl.offsetHeight : 0;
+  var active = 0;
+  sIds.forEach(function(id, i) {
+    var el = document.getElementById(id);
+    if (el && el.getBoundingClientRect().top <= hh + 20) active = i;
+  });
+  allTabs.forEach(function(t, i) { t.classList.toggle('active', i === active); });
+}
+window.addEventListener('scroll', updateTab, { passive: true });
+updateTab();
+</script>
+</body>
+</html>
