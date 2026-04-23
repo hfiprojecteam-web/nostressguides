@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Germany No-Stress -- Interactive Map</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Serif+Display&display=swap" rel="stylesheet">
+<style>
+:root{--p:#112244;--r:#c4533a;--a:#e8a838;--l:#f5f1eb;--d:#2c2c2c;--g:#2d6a4f;--bd:#e0d8cc}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'DM Sans',sans-serif;background:var(--l);color:var(--d);overflow:hidden}
+.hdr{position:fixed;top:0;left:0;right:0;height:50px;background:var(--p);color:#fff;display:flex;align-items:center;justify-content:space-between;padding:0 16px;z-index:1001;box-shadow:0 2px 12px rgba(0,0,0,.15)}
+.hdr-logo{display:flex;align-items:baseline;gap:8px}
+.hdr-main{font-family:'DM Serif Display',serif;font-size:1.3rem}
+.hdr-sub{font-size:.65rem;font-weight:500;opacity:.8;text-transform:uppercase;letter-spacing:.1em}
+.hdr-badge{background:var(--r);padding:4px 10px;border-radius:20px;font-size:.7rem;font-weight:600}
+#map{position:fixed;top:50px;left:0;right:0;bottom:0;z-index:1}
+.fab{display:none;position:fixed;bottom:20px;right:20px;width:56px;height:56px;background:var(--r);color:#fff;border:none;border-radius:50%;font-size:1.4rem;cursor:pointer;z-index:1002;box-shadow:0 4px 12px rgba(0,0,0,.3);align-items:center;justify-content:center}
+.panel{position:fixed;top:70px;left:20px;width:360px;background:#fff;border-radius:12px;box-shadow:0 4px 24px rgba(0,0,0,.12);z-index:1000;overflow:hidden;max-height:calc(100vh - 100px);display:flex;flex-direction:column}
+.tabs{display:flex;background:var(--p);flex-shrink:0}
+.tbtn{flex:1;padding:10px 4px;text-align:center;font-size:.65rem;font-weight:600;color:rgba(255,255,255,.6);cursor:pointer;border:none;background:none;transition:all .2s}
+.tbtn.on{color:#fff;background:rgba(255,255,255,.15)}
+.tbtn:hover{color:#fff}
+.px{background:none;border:none;color:#fff;font-size:1.4rem;cursor:pointer;padding:0 12px;display:none}
+.pane{display:none;overflow-y:auto;flex:1;padding:12px}
+.pane.on{display:block}
+.sec-ttl{font-family:'DM Serif Display',serif;font-size:.95rem;color:var(--p);margin-bottom:8px}
+.rt-label{display:block;font-size:.7rem;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:#888;margin-bottom:4px;margin-top:10px}
+.rt-sel{width:100%;padding:8px 10px;border:1.5px solid var(--bd);border-radius:8px;font-size:.82rem;font-family:'DM Sans',sans-serif;background:#fff;color:var(--d)}
+.rt-sel:focus{outline:none;border-color:var(--p)}
+.rt-result{display:none;background:var(--l);border-radius:8px;padding:10px 12px;margin-top:10px}
+.rt-result.on{display:block;animation:fadeIn .2s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+.rt-main{font-size:.92rem;font-weight:700;color:var(--p);margin-bottom:4px}
+.rt-detail{font-size:.78rem;color:#666;margin-bottom:4px}
+.rt-tip{font-size:.74rem;color:#6b5a00;background:#fff8e6;border-left:3px solid var(--a);padding:5px 8px;margin-top:6px;border-radius:0 4px 4px 0}
+.itin-card{background:var(--l);border-radius:10px;padding:12px;margin-bottom:8px;cursor:pointer;border:2px solid transparent;transition:all .2s}
+.itin-card:hover{border-color:var(--p)}
+.itin-card.on{border-color:var(--r);background:#fff}
+.itin-card h3{font-family:'DM Serif Display',serif;font-size:.95rem;color:var(--p);margin-bottom:3px}
+.imeta{font-size:.72rem;color:#666;margin-bottom:4px}
+.idesc{font-size:.76rem;color:#555;line-height:1.4}
+.dtabs{display:none;flex-wrap:wrap;gap:4px;margin-top:10px}
+.dtabs.on{display:flex}
+.dbtn{padding:5px 10px;border-radius:20px;font-size:.64rem;font-weight:600;border:1.5px solid var(--bd);background:#fff;color:var(--p);cursor:pointer;transition:all .15s}
+.dbtn.on{background:var(--r);border-color:var(--r);color:#fff}
+.bld-intro{font-size:.76rem;color:#666;margin-bottom:10px;padding:8px 10px;background:var(--l);border-radius:8px;line-height:1.5}
+.bld-stops{display:flex;flex-direction:column;gap:6px;margin-bottom:8px}
+.bld-stop{display:flex;align-items:center;gap:6px;padding:8px 10px;background:#fff;border:1.5px solid var(--bd);border-radius:8px;transition:all .2s}
+.bld-stop:hover{border-color:var(--p)}
+.bld-handle{cursor:grab;color:#bbb;font-size:.95rem;flex-shrink:0}
+.bld-num{width:20px;height:20px;border-radius:50%;background:var(--r);color:#fff;display:flex;align-items:center;justify-content:center;font-size:.65rem;font-weight:700;flex-shrink:0}
+.bld-sel{flex:1;padding:6px 8px;border:1px solid #ddd;border-radius:6px;font-size:.78rem;background:#fff;font-family:'DM Sans',sans-serif}
+.bld-sel:focus{outline:none;border-color:var(--p)}
+.bld-rm{width:22px;height:22px;border:none;background:#f5f5f5;border-radius:50%;cursor:pointer;color:#999;font-size:1rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;padding:0}
+.bld-rm:hover{background:#ffebee;color:var(--r)}
+.bld-add{width:100%;padding:9px;border:2px dashed #ccc;background:transparent;border-radius:8px;cursor:pointer;font-size:.8rem;color:#666;transition:all .2s;font-family:'DM Sans',sans-serif;margin-bottom:8px}
+.bld-add:hover{border-color:var(--p);color:var(--p)}
+.bld-actions{display:flex;gap:8px;margin-bottom:4px}
+.bld-calc{flex:1;padding:10px;background:var(--r);color:#fff;border:none;border-radius:8px;font-weight:600;cursor:pointer;font-size:.82rem;font-family:'DM Sans',sans-serif;transition:opacity .2s}
+.bld-calc:disabled{opacity:.45;cursor:not-allowed}
+.bld-clear{padding:10px 14px;background:#f5f5f5;color:#666;border:none;border-radius:8px;cursor:pointer;font-size:.78rem;font-family:'DM Sans',sans-serif}
+.bld-results{margin-top:10px}
+.bld-leg{background:#fff;border:1px solid var(--bd);border-radius:8px;padding:10px 12px;margin-bottom:6px}
+.bld-leg-head{font-weight:700;font-size:.82rem;color:var(--p);margin-bottom:3px}
+.bld-leg-detail{font-size:.74rem;color:#555;line-height:1.5}
+.bld-leg-tip{font-size:.69rem;color:#6b5a00;background:#fff8e6;border-left:2px solid var(--a);padding:4px 7px;margin-top:5px;border-radius:0 3px 3px 0}
+.bld-stop.dragging{opacity:.5;border-style:dashed}
+.bld-stop.drag-over{border-color:var(--r);background:#fff5f3}
+.stops{position:fixed;bottom:20px;left:20px;width:360px;background:#fff;border-radius:12px;box-shadow:0 4px 24px rgba(0,0,0,.12);z-index:1000;display:none;overflow:hidden;max-height:44vh}
+.stops.on{display:block;animation:up .25s ease}
+@keyframes up{from{transform:translateY(16px);opacity:0}to{transform:translateY(0);opacity:1}}
+.stops-hd{background:var(--g);color:#fff;padding:11px 14px;display:flex;align-items:center;justify-content:space-between}
+.stops-hd h3{font-family:'DM Serif Display',serif;font-size:.95rem;font-weight:400}
+.sx{background:none;border:none;color:#fff;font-size:1.3rem;cursor:pointer;line-height:1}
+.stops-bd{overflow-y:auto;max-height:calc(44vh - 46px)}
+.srow{padding:11px 14px;border-bottom:1px solid #eee}
+.srow:last-child{border-bottom:none}
+.snum{display:inline-flex;align-items:center;justify-content:center;width:21px;height:21px;border-radius:50%;background:var(--r);color:#fff;font-size:.7rem;font-weight:700;margin-right:7px;vertical-align:middle;flex-shrink:0}
+.sname{font-weight:600;font-size:.88rem;vertical-align:middle}
+.stime{font-size:.7rem;color:var(--p);margin-left:6px;font-weight:600}
+.stip{font-size:.73rem;color:#666;margin-top:3px;padding-left:28px}
+.legend{position:fixed;bottom:20px;right:20px;background:#fff;padding:12px 15px;border-radius:10px;box-shadow:0 4px 16px rgba(0,0,0,.1);z-index:1000}
+.legend h4{font-size:.66rem;font-weight:700;text-transform:uppercase;color:#888;margin-bottom:7px;letter-spacing:.04em}
+.legr{display:flex;align-items:center;gap:7px;margin-bottom:5px;font-size:.75rem;color:#555}
+.legr:last-child{margin-bottom:0}
+.legdot{width:12px;height:12px;border-radius:50%;flex-shrink:0}
+.dtable{width:100%;border-collapse:collapse;font-size:.76rem;margin-top:6px}
+.dtable th{background:var(--p);color:#fff;padding:5px 8px;text-align:left;font-size:.62rem;letter-spacing:.05em;text-transform:uppercase;font-weight:500}
+.dtable td{padding:5px 8px;border-bottom:1px solid var(--bd);color:#555}
+.dtable tr:last-child td{border-bottom:none}
+.pu{padding:12px 14px;min-width:185px}
+.pu-name{font-family:'DM Serif Display',serif;font-size:.98rem;color:var(--p);margin-bottom:2px}
+.pu-type{font-size:.6rem;text-transform:uppercase;letter-spacing:.08em;color:#999;margin-bottom:6px}
+.pu-row{font-size:.74rem;color:#555;margin-bottom:3px;line-height:1.4}
+.pu-row b{color:var(--d)}
+.pu-tip{background:var(--l);border-radius:4px;padding:5px 7px;font-size:.7rem;color:#6b5a00;margin-top:5px}
+@media(max-width:768px){
+  .panel{position:fixed;top:auto;bottom:0;left:0;right:0;width:100%;border-radius:16px 16px 0 0;transform:translateY(100%);max-height:75vh;transition:transform .3s ease}
+  .panel.open{transform:translateY(0)}
+  .px{display:block}
+  .stops{bottom:0;left:0;right:0;width:100%;border-radius:16px 16px 0 0;max-height:50vh}
+  .legend{display:none}
+  .fab{display:flex}
+}
+</style>
+</head>
+<body>
+<header class="hdr">
+  <div class="hdr-logo">
+    <span class="hdr-main">Germany</span>
+    <span class="hdr-sub">No-Stress Travel Guide</span>
+  </div>
+  <span class="hdr-badge">Interactive Map</span>
+</header>
+<div id="map"></div>
+<button class="fab" id="fab">&#9776;</button>
+<div class="panel" id="panel">
+  <div class="tabs">
+    <button class="tbtn on" onclick="showPane('itin',this)">&#128197; Itineraries</button>
+    <button class="tbtn"    onclick="showPane('routes',this)">&#128674; DB Trains</button>
+    <button class="tbtn"    onclick="showPane('byt',this)">&#128466; Build Your Trip</button>
+    <button class="px" id="px">&#215;</button>
+  </div>
+  <div class="pane on" id="pane-itin"><div id="itinList"></div></div>
+  <div class="pane" id="pane-routes">
+    <div style="margin-bottom:16px">
+      <div class="sec-ttl">DB Train Journey Calculator</div>
+      <p style="font-size:.74rem;color:#666;margin-bottom:10px;line-height:1.5">Select two cities to draw the route and see journey time, service type, and booking tip. Buy Sparpreis tickets at bahn.de at least 7 days ahead for best fares.</p>
+      <label class="rt-label">From</label>
+      <select class="rt-sel" id="selFrom"><option value="">Select origin...</option></select>
+      <label class="rt-label">To</label>
+      <select class="rt-sel" id="selTo"><option value="">Select destination...</option></select>
+      <div class="rt-result" id="rtResult">
+        <div class="rt-main" id="rtMain"></div>
+        <div class="rt-detail" id="rtDetail"></div>
+        <div class="rt-tip" id="rtTip"></div>
+      </div>
+    </div>
+    <div>
+      <div class="sec-ttl">Key journey times from Frankfurt</div>
+      <table class="dtable">
+        <thead><tr><th>Destination</th><th>ICE time</th><th>Sparpreis from</th></tr></thead>
+        <tbody>
+          <tr><td>Munich</td><td>3h</td><td>from €19</td></tr>
+          <tr><td>Cologne</td><td>1h 15m</td><td>from €17</td></tr>
+          <tr><td>Berlin</td><td>4h</td><td>from €29</td></tr>
+          <tr><td>Hamburg</td><td>3h 30m</td><td>from €29</td></tr>
+          <tr><td>Heidelberg</td><td>45 min</td><td>from €12</td></tr>
+          <tr><td>Würzburg</td><td>1h</td><td>from €15</td></tr>
+          <tr><td>Nuremberg</td><td>1h 10m</td><td>from €19</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="pane" id="pane-byt">
+    <div class="bld-intro">Build your custom Germany itinerary. Add cities in order, then calculate to see DB ICE/IC journey times and insider tips for each leg.</div>
+    <div class="bld-stops" id="bldStops">
+      <div class="bld-stop" data-index="0">
+        <span class="bld-handle">&#9776;</span>
+        <span class="bld-num">1</span>
+        <select class="bld-sel" data-index="0"><option value="">Add first stop...</option></select>
+        <button class="bld-rm" data-index="0">&#215;</button>
+      </div>
+    </div>
+    <button class="bld-add" id="bldAdd">+ Add Stop</button>
+    <div class="bld-actions">
+      <button class="bld-calc" id="bldCalc" disabled>Calculate Route</button>
+      <button class="bld-clear" id="bldClear">Clear</button>
+    </div>
+    <div class="bld-results" id="bldResults"></div>
+  </div>
+</div>
+<div class="stops" id="stops">
+  <div class="stops-hd">
+    <h3 id="stopsTitle">Itinerary</h3>
+    <button class="sx" onclick="document.getElementById('stops').classList.remove('on')">&#215;</button>
+  </div>
+  <div class="stops-bd" id="stopsBd"></div>
+</div>
+<div class="legend">
+  <h4>Legend</h4>
+  <div class="legr"><div class="legdot" style="background:#1a3a5c"></div>Major city / Hub</div>
+  <div class="legr"><div class="legdot" style="background:#2d6a4f"></div>Scenic destination</div>
+  <div class="legr"><div class="legdot" style="background:#8a5a10"></div>Historic city</div>
+  <div class="legr"><div class="legdot" style="background:#6a2a2a"></div>Day-trip destination</div>
+  <div class="legr" style="margin-top:6px"><div style="width:22px;height:0;border-top:3px dashed #2d6a4f"></div>Itinerary route</div>
+  <div class="legr"><div style="width:22px;height:3px;background:#c4533a;border-radius:2px"></div>Active route</div>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script>
+var nsMap, markersLayer, activeRouteObjs;
+activeRouteObjs = [];
+
+var DESTS = [
+  {id:'berlin',    n:'Berlin',                      lat:52.520, lng:13.405, type:'hub',
+   tag:'Capital, culture and cutting-edge city life',
+   best:'May-Sep. Winters are cold but lively.',
+   days:'3-4 days',
+   eat:'Curry 36 (currywurst — the real one), Nobelhart & Schmutzig (book 2 months ahead), Markthalle Neun (Thursday street food market).',
+   tip:'Book the Reichstag dome at bundestag.de at least 3 months ahead — it\'s free but fully booked. Brandenburg Gate free at dawn before the crowds. Berlin WelcomeCard covers all public transport and museum discounts. Tourist tax €5/night.'},
+  {id:'munich',    n:'Munich',                      lat:48.137, lng:11.576, type:'hub',
+   tag:'Bavaria, beer gardens & Alps gateway',
+   best:'May-Jun, Sep-Oct. Avoid August heat.',
+   days:'2-3 days',
+   eat:'Augustiner-Keller (best beer garden), Viktualienmarkt (market lunch), Tantris (upscale, book).',
+   tip:'Bayern-Ticket (€29/day, up to 5 people) covers all regional trains in Bavaria — extraordinary value. Marienplatz Glockenspiel chimes at 11am, 12pm, and 5pm in summer. English Garden beer garden is free. Oktoberfest: 19 Sep-4 Oct 2026 — book accommodation a year ahead.'},
+  {id:'hamburg',   n:'Hamburg',                     lat:53.551, lng:9.993,  type:'hub',
+   tag:'Port city, Speicherstadt & Elbphilharmonie',
+   best:'May-Sep.',
+   days:'2 days',
+   eat:'Fischbrötchen at the Fischmarkt (Sunday from 5am), Clouds Restaurant (38th floor), Piment.',
+   tip:'The Speicherstadt warehouse district and Elbphilharmonie plaza are free to explore. HamburgCard covers all public transport and museum discounts. The Sunday Fischmarkt is a Hamburg institution — arrive at 5am to see local life before the tourist coaches arrive.'},
+  {id:'frankfurt', n:'Frankfurt',                   lat:50.110, lng:8.682,  type:'hub',
+   tag:'Skyline, Römerberg & Europe\'s best rail hub',
+   best:'Apr-Oct.',
+   days:'1-2 days',
+   eat:'Zum Gemalten Haus (Apfelwein, authentic), Kleinmarkthalle (market stalls), Die Küche.',
+   tip:'Frankfurt is Germany\'s best rail hub — almost every ICE route passes through here. The Römerberg old town and Sachsenhausen Apfelwein quarter are essential. Most Museumsufer (Museum Embankment) museums are free on Wednesday evenings.'},
+  {id:'cologne',   n:'Cologne',                     lat:50.938, lng:6.960,  type:'hub',
+   tag:'Cathedral, Rhine city & Kölsch culture',
+   best:'Apr-Oct.',
+   days:'1-2 days',
+   eat:'Früh am Dom (Kölsch — the classic), Haxenhaus (pork knuckle), Salon Schmitz.',
+   tip:'The Cologne Cathedral (Dom) is free to enter — climb the south tower (533 steps, €6) for panoramic views. Kölsch is served in 0.2L glasses; the waiter keeps refilling until you cover your glass with your beer mat. Museum Ludwig (modern art) is world-class.'},
+  {id:'dresden',   n:'Dresden',                     lat:51.050, lng:13.737, type:'historic',
+   tag:'Baroque city on the Elbe — rebuilt from the ruins',
+   best:'Apr-Oct.',
+   days:'1-2 days',
+   eat:'Pulverturm (atmospheric cellar), Sophienkeller im Zwinger, Dresdner Christstollen shops.',
+   tip:'The Zwinger palace complex and Frauenkirche are among Germany\'s greatest baroque monuments. Dresden Semperoper opera tickets sell out months ahead — book at semperoper.de. Zwinger Day Ticket (€14) covers the main museum collections. 2h from Berlin by ICE.'},
+  {id:'heidelberg', n:'Heidelberg',                 lat:49.398, lng:8.672,  type:'historic',
+   tag:'Romantic castle, Neckar river & Germany\'s oldest university',
+   best:'Apr-Jun, Sep-Oct.',
+   days:'1 day',
+   eat:'Zum Roten Ochsen (student pub since 1703), Schnitzelbank, Vetter\'s Alt-Heidelberger Brauhaus.',
+   tip:'Heidelberg Castle (€9) has the world\'s largest wine barrel and panoramic Neckar views. Walk the Philosophenweg (Philosophers\' Path) on the opposite bank for the classic vista. Easy 45-minute day trip from Frankfurt — no booking needed for the short ICE/IC hop.'},
+  {id:'rothenburg', n:'Rothenburg ob der Tauber',   lat:49.377, lng:10.181, type:'historic',
+   tag:'The best-preserved medieval town in Germany',
+   best:'May-Oct. Christmas market in December.',
+   days:'1 day',
+   eat:'Zur Höll (operating since 1350 — book ahead), Reichsküchenmeister, Diller\'s Schneeballen.',
+   tip:'Walk the complete town wall circuit (3.5 km, free) — the most atmospheric way to see the town. Arrive before 10am or after 4pm to avoid coach groups. Night Watchman tour at 9:30pm (€9, no booking) is unmissable. Change at Steinach (Rothenb.) from Nuremberg — about 1h20m.'},
+  {id:'fussen',    n:'Füssen & Neuschwanstein',     lat:47.571, lng:10.702, type:'scenic',
+   tag:'Alpine lakes & the fairy-tale castle',
+   best:'May-Oct.',
+   days:'1 day',
+   eat:'Zum Hechten, Restaurant Ritter, Hotel Hirsch Gasthaus.',
+   tip:'Neuschwanstein tickets must be booked at neuschwanstein.de — no walk-ups allowed since 2022. Book the official €3 bus from Hohenschwangau, not expensive private shuttles. The Marienbrücke bridge viewpoint (10-min walk from the castle) is the classic photograph. 2h from Munich by regional train with Bayern-Ticket.'},
+  {id:'nuremberg', n:'Nuremberg',                   lat:49.452, lng:11.077, type:'historic',
+   tag:'Medieval market city & WWII Documentation Center',
+   best:'May-Oct. Christkindlesmarkt in December.',
+   days:'1-2 days',
+   eat:'Bratwurst Röslein (classic), Hütt\'n (local), Goldenes Posthorn (since 1498).',
+   tip:'The Nazi Documentation Center is one of the most important historical museums in Europe — allow 3 hours. The Christkindlesmarkt is Germany\'s most famous Christmas market (starts Friday before 1st Advent). Nuremberg bratwurst are smaller — order "drei im Weggla" (3 in a bread roll). 1h from Munich by ICE.'},
+  {id:'leipzig',   n:'Leipzig',                     lat:51.340, lng:12.374, type:'daytripicon',
+   tag:'Bach, books & Germany\'s most creative second city',
+   best:'Apr-Oct.',
+   days:'1 day',
+   eat:'Auerbachs Keller (since 1525, Goethe\'s Faust cellar), Barthels Hof, Mädler-Passage food court.',
+   tip:'Auerbachs Keller has operated since 1525. The Völkerschlachtdenkmal (Battle of Nations monument) is one of Europe\'s most extraordinary structures — 91 metres tall, 500 steps. Leipzig\'s arts and music scene has exploded in recent years. 1 hour from Berlin by ICE — excellent day trip.'},
+  {id:'freiburg',  n:'Freiburg',                    lat:47.999, lng:7.842,  type:'scenic',
+   tag:'Black Forest gateway & Germany\'s sunniest city',
+   best:'May-Sep.',
+   days:'1-2 days',
+   eat:'Hausbrauerei Feierling (beer garden on the canal), Wolfshöhle, Martinsgasse.',
+   tip:'Freiburg gets more sunshine than almost anywhere in Germany. The Münster market runs every day except Sunday — some stalls have traded here for 700 years. Schauinslandbahn cable car for Black Forest panoramic views (€13 return). 30 min from Basel airport by regional train.'},
+  {id:'bacharach', n:'Bacharach',                   lat:50.059, lng:7.770,  type:'scenic',
+   tag:'Rhine Gorge — the most beautiful village in the valley',
+   best:'May-Oct. Rhine in Flammen fireworks festivals in summer.',
+   days:'0.5-1 day',
+   eat:'Altes Haus (13th-century building, must book), Stubers Restaurant, Zum Grünen Baum.',
+   tip:'Bacharach is the most beautiful village in the UNESCO Middle Rhine Gorge. Take the KD Rhine ferry between villages (April-October) rather than the train — the most scenic experience in the Rhine valley. The castle-above-castle hillside view from the town walls is extraordinary.'},
+  {id:'koblenz',   n:'Koblenz',                     lat:50.360, lng:7.597,  type:'scenic',
+   tag:'Rhine & Moselle confluence — Deutsches Eck',
+   best:'May-Sep.',
+   days:'1 day',
+   eat:'Weinhaus Hubertus, Restaurant Schiller\'s, Das Tor am Deutschen Eck.',
+   tip:'The Deutsches Eck (German Corner), where the Rhine meets the Moselle, is 10 minutes walk from the station. Ehrenbreitstein Fortress across the river has panoramic views and a cable car (€7 return). Koblenz is the natural southern endpoint of the most scenic Rhine section — start the KD ferry here.'},
+  {id:'wurzburg',  n:'Würzburg',                    lat:49.800, lng:9.936,  type:'historic',
+   tag:'Franconian wine & the Tiepolo Residenz',
+   best:'Apr-Oct.',
+   days:'1 day',
+   eat:'Bürgerspital Weinstube (wine house since 1316), Zum Stachel, Backöfele.',
+   tip:'The Würzburg Residenz (€9) has one of the world\'s largest fresco ceilings — Tiepolo\'s masterpiece covers 677 sq metres. The surrounding Franconian wine country produces excellent Silvaner at low prices. Würzburg is the northern starting point of the Romantic Road tourist route.'}
+];
+
+var ROUTES = {
+  'berlin-hamburg':       {t:'1h 45m',  d:'286 km', m:'ICE',            tip:'Up to 3 ICE per hour — Germany\'s fastest and most frequent connection. Book Sparpreis at bahn.de at least 7 days ahead from €19. BahnCard 25 pays for itself in 2 trips.'},
+  'berlin-frankfurt':     {t:'4h',      d:'546 km', m:'ICE',            tip:'Multiple direct ICE daily. Also consider overnight Nightjet (ÖBB). Sparpreis from €29. Standard fares without advance booking can exceed €100.'},
+  'berlin-munich':        {t:'4h',      d:'585 km', m:'ICE',            tip:'Fastest ICE nonstop via the Erfurt-Munich high-speed line (opened 2017). Sparpreis from €29. Book at least 2 weeks ahead — Germany\'s busiest long-distance route.'},
+  'berlin-cologne':       {t:'4h 20m',  d:'572 km', m:'ICE',            tip:'Direct ICE via Hannover. Several departures daily. Sparpreis from €29.'},
+  'berlin-leipzig':       {t:'1h',      d:'185 km', m:'ICE',            tip:'4 ICE trains per hour — superb frequency. Sparpreis from €15. Excellent value: one of the cheapest intercity journeys in Germany for the distance.'},
+  'berlin-dresden':       {t:'2h',      d:'193 km', m:'ICE',            tip:'Frequent ICE service from Berlin Hauptbahnhof. Sparpreis from €19. Direct trains run approximately every 2 hours.'},
+  'frankfurt-munich':     {t:'3h',      d:'392 km', m:'ICE',            tip:'2+ ICE per hour on this core axis. Sparpreis from €19. One of Europe\'s busiest high-speed corridors.'},
+  'frankfurt-cologne':    {t:'1h 15m',  d:'190 km', m:'ICE',            tip:'Trains every 15 minutes — one of Europe\'s busiest corridors. Sparpreis from €17. Always worth booking to guarantee a seat on Fridays.'},
+  'frankfurt-heidelberg': {t:'45 min',  d:'78 km',  m:'ICE / IC',       tip:'Frequent services throughout the day. No booking needed for this short hop. Deutschlandticket (€58/month) valid on RE trains (1h15m).'},
+  'frankfurt-wurzburg':   {t:'1h',      d:'120 km', m:'ICE',            tip:'Frequent ICE departures. Easy stop between Frankfurt and Munich/Nuremberg — combine en route without extra cost.'},
+  'frankfurt-nuremberg':  {t:'1h 10m',  d:'226 km', m:'ICE',            tip:'Direct ICE with frequent departures. Core connection from Frankfurt into Bavaria. Sparpreis from €19.'},
+  'munich-nuremberg':     {t:'1h',      d:'171 km', m:'ICE',            tip:'Up to 4 trains per hour. Bayern-Ticket covers regional RE trains (slightly slower, but included in the €29/day ticket).'},
+  'munich-fussen':        {t:'2h',      d:'120 km', m:'Regional (Bayern-Ticket)', tip:'No reservation required. Bayern-Ticket (€29/day) covers up to 5 people on this entire route. Change at Buchloe. Runs every 2 hours.'},
+  'cologne-koblenz':      {t:'50 min',  d:'90 km',  m:'IC / RE',        tip:'Frequent services. RE regional trains run along the Rhine\'s right bank with castle and vineyard views — take the slower regional for the scenery. From €13 or free with Deutschlandticket.'},
+  'koblenz-bacharach':    {t:'30 min',  d:'36 km',  m:'Regional + KD Ferry', tip:'RE train in 30 min. Better Apr-Oct: KD Rhine ferry for village hopping at your own pace. Rhine Pass (€26 from Koblenz to Rüdesheim) covers the full Middle Rhine UNESCO section.'},
+  'nuremberg-rothenburg': {t:'1h 20m',  d:'80 km',  m:'Regional',       tip:'Change at Steinach (Rothenb.). Runs roughly every 2 hours. No booking needed — buy ticket at machine for approx. €12. Rothenburg has no direct connection from Munich or Frankfurt.'}
+};
+
+function getRoute(from,to){return ROUTES[from+'-'+to]||ROUTES[to+'-'+from]||null;}
+
+var ITINS = [
+  {id:'classic', n:'Classic Germany', days:'7 days', transport:'ICE throughout',
+   desc:'Berlin, the Rhine, Cologne, Frankfurt, and Munich — the essential German journey.',
+   dl:[
+     {lbl:'Days 1-3 — Berlin',
+      stops:[{loc:'berlin',n:'Berlin — capital & culture',time:'3 days',tip:'Reichstag (pre-booked dome), Brandenburg Gate at dawn, Museum Island, Checkpoint Charlie, Kreuzberg street food market Thursday.'}],
+      routes:[]},
+     {lbl:'Day 4 — Leipzig day trip',
+      stops:[{loc:'berlin',n:'Berlin → Leipzig',time:'ICE, 1 hour',tip:'Up to 4 ICE trains per hour. Sparpreis from €15.'},
+             {loc:'leipzig',n:'Leipzig — Bach & Goethe\'s cellar',time:'Day trip',tip:'Auerbachs Keller (since 1525), Völkerschlachtdenkmal monument, thriving arts quarter. Return to Berlin evening.'}],
+      routes:[{f:'berlin',t:'leipzig'}]},
+     {lbl:'Day 5 — Cologne',
+      stops:[{loc:'berlin',n:'Berlin → Cologne',time:'Morning ICE, 4h20m',tip:'Sparpreis from €29. Direct via Hannover.'},
+             {loc:'cologne',n:'Cologne — Dom & Kölsch',time:'Overnight',tip:'Dom cathedral (free, climb tower €6), Museum Ludwig, Kölsch beer in the old town.'}],
+      routes:[{f:'berlin',t:'cologne'}]},
+     {lbl:'Day 6 — Rhine Gorge',
+      stops:[{loc:'cologne',n:'Cologne → Koblenz',time:'IC, 50 min',tip:'Runs frequently. From €13.'},
+             {loc:'koblenz',n:'Koblenz — Deutsches Eck',time:'Morning',tip:'Deutsches Eck where Rhine meets Moselle. Cable car to Ehrenbreitstein Fortress.'},
+             {loc:'bacharach',n:'Bacharach — Rhine village',time:'Afternoon',tip:'KD Ferry from Koblenz through the UNESCO Middle Rhine section. Most scenic stretch.'}],
+      routes:[{f:'cologne',t:'koblenz'},{f:'koblenz',t:'bacharach'}]},
+     {lbl:'Day 7 — Munich',
+      stops:[{loc:'frankfurt',n:'Frankfurt → Munich',time:'ICE, 3h',tip:'Via Frankfurt if coming from Rhine area. Sparpreis from €19.'},
+             {loc:'munich',n:'Munich — Bavaria & beer',time:'Evening arrival',tip:'Marienplatz, Viktualienmarkt, English Garden beer garden. Day 7 orientation.'}],
+      routes:[{f:'frankfurt',t:'munich'}]}
+   ]
+  },
+  {id:'romantic', n:'Romantic Road', days:'5 days', transport:'ICE + Regional',
+   desc:'Medieval towns from Würzburg to Füssen via the Romantic Road — Germany\'s most scenic route.',
+   dl:[
+     {lbl:'Day 1 — Frankfurt + Würzburg',
+      stops:[{loc:'frankfurt',n:'Frankfurt — arrival & hub',time:'Arrival',tip:'Römerberg old town walk, Sachsenhausen Apfelwein quarter for dinner.'},
+             {loc:'wurzburg',n:'Würzburg — Residenz & wine',time:'Overnight',tip:'1h by ICE. Residenz palace (Tiepolo fresco ceiling), Marienberg Fortress, Franconian Silvaner wine at Bürgerspital.'}],
+      routes:[{f:'frankfurt',t:'wurzburg'}]},
+     {lbl:'Day 2 — Rothenburg ob der Tauber',
+      stops:[{loc:'wurzburg',n:'Würzburg → Rothenburg',time:'Regional, 1h20m via Steinach',tip:'Runs roughly every 2h. No booking needed — buy ticket at machine.'},
+             {loc:'rothenburg',n:'Rothenburg — medieval town walls',time:'Full day + overnight',tip:'Walk the complete 3.5 km town wall circuit (free). Arrive midday; town wall walk in late afternoon. Night Watchman tour 9:30pm (€9, no booking).'}],
+      routes:[{f:'wurzburg',t:'rothenburg'}]},
+     {lbl:'Day 3 — Nuremberg',
+      stops:[{loc:'rothenburg',n:'Rothenburg → Nuremberg',time:'Regional via Steinach, 1h20m',tip:'Reverse of Day 2 route. Runs roughly every 2h.'},
+             {loc:'nuremberg',n:'Nuremberg — castle & documentation center',time:'Overnight',tip:'Nazi Documentation Center (3h minimum). Medieval castle (€7.50). Christkindlesmarkt in December.'}],
+      routes:[{f:'nuremberg',t:'rothenburg'}]},
+     {lbl:'Day 4 — Munich',
+      stops:[{loc:'nuremberg',n:'Nuremberg → Munich',time:'ICE, 1 hour',tip:'Up to 4 trains per hour. Sparpreis from €15. Very frequent.'},
+             {loc:'munich',n:'Munich — Bavaria',time:'Overnight',tip:'Marienplatz Glockenspiel, Nymphenburg Palace (€9), Pinakothek art museums. Beer garden in English Garden.'}],
+      routes:[{f:'nuremberg',t:'munich'}]},
+     {lbl:'Day 5 — Füssen + Neuschwanstein',
+      stops:[{loc:'munich',n:'Munich → Füssen',time:'Regional, 2h (Bayern-Ticket)',tip:'Bayern-Ticket (€29) covers up to 5 people. Change at Buchloe. Runs every 2h.'},
+             {loc:'fussen',n:'Füssen — Neuschwanstein castle',time:'Day trip',tip:'Pre-booked Neuschwanstein (neuschwanstein.de). Official €3 bus from Hohenschwangau. Marienbrücke viewpoint.'}],
+      routes:[{f:'munich',t:'fussen'}]}
+   ]
+  },
+  {id:'rhine', n:'Rhine & Cities', days:'5 days', transport:'ICE + Rhine ferry',
+   desc:'Hamburg, Cologne, the UNESCO Rhine Gorge, and Frankfurt — Germany\'s great western corridor.',
+   dl:[
+     {lbl:'Days 1-2 — Hamburg',
+      stops:[{loc:'hamburg',n:'Hamburg — 2 nights',time:'Days 1-2',tip:'Speicherstadt UNESCO warehouse district, Elbphilharmonie plaza (free), Sunday Fischmarkt from 5am, harbour tour by boat.'}],
+      routes:[]},
+     {lbl:'Day 3 — Cologne',
+      stops:[{loc:'hamburg',n:'Hamburg → Cologne',time:'ICE, 2 hours',tip:'Frequent ICE. Sparpreis from €25.'},
+             {loc:'cologne',n:'Cologne — Dom & museums',time:'Overnight',tip:'Dom cathedral (free entry, tower climb €6), Museum Ludwig (modern art, excellent), Kölsch beer in old town.'}],
+      routes:[{f:'hamburg',t:'cologne'}]},
+     {lbl:'Day 4 — Rhine Gorge',
+      stops:[{loc:'cologne',n:'Cologne → Koblenz',time:'IC, 50 min',tip:'Frequent. From €13 or Deutschlandticket.'},
+             {loc:'koblenz',n:'Koblenz — starting point',time:'Morning',tip:'Deutsches Eck. Cable car to Ehrenbreitstein (€7 return). Start KD ferry from here.'},
+             {loc:'bacharach',n:'Bacharach — UNESCO Rhine village',time:'Afternoon',tip:'KD Ferry from Koblenz (Apr-Oct). The 65km Middle Rhine section between Koblenz and Bingen is the most scenic stretch.'}],
+      routes:[{f:'cologne',t:'koblenz'},{f:'koblenz',t:'bacharach'}]},
+     {lbl:'Day 5 — Frankfurt',
+      stops:[{loc:'frankfurt',n:'Frankfurt — departure city',time:'Day 5',tip:'1h15m from Cologne by ICE. Römerberg old town, Kleinmarkthalle market, Museumsufer (museum row). Excellent airport connections.'}],
+      routes:[{f:'cologne',t:'frankfurt'}]}
+   ]
+  },
+  {id:'bavaria', n:'Southern Germany', days:'5 days', transport:'ICE + Bayern-Ticket',
+   desc:'Munich, Neuschwanstein, Nuremberg, Freiburg, and the Black Forest.',
+   dl:[
+     {lbl:'Days 1-2 — Munich',
+      stops:[{loc:'munich',n:'Munich — 2 nights',time:'Days 1-2',tip:'Marienplatz and Glockenspiel, Nymphenburg Palace (€9), Deutsches Museum (€15, allow full day), English Garden beer garden (free).'}],
+      routes:[]},
+     {lbl:'Day 3 — Füssen + Neuschwanstein',
+      stops:[{loc:'munich',n:'Munich → Füssen',time:'Regional, 2h (Bayern-Ticket)',tip:'Bayern-Ticket covers up to 5 people all day on regional trains in Bavaria. Change at Buchloe.'},
+             {loc:'fussen',n:'Füssen — Neuschwanstein',time:'Day trip',tip:'Pre-booked castle (neuschwanstein.de). Official bus (€3) from Hohenschwangau. Marienbrücke bridge viewpoint. Return to Munich evening.'}],
+      routes:[{f:'munich',t:'fussen'}]},
+     {lbl:'Day 4 — Nuremberg',
+      stops:[{loc:'munich',n:'Munich → Nuremberg',time:'ICE, 1 hour',tip:'Up to 4 trains per hour. Sparpreis from €15. Bayern-Ticket valid on RE (slower, 2h).'},
+             {loc:'nuremberg',n:'Nuremberg — history & markets',time:'Overnight',tip:'Nazi Documentation Center (essential, 3h). Medieval castle (€7.50). Christkindlesmarkt in December. Great bratwurst city.'}],
+      routes:[{f:'munich',t:'nuremberg'}]},
+     {lbl:'Day 5 — Freiburg & Black Forest',
+      stops:[{loc:'nuremberg',n:'Nuremberg → Freiburg',time:'3h via Stuttgart or Frankfurt',tip:'Change at Stuttgart or Frankfurt. Check bahn.de for best connection.'},
+             {loc:'freiburg',n:'Freiburg — Black Forest gateway',time:'Day',tip:'Schauinslandbahn cable car (€13 return) for Black Forest panorama. Münster daily market (not Sundays). Bächle (water channels) throughout the old town.'}],
+      routes:[{f:'frankfurt',t:'nuremberg'}]}
+   ]
+  }
+];
+
+var _activeItinId=null, _globalStops=[];
+function buildGlobalStops(it){
+  var res=[],n=1;
+  it.dl.forEach(function(day,di){
+    var prev=null;
+    day.stops.forEach(function(s){
+      var d=getDestById(s.loc);
+      var xy=d?[d.lat,d.lng]:null;
+      if(!xy)return;
+      if(s.loc===prev){if(res.length>0&&res[res.length-1].dayIdx===di)res[res.length-1].label+=' + '+s.n;return;}
+      prev=s.loc;
+      res.push({locId:s.loc,coords:xy,label:s.n,num:n++,dayIdx:di});
+    });
+  });
+  return res;
+}
+function activateItinerary(it){_activeItinId=it.id;_globalStops=buildGlobalStops(it);}
+function mkIcon(type){
+  var conf={hub:{col:'#1a3a5c'},scenic:{col:'#2d6a4f'},historic:{col:'#8a5a10'},daytripicon:{col:'#6a2a2a'}};
+  var c=(conf[type]||conf.hub).col;
+  var letter={'hub':'H','scenic':'S','historic':'H','daytripicon':'D'}[type]||'H';
+  return L.divIcon({html:'<div style="width:30px;height:30px;border-radius:50%;background:'+c+';border:2.5px solid white;box-shadow:0 2px 8px rgba(0,0,0,.4);display:flex;align-items:center;justify-content:center;color:white;font-size:11px;font-weight:700;">'+letter+'</div>',iconSize:[30,30],iconAnchor:[15,15],popupAnchor:[0,-18],className:''});
+}
+function getDestById(id){for(var i=0;i<DESTS.length;i++)if(DESTS[i].id===id)return DESTS[i];return null;}
+
+window.onload=function(){
+  nsMap=L.map('map',{zoomControl:true}).setView([51.00,10.00],6);
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',{attribution:'&copy; OpenStreetMap &copy; CARTO',subdomains:'abcd',maxZoom:19}).addTo(nsMap);
+  markersLayer=L.layerGroup().addTo(nsMap);
+  placeLandmarkMarkers();
+  buildItinList();
+  fillSelects();
+  fillBldSelect(document.querySelector('.bld-sel[data-index="0"]'));
+  document.querySelector('.bld-rm[data-index="0"]').addEventListener('click',function(){removeBldStop(0);});
+  setupBldDrag();updateBldState();
+  document.getElementById('bldAdd').addEventListener('click',addBldStop);
+  document.getElementById('bldCalc').addEventListener('click',calcBldRoute);
+  document.getElementById('bldClear').addEventListener('click',clearBld);
+  document.getElementById('px').addEventListener('click',function(){document.getElementById('panel').classList.remove('open');});
+  document.getElementById('fab').addEventListener('click',function(){document.getElementById('panel').classList.toggle('open');});
+};
+
+function placeLandmarkMarkers(){
+  markersLayer.clearLayers();
+  DESTS.forEach(function(d){
+    var html='<div class="pu"><div class="pu-name">'+d.n+'</div><div class="pu-type">'+d.tag+'</div><div class="pu-row"><b>Best time:</b> '+d.best+'</div><div class="pu-row"><b>Stay:</b> '+d.days+'</div><div class="pu-tip">'+d.tip+'</div></div>';
+    L.marker([d.lat,d.lng],{icon:mkIcon(d.type)}).bindPopup(html,{maxWidth:260}).addTo(markersLayer);
+  });
+}
+
+function buildItinList(){
+  var cont=document.getElementById('itinList');
+  ITINS.forEach(function(it){
+    var card=document.createElement('div');
+    card.className='itin-card';
+    var btns=it.dl.map(function(d,i){return '<button class="dbtn'+(i===0?' on':'')+'" data-itin="'+it.id+'" data-idx="'+i+'">'+d.lbl+'</button>';}).join('');
+    card.innerHTML='<h3>'+it.n+'</h3><div class="imeta">'+it.days+'&nbsp;&nbsp;'+it.transport+'</div><div class="idesc">'+it.desc+'</div><div class="dtabs" id="dtabs-'+it.id+'">'+btns+'</div>';
+    card.addEventListener('click',function(e){
+      if(e.target.closest&&e.target.closest('.dbtn'))return;
+      var isOn=card.classList.contains('on');
+      document.querySelectorAll('.itin-card').forEach(function(c){c.classList.remove('on');});
+      document.querySelectorAll('.dtabs').forEach(function(t){t.classList.remove('on');});
+      clearRoutes();
+      if(!isOn){
+        card.classList.add('on');
+        document.getElementById('dtabs-'+it.id).classList.add('on');
+        activateItinerary(it);
+        drawDay(it,0);
+        document.querySelectorAll('#dtabs-'+it.id+' .dbtn').forEach(function(b,i){b.classList.toggle('on',i===0);});
+      }
+    });
+    cont.appendChild(card);
+  });
+  cont.addEventListener('click',function(e){
+    var btn=e.target.closest('[data-itin]');
+    if(!btn)return;
+    e.stopPropagation();
+    var itId=btn.getAttribute('data-itin'),idx=parseInt(btn.getAttribute('data-idx'));
+    var it2=null;for(var i=0;i<ITINS.length;i++){if(ITINS[i].id===itId){it2=ITINS[i];break;}}
+    if(!it2)return;
+    if(_activeItinId!==itId)activateItinerary(it2);
+    document.querySelectorAll('#dtabs-'+itId+' .dbtn').forEach(function(b){b.classList.remove('on');});
+    btn.classList.add('on');
+    drawDay(it2,idx);
+  });
+}
+
+function clearRoutes(){
+  activeRouteObjs.forEach(function(o){nsMap.removeLayer(o);});
+  activeRouteObjs=[];
+  document.getElementById('stops').classList.remove('on');
+}
+
+function drawDay(it,dayIdx){
+  clearRoutes();
+  var day=it.dl[dayIdx];
+  if(!day)return;
+  DESTS.forEach(function(d){activeRouteObjs.push(L.circleMarker([d.lat,d.lng],{radius:4,color:'#fff',fillColor:'#b0bccc',fillOpacity:.35,weight:1,interactive:false}).addTo(nsMap));});
+  var dayStops=_globalStops.filter(function(s){return s.dayIdx===dayIdx;});
+  var prevLast=null;
+  if(dayIdx>0){var prev=_globalStops.filter(function(s){return s.dayIdx===dayIdx-1;});if(prev.length)prevLast=prev[prev.length-1];}
+  if(prevLast&&dayStops.length>0&&prevLast.locId!==dayStops[0].locId){
+    activeRouteObjs.push(L.polyline([prevLast.coords,dayStops[0].coords],{color:'#e8a838',weight:3,opacity:.75,dashArray:'8,5',lineCap:'round'}).addTo(nsMap));
+    activeRouteObjs.push(L.marker(prevLast.coords,{icon:L.divIcon({className:'',html:'<div style="width:22px;height:22px;border-radius:50%;background:#99a8bb;border:2px solid white;box-shadow:0 1px 5px rgba(0,0,0,.2);display:flex;align-items:center;justify-content:center;color:white;font-size:10px;font-weight:600;">'+prevLast.num+'</div>',iconSize:[22,22],iconAnchor:[11,11],zIndexOffset:350}),zIndexOffset:350}).addTo(nsMap));
+  }
+  for(var j=0;j<dayStops.length-1;j++){
+    if(dayStops[j].locId===dayStops[j+1].locId)continue;
+    activeRouteObjs.push(L.polyline([dayStops[j].coords,dayStops[j+1].coords],{color:'#2d6a4f',weight:5,opacity:1,dashArray:'10,6',lineCap:'round',lineJoin:'round'}).addTo(nsMap));
+  }
+  var bCoords=[];
+  dayStops.forEach(function(s){
+    bCoords.push(s.coords);
+    var lbl=s.label.length>24?s.label.substring(0,22)+'...':s.label;
+    var icon=L.divIcon({className:'',html:'<div style="text-align:center;width:130px;"><div style="width:30px;height:30px;border-radius:50%;background:#c4533a;border:3px solid white;box-shadow:0 2px 10px rgba(0,0,0,.4);display:flex;align-items:center;justify-content:center;color:white;font-size:12px;font-weight:700;margin:0 auto;">'+s.num+'</div><div style="margin-top:3px;font-size:10px;font-weight:700;color:#112244;background:rgba(255,255,255,.92);border-radius:3px;padding:1px 4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:130px;display:inline-block;">'+lbl+'</div></div>',iconSize:[130,46],iconAnchor:[65,15],zIndexOffset:700});
+    activeRouteObjs.push(L.marker(s.coords,{icon:icon,zIndexOffset:700}).addTo(nsMap));
+  });
+  if(prevLast&&prevLast.locId!==dayStops[0].locId)bCoords.push(prevLast.coords);
+  var seen={},uniq=[];
+  bCoords.forEach(function(xy){var k=xy[0].toFixed(2)+','+xy[1].toFixed(2);if(!seen[k]){seen[k]=true;uniq.push(xy);}});
+  if(uniq.length>1)nsMap.fitBounds(L.latLngBounds(uniq),{paddingTopLeft:[380,70],paddingBottomRight:[80,90],animate:true,maxZoom:11});
+  else if(uniq.length===1)nsMap.setView(uniq[0],11,{animate:true});
+  document.getElementById('stopsTitle').textContent=it.n+' — '+day.lbl;
+  document.getElementById('stopsBd').innerHTML=day.stops.map(function(s,i){return '<div class="srow"><span class="snum">'+(i+1)+'</span><span class="sname">'+s.n+'</span>'+(s.time?'<span class="stime">'+s.time+'</span>':'')+(s.tip?'<div class="stip">'+s.tip+'</div>':'')+'</div>';}).join('');
+  document.getElementById('stops').classList.add('on');
+  if(window.innerWidth<=768)document.getElementById('panel').classList.remove('open');
+}
+
+function fillSelects(){
+  ['selFrom','selTo'].forEach(function(sid){
+    var sel=document.getElementById(sid);
+    if(!sel)return;
+    DESTS.forEach(function(d){var opt=document.createElement('option');opt.value=d.id;opt.textContent=d.n;sel.appendChild(opt);});
+    sel.addEventListener('change',liveRoute);
+  });
+}
+
+function liveRoute(){
+  var from=document.getElementById('selFrom').value;
+  var to=document.getElementById('selTo').value;
+  var res=document.getElementById('rtResult');
+  if(!from||!to||from===to){res.classList.remove('on');clearRoutes();placeLandmarkMarkers();return;}
+  var A=getDestById(from),B=getDestById(to);
+  if(!A||!B)return;
+  var r=getRoute(from,to);
+  clearRoutes();placeLandmarkMarkers();
+  var line=L.polyline([[A.lat,A.lng],[B.lat,B.lng]],{color:'#c4533a',weight:5,opacity:.95,dashArray:'9,6',lineCap:'round'}).addTo(nsMap);
+  activeRouteObjs.push(line);
+  [{d:A,lbl:'A'},{d:B,lbl:'B'}].forEach(function(pt){
+    var icon=L.divIcon({className:'',html:'<div style="text-align:center;width:100px;"><div style="width:28px;height:28px;border-radius:50%;background:#c4533a;border:3px solid white;box-shadow:0 2px 10px rgba(0,0,0,.35);display:flex;align-items:center;justify-content:center;color:white;font-size:11px;font-weight:700;margin:0 auto;">'+pt.lbl+'</div><div style="margin-top:3px;font-size:10px;font-weight:700;color:#112244;background:rgba(255,255,255,.9);border-radius:3px;padding:1px 4px;white-space:nowrap;max-width:100px;overflow:hidden;text-overflow:ellipsis;display:inline-block;">'+pt.d.n+'</div></div>',iconSize:[100,40],iconAnchor:[50,14],zIndexOffset:600});
+    activeRouteObjs.push(L.marker([pt.d.lat,pt.d.lng],{icon:icon,zIndexOffset:600}).addTo(nsMap));
+  });
+  nsMap.fitBounds(L.latLngBounds([[A.lat,A.lng],[B.lat,B.lng]]),{paddingTopLeft:[380,60],paddingBottomRight:[80,60],animate:true,maxZoom:11});
+  if(r){
+    document.getElementById('rtMain').textContent=A.n+' \u2192 '+B.n+' \u2014 '+r.t;
+    document.getElementById('rtDetail').textContent='Distance: '+r.d+' \u00b7 Service: '+r.m;
+    document.getElementById('rtTip').textContent=r.tip;
+  } else {
+    document.getElementById('rtMain').textContent=A.n+' \u2192 '+B.n;
+    document.getElementById('rtDetail').textContent='Indicative straight-line. Check bahn.de for exact connections.';
+    document.getElementById('rtTip').textContent='Most German cities connect by ICE with zero or one change. Book Sparpreis at bahn.de at least 7 days ahead — prices are 50-70% lower than walk-up fares. The Deutschlandticket (€58/month) covers all regional trains nationwide.';
+  }
+  res.classList.add('on');
+}
+
+function fillBldSelect(sel){
+  if(!sel)return;
+  DESTS.forEach(function(d){var opt=document.createElement('option');opt.value=d.id;opt.textContent=d.n;sel.appendChild(opt);});
+  sel.addEventListener('change',updateBldState);
+}
+function addBldStop(){
+  var container=document.getElementById('bldStops');
+  var idx=container.querySelectorAll('.bld-stop').length;
+  var div=document.createElement('div');div.className='bld-stop';div.setAttribute('data-index',idx);
+  div.innerHTML='<span class="bld-handle">&#9776;</span><span class="bld-num">'+(idx+1)+'</span><select class="bld-sel" data-index="'+idx+'"><option value="">Select destination...</option></select><button class="bld-rm" data-index="'+idx+'">&#215;</button>';
+  container.appendChild(div);
+  fillBldSelect(div.querySelector('.bld-sel'));
+  div.querySelector('.bld-rm').addEventListener('click',function(){removeBldStop(parseInt(this.getAttribute('data-index')));});
+  setupBldDrag();updateBldState();
+}
+function removeBldStop(idx){
+  var container=document.getElementById('bldStops');
+  if(container.querySelectorAll('.bld-stop').length<=1)return;
+  var el=container.querySelector('.bld-stop[data-index="'+idx+'"]');
+  if(el)el.remove();
+  renumberBld();updateBldState();
+}
+function renumberBld(){
+  document.querySelectorAll('.bld-stop').forEach(function(s,i){
+    s.setAttribute('data-index',i);s.querySelector('.bld-num').textContent=i+1;
+    var sel=s.querySelector('.bld-sel');if(sel)sel.setAttribute('data-index',i);
+    var rm=s.querySelector('.bld-rm');if(rm)rm.setAttribute('data-index',i);
+  });
+}
+function updateBldState(){
+  var vals=Array.from(document.querySelectorAll('.bld-sel')).map(function(s){return s.value;}).filter(Boolean);
+  document.getElementById('bldCalc').disabled=vals.length<2;
+}
+function setupBldDrag(){
+  document.querySelectorAll('.bld-stop').forEach(function(s){
+    s.setAttribute('draggable','true');
+    s.ondragstart=function(e){this.classList.add('dragging');e.dataTransfer.setData('text/plain',this.getAttribute('data-index'));};
+    s.ondragend=function(){this.classList.remove('dragging');document.querySelectorAll('.bld-stop').forEach(function(x){x.classList.remove('drag-over');});};
+    s.ondragover=function(e){e.preventDefault();this.classList.add('drag-over');};
+    s.ondragleave=function(){this.classList.remove('drag-over');};
+    s.ondrop=function(e){
+      e.preventDefault();this.classList.remove('drag-over');
+      var fromIdx=parseInt(e.dataTransfer.getData('text/plain'));
+      var toIdx=parseInt(this.getAttribute('data-index'));
+      if(fromIdx===toIdx)return;
+      var container=document.getElementById('bldStops');
+      var all=Array.from(container.querySelectorAll('.bld-stop'));
+      var moved=all.splice(fromIdx,1)[0];all.splice(toIdx,0,moved);
+      all.forEach(function(x){container.appendChild(x);});
+      renumberBld();updateBldState();
+    };
+  });
+}
+function clearBld(){
+  var container=document.getElementById('bldStops');
+  container.innerHTML='<div class="bld-stop" data-index="0"><span class="bld-handle">&#9776;</span><span class="bld-num">1</span><select class="bld-sel" data-index="0"><option value="">Add first stop...</option></select><button class="bld-rm" data-index="0">&#215;</button></div>';
+  fillBldSelect(container.querySelector('.bld-sel'));
+  container.querySelector('.bld-rm').addEventListener('click',function(){removeBldStop(0);});
+  setupBldDrag();document.getElementById('bldResults').innerHTML='';document.getElementById('bldCalc').disabled=true;
+  clearRoutes();placeLandmarkMarkers();
+}
+function calcBldRoute(){
+  var stops=Array.from(document.querySelectorAll('.bld-sel')).map(function(s){return s.value;}).filter(Boolean);
+  if(stops.length<2)return;
+  clearRoutes();placeLandmarkMarkers();
+  var legs=[],coords=[];
+  for(var i=0;i<stops.length-1;i++){
+    var A=getDestById(stops[i]),B=getDestById(stops[i+1]);
+    if(!A||!B)continue;
+    var r=getRoute(stops[i],stops[i+1]);
+    legs.push({A:A,B:B,r:r});
+    activeRouteObjs.push(L.polyline([[A.lat,A.lng],[B.lat,B.lng]],{color:'#c4533a',weight:4,opacity:.9,dashArray:'7,5',lineCap:'round'}).addTo(nsMap));
+    coords.push([A.lat,A.lng]);
+  }
+  var last=getDestById(stops[stops.length-1]);if(last)coords.push([last.lat,last.lng]);
+  stops.forEach(function(id,i){
+    var d=getDestById(id);if(!d)return;
+    var icon=L.divIcon({className:'',html:'<div style="text-align:center;width:110px;"><div style="width:30px;height:30px;border-radius:50%;background:#c4533a;border:3px solid white;box-shadow:0 2px 10px rgba(0,0,0,.4);display:flex;align-items:center;justify-content:center;color:white;font-size:12px;font-weight:700;margin:0 auto;">'+(i+1)+'</div><div style="margin-top:3px;font-size:10px;font-weight:700;color:#112244;background:rgba(255,255,255,.9);border-radius:3px;padding:1px 4px;white-space:nowrap;max-width:110px;overflow:hidden;text-overflow:ellipsis;display:inline-block;">'+d.n+'</div></div>',iconSize:[120,38],iconAnchor:[60,11]});
+    activeRouteObjs.push(L.marker([d.lat,d.lng],{icon:icon,zIndexOffset:500}).addTo(nsMap));
+  });
+  if(coords.length>1)nsMap.fitBounds(L.latLngBounds(coords),{padding:[80,80],animate:true});
+  var html='';
+  legs.forEach(function(leg){
+    html+='<div class="bld-leg"><div class="bld-leg-head">'+leg.A.n+' &rarr; '+leg.B.n+(leg.r?' &mdash; '+leg.r.t:'')+'</div>';
+    if(leg.r)html+='<div class="bld-leg-detail"><b>Distance:</b> '+leg.r.d+' &middot; <b>Service:</b> '+leg.r.m+'</div><div class="bld-leg-tip">'+leg.r.tip+'</div>';
+    else html+='<div class="bld-leg-detail">Check bahn.de for connections and Sparpreis fares.</div>';
+    html+='</div>';
+  });
+  document.getElementById('bldResults').innerHTML=html;
+}
+function showPane(id,btn){
+  clearRoutes();
+  document.querySelectorAll('.itin-card').forEach(function(c){c.classList.remove('on');});
+  document.querySelectorAll('.dtabs').forEach(function(t){t.classList.remove('on');});
+  var rtr=document.getElementById('rtResult');if(rtr)rtr.classList.remove('on');
+  document.querySelectorAll('.tbtn').forEach(function(b){b.classList.remove('on');});
+  document.querySelectorAll('.pane').forEach(function(p){p.classList.remove('on');});
+  btn.classList.add('on');document.getElementById('pane-'+id).classList.add('on');
+  placeLandmarkMarkers();
+}
+</script>
+</body>
+</html>
