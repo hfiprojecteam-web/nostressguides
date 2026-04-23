@@ -1,1 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>2026 Updates &mdash; The No-Stress Portugal Travel Guide</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@300;400;500;600;700&family=Lato:ital,wght@0,300;0,400;0,700;1,300&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#112244;--navy-mid:#1B3566;--navy-light:#254580;
+  --gold:#F5C842;--gold-dark:#C89A10;--gold-pale:#FDF6DC;
+  --bg:#F0F4FB;--white:#FFFFFF;
+  --text:#1A2340;--text-mid:#3A4A6A;--text-muted:#6A7A9A;
+  --bad:#8C2020;--bad-pale:#FBF0F0;
+  --warn:#B36A10;--warn-pale:#FDF3E3;
+  --ok:#1A5C30;--ok-pale:#E4F5EB;
+  --new:#1A4A80;--new-pale:#E4EEF8;
+  --border:#C8D6EE;--border-lt:#E2EAF8;
+  --radius:10px;--shadow:0 2px 12px rgba(17,34,68,0.08);
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html{font-size:16px;-webkit-text-size-adjust:100%;scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:'Lato',sans-serif;font-weight:300;line-height:1.65;min-height:100vh;-webkit-font-smoothing:antialiased}
+.header{background:var(--navy);background-image:radial-gradient(ellipse at 80% 0%,rgba(37,69,128,0.8) 0%,transparent 60%);padding:2rem 1.5rem 0;position:sticky;top:0;z-index:100;overflow:hidden}
+.header::before{content:'';position:absolute;inset:0;background-image:radial-gradient(rgba(255,255,255,0.06) 1px,transparent 1px);background-size:20px 20px;pointer-events:none}
+.stamp{position:relative;z-index:1;margin-bottom:1.5rem}
+.stamp-inner{border:2.5px solid var(--gold);border-radius:4px;padding:1.1rem 1.3rem 1rem;background:rgba(17,34,68,0.55);backdrop-filter:blur(4px);position:relative}
+.stamp-inner::before{content:'';position:absolute;top:-9px;left:8px;right:8px;height:8px;background:repeating-linear-gradient(90deg,transparent,transparent 5px,var(--bg) 5px,var(--bg) 10px);opacity:.6}
+.stamp-inner::after{content:'';position:absolute;bottom:-9px;left:8px;right:8px;height:8px;background:repeating-linear-gradient(90deg,transparent,transparent 5px,var(--bg) 5px,var(--bg) 10px);opacity:.6}
+.stamp-label{font-family:'Oswald',sans-serif;font-size:.55rem;font-weight:400;letter-spacing:.28em;text-transform:uppercase;color:var(--gold);opacity:.8;margin-bottom:.35rem}
+.stamp-title{font-family:'Oswald',sans-serif;font-size:2rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:#fff;line-height:1.05;margin-bottom:.55rem}
+.stamp-dest{font-family:'Oswald',sans-serif;font-size:.75rem;font-weight:300;letter-spacing:.22em;text-transform:uppercase;color:rgba(255,255,255,.7)}
+.year-badge{display:inline-block;background:var(--gold);color:var(--navy);font-family:'Oswald',sans-serif;font-size:.7rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;padding:.18rem .65rem;border-radius:3px;margin-bottom:.55rem}
+.header-tabs{position:relative;z-index:1;display:flex;gap:0;margin-top:auto}
+.h-tab{flex:1;padding:.55rem .4rem;text-align:center;font-family:'Oswald',sans-serif;font-size:.58rem;font-weight:400;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.55);border-bottom:3px solid transparent;cursor:pointer;transition:all .2s;border-radius:3px 3px 0 0;background:none;border-top:none;border-left:none;border-right:none}
+.h-tab:hover{color:rgba(255,255,255,.8)}
+.h-tab.active{color:var(--gold);border-bottom-color:var(--gold);background:rgba(245,200,66,.06)}
+.transparency{background:var(--gold-pale);border:1px solid rgba(200,154,16,.3);border-radius:var(--radius);padding:.9rem 1rem;margin-bottom:1.2rem}
+.t-head{font-family:'Oswald',sans-serif;font-size:.6rem;font-weight:500;letter-spacing:.18em;text-transform:uppercase;color:var(--gold-dark);margin-bottom:.35rem}
+.t-text{font-size:.78rem;color:var(--text-mid);line-height:1.5}
+.content{max-width:640px;margin:0 auto;padding:1.2rem 1.1rem 2rem}
+.section{margin-bottom:3rem;opacity:0;transform:translateY(14px);transition:opacity .45s ease,transform .45s ease}
+.section.visible{opacity:1;transform:translateY(0)}
+.section-head{position:sticky;top:0;z-index:10;background:var(--bg);display:flex;align-items:center;justify-content:space-between;padding:.6rem 0 .55rem;margin-bottom:.9rem;border-bottom:2.5px solid var(--navy);box-shadow:0 4px 12px rgba(240,244,251,.95)}
+.sh-left{display:flex;align-items:center;gap:.55rem}
+.sh-pip{width:10px;height:10px;border-radius:2px;flex-shrink:0}
+.sp-bad{background:var(--bad)}.sp-warn{background:var(--warn)}.sp-ok{background:var(--ok)}.sp-new{background:var(--new)}
+.sh-title{font-family:'Oswald',sans-serif;font-size:1rem;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--navy)}
+.sh-date{font-size:.6rem;color:var(--text-muted);letter-spacing:.04em;white-space:nowrap}
+.zone{display:flex;align-items:center;gap:.55rem;margin:1.1rem 0 .6rem}
+.zone-label{font-family:'Oswald',sans-serif;font-size:.6rem;font-weight:500;letter-spacing:.22em;text-transform:uppercase;color:var(--gold-dark);white-space:nowrap}
+.zone-line{flex:1;height:1px;background:var(--border)}
+.card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:.55rem;overflow:hidden;position:relative;box-shadow:var(--shadow)}
+.card-bar{position:absolute;left:0;top:0;bottom:0;width:4px}
+.cb-bad{background:var(--bad)}.cb-warn{background:var(--warn)}.cb-new{background:var(--new)}.cb-ok{background:var(--ok)}
+.card-body{padding:.88rem 1rem .88rem 1.3rem}
+.card-place{font-family:'Oswald',sans-serif;font-size:.58rem;font-weight:300;letter-spacing:.18em;text-transform:uppercase;color:var(--text-muted);margin-bottom:.18rem}
+.card-text{font-size:.85rem;color:var(--text-mid);line-height:1.58}
+.card-text strong{color:var(--text);font-weight:700}
+.card-text em{font-style:italic;color:var(--text-muted)}
+.price-row{display:flex;align-items:center;gap:.45rem;margin-top:.6rem;padding-top:.5rem;border-top:1px solid var(--border-lt);flex-wrap:wrap}
+.pr-old{font-size:.76rem;color:var(--text-muted);text-decoration:line-through}
+.pr-arrow{font-size:.6rem;color:var(--text-muted)}
+.pr-new{font-size:.86rem;font-weight:700;color:var(--bad)}
+.pr-ok{font-size:.86rem;font-weight:700;color:var(--ok)}
+.pr-src{font-size:.65rem;color:var(--text-muted);margin-left:auto}
+.alert-block{border-radius:var(--radius);padding:.85rem 1rem;margin-bottom:.55rem;border:1px solid}
+.ab-bad{background:var(--bad-pale);border-color:rgba(140,32,32,.2)}
+.ab-warn{background:var(--warn-pale);border-color:rgba(179,106,16,.2)}
+.alert-head{font-family:'Oswald',sans-serif;font-size:.62rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;margin-bottom:.25rem}
+.ah-bad{color:var(--bad)}.ah-warn{color:var(--warn)}
+.alert-text{font-size:.8rem;color:var(--text-mid);line-height:1.5}
+.ok-list{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow)}
+.ok-row{display:flex;gap:.7rem;align-items:flex-start;padding:.75rem 1rem;border-bottom:1px solid var(--border-lt)}
+.ok-row:last-child{border-bottom:none}
+.ok-badge{width:20px;height:20px;border-radius:50%;background:var(--ok-pale);color:var(--ok);font-size:.65rem;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:.08rem}
+.ok-text{font-size:.83rem;color:var(--text-mid);line-height:1.48}
+.ok-text strong{color:var(--text);font-weight:700;display:block;font-size:.77rem;margin-bottom:.08rem}
+.changelog{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow)}
+.cl-head{background:var(--navy);padding:.65rem 1rem;font-family:'Oswald',sans-serif;font-size:.62rem;font-weight:400;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,.8)}
+.cl-row{display:flex;gap:.8rem;align-items:flex-start;padding:.7rem 1rem;border-bottom:1px solid var(--border-lt)}
+.cl-row:last-child{border-bottom:none}
+.cl-year{font-family:'Oswald',sans-serif;font-size:.72rem;font-weight:600;color:var(--navy);min-width:38px;flex-shrink:0;padding-top:.05rem}
+.cl-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:.28rem}
+.cd-active{background:var(--ok)}.cd-sched{background:var(--border)}
+.cl-text{font-size:.78rem;color:var(--text-mid);line-height:1.45}
+.cl-text.sched{color:var(--text-muted);font-style:italic}
+.cl-badge{display:inline-block;background:var(--ok-pale);color:var(--ok);font-family:'Oswald',sans-serif;font-size:.55rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;padding:.1rem .45rem;border-radius:3px;margin-left:.4rem;vertical-align:middle}
+footer{background:var(--navy)}
+.footer-gold{background:var(--gold);padding:1.1rem 1.5rem;display:flex;align-items:center;justify-content:center}
+.footer-brand{font-family:'Oswald',sans-serif;font-size:1rem;font-weight:700;color:var(--navy);letter-spacing:.14em;text-transform:uppercase}
+.footer-brand-sub{font-family:'Oswald',sans-serif;font-size:.58rem;font-weight:300;letter-spacing:.16em;text-transform:uppercase;color:var(--navy);opacity:.6;margin-top:.15rem}
+.footer-body{padding:1.5rem 1.5rem 2rem;color:rgba(255,255,255,.75)}
+.footer-promise{font-size:.8rem;line-height:1.6;margin-bottom:1rem;color:rgba(255,255,255,.85)}
+.footer-contact{font-size:.75rem;color:rgba(255,255,255,.55);margin-bottom:1rem}
+.footer-contact a{color:var(--gold);text-decoration:none}
+.footer-legal{font-size:.68rem;color:rgba(255,255,255,.35);line-height:1.55}
+@media(min-width:600px){.stamp-title{font-size:2.5rem}.content{padding:1.5rem 1.5rem 3rem}}
+</style>
+</head>
+<body>
+<header class="header">
+  <div class="stamp">
+    <div class="stamp-inner">
+      <div class="stamp-label">No-Stress Guides &mdash; Digital Companion</div>
+      <div class="year-badge">2026 Edition</div>
+      <div class="stamp-title">Portugal</div>
+      <div class="stamp-dest">Yearly Updates</div>
+    </div>
+  </div>
+  <div class="header-tabs">
+    <button class="h-tab active" data-target="sec-changed">What Changed</button>
+    <button class="h-tab" data-target="sec-confirmed">Confirmed</button>
+    <button class="h-tab" data-target="sec-new">New Tips</button>
+    <button class="h-tab" data-target="sec-seasonal">Seasonal Alerts</button>
+  </div>
+</header>
+<main class="content">
+  <div class="transparency">
+    <div class="t-head">How this page works</div>
+    <div class="t-text">Every item verified for 2026 against official sources: CP (Comboios de Portugal), visitlisboa.com, visitportugal.com, Sintra Patrimônio Mundial, and direct attraction websites. Check 3&ndash;5 days before departure for any last-minute changes. Email us if something has shifted.</div>
+  </div>
 
+  <!-- WHAT CHANGED -->
+  <section class="section" id="sec-changed">
+    <div class="section-head">
+      <div class="sh-left"><span class="sh-pip sp-bad"></span><span class="sh-title">What Changed</span></div>
+      <span class="sh-date">Verified March 2026</span>
+    </div>
+
+    <div class="zone"><span class="zone-label">Sintra &mdash; mandatory booking and access changes</span><span class="zone-line"></span></div>
+
+    <div class="alert-block ab-bad">
+      <div class="alert-head ah-bad">Sintra: all major palaces now require advance online booking &mdash; no walk-ups</div>
+      <div class="alert-text">Sintra&rsquo;s four main palaces &mdash; <strong>Pena Palace, Moorish Castle, Monserrate, and Quinta da Regaleira</strong> &mdash; all operate mandatory timed-entry booking. Walk-up tickets are not sold at any of them during April&ndash;October. Pena Palace (the most visited) books out 2&ndash;3 weeks ahead in July and August. Book at sintrapatrimoniomundial.pt. <strong>If you arrive in Sintra without a booking during peak season, you will not enter Pena Palace.</strong> Visiting Sintra midweek and booking the moment your travel dates are fixed is the only reliable strategy. The National Palace of Sintra (in the village itself) does accept some walk-ups on weekday mornings in low season.</div>
+    </div>
+
+    <div class="card">
+      <div class="card-bar cb-bad"></div>
+      <div class="card-body">
+        <div class="card-place">Sintra &mdash; Pena Palace</div>
+        <div class="card-text">Pena Palace adult entry is now <strong>&euro;14</strong> for the palace exterior and gardens, <strong>&euro;20</strong> for full palace including interior. The price increase reflects additional visitor management infrastructure. <strong>Saturday and Sunday in July&ndash;August: book 3 weeks ahead minimum.</strong> Weekdays in May, June, September, October: 1&ndash;2 weeks ahead is usually sufficient. Book at sintrapatrimoniomundial.pt. The first slot of the day (09:30) is the least crowded regardless of season.</div>
+        <div class="price-row">
+          <span class="pr-old">Gardens &euro;10, interior &euro;14 (book)</span>
+          <span class="pr-arrow">&rarr;</span>
+          <span class="pr-new">&euro;14 / &euro;20 (2026)</span>
+          <span class="pr-src">sintrapatrimoniomundial.pt</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="zone"><span class="zone-label">Lisbon &mdash; tourist tax and transport</span><span class="zone-line"></span></div>
+
+    <div class="card">
+      <div class="card-bar cb-bad"></div>
+      <div class="card-body">
+        <div class="card-place">Lisbon &mdash; tourist tax increased</div>
+        <div class="card-text">Lisbon&rsquo;s municipal tourist tax (<em>taxa turística</em>) increased to <strong>&euro;4 per person per night</strong> on 1 January 2026, up from &euro;2.50, capped at a maximum of 7 nights (&euro;28 total per person per stay). The tax applies to all paid accommodation in Lisbon municipality &mdash; hotel, hostel, Airbnb, or boat hotel. Porto charges &euro;2.50/night (capped at 5 nights). Other Portuguese destinations charge considerably less or nothing. <strong>Factor Lisbon&rsquo;s tax into your accommodation budget.</strong></div>
+        <div class="price-row">
+          <span class="pr-old">&euro;2.50/night (book)</span>
+          <span class="pr-arrow">&rarr;</span>
+          <span class="pr-new">&euro;4/night, max 7 nights (2026)</span>
+          <span class="pr-src">lisboaverde.pt</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-bar cb-bad"></div>
+      <div class="card-body">
+        <div class="card-place">Lisbon &mdash; Carris/Metro integrated 24h ticket</div>
+        <div class="card-text">The integrated Carris/Metro 24h travel card is now <strong>&euro;7.10</strong>. This covers unlimited journeys on Lisbon Metro, Carris trams (including Tram 28), funiculars, and Carris buses within Lisbon municipality. The Navegante monthly pass used by residents remains the best value for stays of a week or more. For stays of 2&ndash;4 days, the 24h or 48h visitor passes offer the best flexibility. <strong>Buy at any Metro station ticket machine or staffed ticket office.</strong> The Zapping reloadable card (&euro;0.50 card fee + credit) is the most practical option for 1&ndash;2 day visits.</div>
+        <div class="price-row">
+          <span class="pr-old">&euro;6.80 (book)</span>
+          <span class="pr-arrow">&rarr;</span>
+          <span class="pr-new">&euro;7.10 (2026)</span>
+          <span class="pr-src">carris.pt / metrolisboa.pt</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="zone"><span class="zone-label">CP trains &mdash; fare changes</span><span class="zone-line"></span></div>
+
+    <div class="card">
+      <div class="card-bar cb-bad"></div>
+      <div class="card-body">
+        <div class="card-place">CP &mdash; Alfa Pendular and Intercidades fares</div>
+        <div class="card-text">CP (Comboios de Portugal) increased Alfa Pendular and Intercidades fares by approximately <strong>4.2%</strong> on 1 January 2026. Key routes: Lisbon (Oriente) &ndash; Porto (Campanhã) Alfa Pendular now from <strong>&euro;16.10</strong> (advance, 2nd class). Lisbon &ndash; Faro from <strong>&euro;16.80</strong> (advance). Lisbon &ndash; Coimbra from <strong>&euro;13.20</strong>. <strong>Book at cp.pt in advance for lowest fares</strong> &mdash; the cheapest &ldquo;Alfa&rdquo; tickets sell out on busy routes. Same-day full-price fares are significantly more expensive. Portuguese train travel remains excellent value compared to other Western European rail networks.</div>
+        <div class="price-row">
+          <span class="pr-old">Lisbon&ndash;Porto from &euro;15.50 (book)</span>
+          <span class="pr-arrow">&rarr;</span>
+          <span class="pr-new">From &euro;16.10 advance (2026)</span>
+          <span class="pr-src">cp.pt</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="zone"><span class="zone-label">Major attractions &mdash; price changes</span><span class="zone-line"></span></div>
+
+    <div class="card">
+      <div class="card-bar cb-warn"></div>
+      <div class="card-body">
+        <div class="card-place">Lisbon &mdash; Jerónimos Monastery</div>
+        <div class="card-text">The Jerónimos Monastery (Mosteiro dos Jerónimos) adult entry is now <strong>&euro;12</strong>. Online advance booking is now strongly recommended &mdash; queues in summer can reach 1.5 hours. Book at patrimoniocultural.gov.pt. <strong>The first Sunday of each month, entry remains free</strong> &mdash; but queues are longest on these days. The adjacent Museu Nacional de Arqueologia is included in a combination ticket. Allow 1.5&ndash;2 hours for a full visit including the refectory and cloisters.</div>
+        <div class="price-row">
+          <span class="pr-old">&euro;10 (book)</span>
+          <span class="pr-arrow">&rarr;</span>
+          <span class="pr-new">&euro;12, online booking recommended (2026)</span>
+          <span class="pr-src">patrimoniocultural.gov.pt</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-bar cb-warn"></div>
+      <div class="card-body">
+        <div class="card-place">Lisbon &mdash; Torre de Belém</div>
+        <div class="card-text">Torre de Belém adult entry increased to <strong>&euro;8</strong>. The tower is small and visitor numbers are timed &mdash; advance booking at patrimoniocultural.gov.pt is now required during April&ndash;October to guarantee entry. The terrace at the top offers one of Lisbon&rsquo;s best Tagus views but the interior is minimal. <strong>The first Sunday of each month: free entry</strong>, but book in advance even for free Sundays. Padrão dos Descobrimentos (Monument to the Discoveries) across the road: &euro;10, good alternative for Tagus views with fewer queues.</div>
+        <div class="price-row">
+          <span class="pr-old">&euro;6 (book)</span>
+          <span class="pr-arrow">&rarr;</span>
+          <span class="pr-new">&euro;8, advance booking required Apr&ndash;Oct (2026)</span>
+          <span class="pr-src">patrimoniocultural.gov.pt</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="zone"><span class="zone-label">Entry requirements</span><span class="zone-line"></span></div>
+
+    <div class="card">
+      <div class="card-bar cb-warn"></div>
+      <div class="card-body">
+        <div class="card-place">ETIAS &mdash; US, UK, Canadian, Australian travelers</div>
+        <div class="card-text">ETIAS remains <strong>not yet in force</strong> for Portugal or any Schengen country as of early 2026, despite repeated delayed launch dates. Check current requirements at etiasvisa.com or the EU official travel portal before departure. When it launches: online, approximately &euro;7, valid three years. Portugal is within the Schengen Area &mdash; ETIAS will cover all Schengen countries in one application. UK citizens (post-Brexit) will need ETIAS once active.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONFIRMED -->
+  <section class="section" id="sec-confirmed">
+    <div class="section-head">
+      <div class="sh-left"><span class="sh-pip sp-ok"></span><span class="sh-title">Confirmed Correct</span></div>
+      <span class="sh-date">Verified March 2026</span>
+    </div>
+    <div class="ok-list">
+      <div class="ok-row">
+        <div class="ok-badge">&#10003;</div>
+        <div class="ok-text"><strong>Lisbon &ndash; Porto Alfa Pendular &mdash; approximately 2h 45m</strong> Confirmed. Multiple daily departures from Lisboa Oriente and Lisboa Santa Apolónia to Porto Campanhã and Porto São Bento. The Oriente departure is generally the most convenient for visitors staying near the waterfront or Marquês de Pombal. Book at cp.pt; advance tickets from &euro;16.</div>
+      </div>
+      <div class="ok-row">
+        <div class="ok-badge">&#10003;</div>
+        <div class="ok-text"><strong>Pastel de Belém (Pastéis de Belém) &mdash; original and irreplaceable</strong> Confirmed. The original pastéis de nata are still sold exclusively at Pastéis de Belém, Rua de Belém 84&ndash;92, using the 1837 recipe that has never left the building. Queue during peak hours, take a number, eat inside. The recipe is a secret known only to a small number of pastry makers. Every &ldquo;original&rdquo; sold elsewhere is an imitation &mdash; some excellent, none the same.</div>
+      </div>
+      <div class="ok-row">
+        <div class="ok-badge">&#10003;</div>
+        <div class="ok-text"><strong>Lisbon Metro &mdash; 4 lines, clean, frequent, best urban transport option</strong> Confirmed. The Lisbon Metro runs from approximately 06:30 to 01:00. Clean, air-conditioned, reliable. Covers all major visitor areas: Baixa-Chiado, Rossio, Marquês de Pombal, Oriente, Cais do Sodré. Single ticket &euro;1.61 with Zapping card (reloadable, &euro;0.50 card fee). Do not pay full &euro;2 single journey at the machine when Zapping is available.</div>
+      </div>
+      <div class="ok-row">
+        <div class="ok-badge">&#10003;</div>
+        <div class="ok-text"><strong>Alentejo wine &mdash; outstanding quality at honest prices</strong> Confirmed. Portugal&rsquo;s Alentejo region produces some of Europe&rsquo;s most distinctive wines at prices that remain astonishing by French, Italian, or Spanish comparable standards. Herdade do Esporão, Cartuxa, and Monte da Peceguina are benchmark producers. In Évora, buy from the adega (wine cooperative) rather than tourist shops.</div>
+      </div>
+      <div class="ok-row">
+        <div class="ok-badge">&#10003;</div>
+        <div class="ok-text"><strong>Douro Valley train &mdash; one of Europe&rsquo;s great rail journeys</strong> Confirmed. The Linha do Douro from Porto Campanhã to Pinhão (3 hours) follows the Douro river through terraced vineyard landscape for the final hour &mdash; the section from Régua to Pinhão is the most dramatic. Take a right-side window seat when departing Porto. Book at cp.pt; sell out quickly in September during harvest.</div>
+      </div>
+      <div class="ok-row">
+        <div class="ok-badge">&#10003;</div>
+        <div class="ok-text"><strong>Porto &mdash; port wine lodge tours in Vila Nova de Gaia</strong> Confirmed. The south bank of the Douro (Vila Nova de Gaia) is where all the major port lodges are based &mdash; Taylor&rsquo;s, Graham&rsquo;s, Ramos Pinto, Sandeman, Fonseca. Tours include cellar visit and tasting. Price range &euro;12&ndash;25 depending on tasting tier. Book directly with the lodge; walk-up available at most, but booking avoids queues. Graham&rsquo;s is the most scenic lodge position.</div>
+      </div>
+      <div class="ok-row">
+        <div class="ok-badge">&#10003;</div>
+        <div class="ok-text"><strong>Lisbon free viewpoints (miradouros) &mdash; all remain free</strong> Confirmed. Miradouro da Graça, Miradouro de Santa Catarina, Miradouro das Portas do Sol, and the Senhora do Monte viewpoint are all free and unrestricted. The Miradouro de Santa Luzia (Alfama) is the most photographed &mdash; arrive before 10:00 to avoid tour groups. Miradouro da Graça (slightly further, fewer tourists) has the best panorama of Alfama and the Tejo.</div>
+      </div>
+      <div class="ok-row">
+        <div class="ok-badge">&#10003;</div>
+        <div class="ok-text"><strong>Museu Nacional do Azulejo, Lisbon &mdash; &euro;10</strong> Confirmed. The world&rsquo;s most important azulejo (decorative tile) museum, housed in a 16th-century convent with a baroque church. One of Lisbon&rsquo;s most undervisited major museums &mdash; usually quiet even in peak season. Book at museudoazulejo.pt. Closed Mondays.</div>
+      </div>
+      <div class="ok-row">
+        <div class="ok-badge">&#10003;</div>
+        <div class="ok-text"><strong>Faro &mdash; Ria Formosa natural park ferry tours from old town pier</strong> Confirmed. Half-day and full-day boat tours of the Ria Formosa lagoon system depart from the pier in Faro&rsquo;s old town (Portas do Mar). Tours visit barrier islands and birdlife areas. Price range &euro;25&ndash;45 depending on duration. Book at tour operators on the pier or in advance online. July&ndash;August: Ilha Deserta is accessible by scheduled ferry (&euro;18 return).</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- NEW TIPS -->
+  <section class="section" id="sec-new">
+    <div class="section-head">
+      <div class="sh-left"><span class="sh-pip sp-new"></span><span class="sh-title">New for 2026</span></div>
+      <span class="sh-date">Added March 2026</span>
+    </div>
+
+    <div class="card">
+      <div class="card-bar cb-new"></div>
+      <div class="card-body">
+        <div class="card-place">Lisbon &mdash; new visitor management measures in historic districts</div>
+        <div class="card-text">Lisbon municipality introduced new visitor distribution measures in the Alfama and Mouraria districts in 2025, operationally from 2026. The measures include: <strong>restricting group tour sizes in Alfama to a maximum of 25 people</strong>; pedestrian flow guidance at Miradouro das Portas do Sol during peak hours; and an informal tour operator registration system for licensed guides in the historic centre. These measures are specifically aimed at reducing the noise and congestion impact on the 3,000+ residents still living in Alfama. <strong>For independent travelers, there is no change</strong> &mdash; the district remains freely accessible. Group tours will feel more regulated.</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-bar cb-new"></div>
+      <div class="card-body">
+        <div class="card-place">Porto &mdash; new CP urban service to Aveiro integrated</div>
+        <div class="card-text">CP&rsquo;s urban (Urbanos do Porto) service now runs integrated ticketing with the Metro do Porto on a single reloadable Andante card. <strong>The Andante card (&euro;0.60) covers Metro, CP Urban trains (including to Braga, Guimarães, and Aveiro), and STCP buses</strong> within the Porto metropolitan area on the same journey credit system. For visitors making multiple day trips from Porto, the Andante card is significantly more practical than buying separate CP tickets for each journey. Load credit at Metro stations or CP ticket machines.</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-bar cb-new"></div>
+      <div class="card-body">
+        <div class="card-place">Portugal-wide &mdash; Airbnb short-term rental restrictions</div>
+        <div class="card-text">Portugal&rsquo;s Mais Habitação (More Housing) legislation introduced in 2023 and now in operational effect has significantly reduced new short-term rental (Alojamento Local) licences in Lisbon and Porto historic districts. The supply of available Airbnb-style apartments in central Lisbon and the Ribeira district of Porto is materially lower than at the time of publication. <strong>Budget 2&ndash;3 months ahead for accommodation in central Lisbon in peak season</strong>, or expect significantly higher prices for good-location properties booked late. The Algarve and secondary cities are less affected.</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-bar cb-new"></div>
+      <div class="card-body">
+        <div class="card-place">Algarve &mdash; new direct bus services from Faro Airport</div>
+        <div class="card-text">EVA Transportes has expanded its direct coach service from Faro Airport to Algarve resort towns in 2026. <strong>Direct coaches now run to Albufeira, Lagos, Portimão, and Vilamoura from Faro Airport arrivals</strong>, without requiring a change at Faro bus station. Journey times: Faro&ndash;Albufeira 45 min, Faro&ndash;Lagos 1h 30m. Check current timetables at eva-bus.com &mdash; the service runs seasonally with reduced frequency outside peak summer. This significantly reduces transfer hassle compared to the previous taxi/connection bus approach.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SEASONAL ALERTS -->
+  <section class="section" id="sec-seasonal">
+    <div class="section-head">
+      <div class="sh-left"><span class="sh-pip sp-warn"></span><span class="sh-title">Seasonal Alerts</span></div>
+      <span class="sh-date">2026 Calendar</span>
+    </div>
+    <div class="ok-list">
+      <div class="ok-row">
+        <div class="ok-badge" style="background:var(--bad-pale);color:var(--bad)">!</div>
+        <div class="ok-text"><strong>Sintra &mdash; summer weekends, June&ndash;September</strong> Sintra receives over 4 million visitors a year in a village with a permanent population of around 400. On summer Saturdays, the narrow streets and Pena Palace approach road become genuinely unmanageable between 11:00 and 16:00. The train from Rossio fills to standing capacity. <strong>The correct approach: arrive on the first or second train of the day (before 09:00), enter Pena Palace at the 09:30 slot you booked weeks in advance, and leave by 13:00 before the worst crowds build.</strong> Mid-week visits in May, June, September, or October are an entirely different experience.</div>
+      </div>
+      <div class="ok-row">
+        <div class="ok-badge" style="background:var(--bad-pale);color:var(--bad)">!</div>
+        <div class="ok-text"><strong>Algarve beaches &mdash; July and August at absolute capacity</strong> Portugal&rsquo;s Algarve receives over 10 million visitors annually, the large majority in July and August. Popular beaches (Meia Praia, Praia da Marinha, Praia de Odeceixe) reach genuine capacity on peak-summer Saturdays. Accommodation doubles or triples in price. Algarve in May, June, late September, and October is warm (22&ndash;28&deg;C), quiet, and significantly cheaper. The book was written for these shoulder months.</div>
+      </div>
+      <div class="ok-row">
+        <div class="ok-badge" style="background:var(--bad-pale);color:var(--bad)">!</div>
+        <div class="ok-text"><strong>Festa de Santo António, Lisbon &mdash; 12&ndash;13 June</strong> Lisbon&rsquo;s biggest popular festival centres on the Alfama and Mouraria districts on the night of 12&ndash;13 June. Sardines grilled in the street, music, dancing, and several hundred thousand people in a small area. Hotels book out months ahead. If your dates overlap: embrace the experience but book accommodation 4+ months ahead. Transport is extremely crowded on the night itself.</div>
+      </div>
+      <div class="ok-row">
+        <div class="ok-badge" style="background:var(--bad-pale);color:var(--bad)">!</div>
+        <div class="ok-text"><strong>Nazaré big wave surf &mdash; October to March</strong> The giant waves at Praia do Norte (Nazaré) that reach 20&ndash;30 metres are a winter phenomenon. Summer visits to Nazaré show a normal Atlantic beach. If watching big wave surfing is your reason to visit Nazaré, plan for November&ndash;January when swells are most reliable. The cliffside viewpoint at Sitio is the correct vantage point. Check current swell forecasts at windguru.cz before travelling specifically for the waves.</div>
+      </div>
+      <div class="ok-row">
+        <div class="ok-badge" style="background:var(--ok-pale);color:var(--ok)">&#10003;</div>
+        <div class="ok-text"><strong>Best windows &mdash; March to June and September to November</strong> Portugal&rsquo;s spring (March&ndash;June) is arguably the most beautiful season: wildflowers in Alentejo and Algarve, full-green Douro terraces, temperatures 18&ndash;24&deg;C in Lisbon. Autumn (September&ndash;November) brings Douro harvest season, empty Algarve beaches after the crowds leave, and exceptional light quality for photography. These are the seasons the guide was written for.</div>
+      </div>
+      <div class="ok-row">
+        <div class="ok-badge" style="background:var(--ok-pale);color:var(--ok)">&#10003;</div>
+        <div class="ok-text"><strong>Douro harvest season &mdash; late September to mid-October</strong> The Douro Valley port wine harvest (vindima) runs from late September through mid-October depending on the year. Quinta visits during this period are exceptional: the terraces are active, the smells of fermentation fill the valley, and many quintas offer harvest participation experiences. Book Douro accommodation at least 3 months ahead for harvest weeks &mdash; the valley&rsquo;s limited accommodation fills completely.</div>
+      </div>
+    </div>
+    <div class="changelog" style="margin-top:1.5rem">
+      <div class="cl-head">Annual review schedule &mdash; every March</div>
+      <div class="cl-row">
+        <div class="cl-year">2026</div>
+        <div class="cl-dot cd-active"></div>
+        <div class="cl-text">Full review completed March 2026 &mdash; 18 items verified. Sintra palaces all now advance-booking-only. Pena Palace &euro;10&rarr;&euro;20 (interior). Lisbon tourist tax &euro;2.50&rarr;&euro;4. Jerónimos &euro;10&rarr;&euro;12. Torre de Belém &euro;6&rarr;&euro;8. CP fares +4.2% Jan 2026. Lisbon 24h transport pass &euro;6.80&rarr;&euro;7.10. ETIAS still pending. Short-term rental supply reduced in central Lisbon. <span class="cl-badge">Active</span></div>
+      </div>
+      <div class="cl-row">
+        <div class="cl-year">2027</div>
+        <div class="cl-dot cd-sched"></div>
+        <div class="cl-text sched">Scheduled review &mdash; March 2027. ETIAS implementation to be confirmed. Lisbon visitor management measures to be reassessed. Douro tourism capacity to be reviewed.</div>
+      </div>
+    </div>
+  </section>
+</main>
+<footer>
+  <div class="footer-gold">
+    <div>
+      <div class="footer-brand">No-Stress Guides</div>
+      <div class="footer-brand-sub">Portugal Travel Guide &mdash; 2026</div>
+    </div>
+  </div>
+  <div class="footer-body">
+    <p class="footer-promise">This page is reviewed every March. No sponsored content. No affiliate links. Every price comes from the official source.</p>
+    <p class="footer-contact">Questions or corrections: <a href="mailto:info@nostressguides.com">info@nostressguides.com</a></p>
+    <p class="footer-legal">&copy; 2026 No-Stress Guides. For personal travel use only.</p>
+  </div>
+</footer>
+<script>
+document.querySelectorAll('.section').forEach(function(s,i){setTimeout(function(){s.classList.add('visible')},100+i*80);});
+var headerEl=document.querySelector('.header');
+document.querySelectorAll('.h-tab').forEach(function(btn){
+  btn.addEventListener('click',function(){
+    var target=this.getAttribute('data-target');
+    document.querySelectorAll('.h-tab').forEach(function(t){t.classList.remove('active')});
+    btn.classList.add('active');
+    var el=document.getElementById(target);
+    if(!el)return;
+    var hh=headerEl?headerEl.offsetHeight:0;
+    window.scrollTo({top:el.getBoundingClientRect().top+window.scrollY-hh-8,behavior:'smooth'});
+  });
+});
+var sIds=['sec-changed','sec-confirmed','sec-new','sec-seasonal'];
+var allTabs=document.querySelectorAll('.h-tab');
+function updateTab(){var hh=headerEl?headerEl.offsetHeight:0;var active=0;sIds.forEach(function(id,i){var el=document.getElementById(id);if(el&&el.getBoundingClientRect().top<=hh+20)active=i;});allTabs.forEach(function(t,i){t.classList.toggle('active',i===active);});}
+window.addEventListener('scroll',updateTab,{passive:true});
+updateTab();
+</script>
+</body>
+</html>
