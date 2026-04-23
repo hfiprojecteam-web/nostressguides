@@ -1,1 +1,428 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>2026 Updates &mdash; The No-Stress Belgium Travel Guide</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@300;400;500;600;700&family=Lato:ital,wght@0,300;0,400;0,700;1,300&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#112244;--navy-mid:#1B3566;--navy-light:#254580;
+  --gold:#F5C842;--gold-dark:#C89A10;--gold-pale:#FDF6DC;
+  --bg:#F0F4FB;--white:#FFFFFF;
+  --text:#1A2340;--text-mid:#3A4A6A;--text-muted:#6A7A9A;
+  --bad:#8C2020;--bad-pale:#FBF0F0;
+  --warn:#B36A10;--warn-pale:#FDF3E3;
+  --ok:#1A5C30;--ok-pale:#E4F5EB;
+  --new:#1A4A80;--new-pale:#E4EEF8;
+  --border:#C8D6EE;--border-lt:#E2EAF8;
+  --radius:10px;--shadow:0 2px 12px rgba(17,34,68,0.08);
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html{font-size:16px;-webkit-text-size-adjust:100%;scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:'Lato',sans-serif;font-weight:300;line-height:1.65;min-height:100vh;-webkit-font-smoothing:antialiased}
+.header{background:var(--navy);background-image:radial-gradient(ellipse at 80% 0%,rgba(37,69,128,0.8) 0%,transparent 60%);padding:2rem 1.5rem 0;position:sticky;top:0;z-index:100;overflow:hidden}
+.header::before{content:'';position:absolute;inset:0;background-image:radial-gradient(rgba(255,255,255,0.06) 1px,transparent 1px);background-size:20px 20px;pointer-events:none}
+.stamp{position:relative;z-index:1;margin-bottom:1.5rem}
+.stamp-inner{border:2.5px solid var(--gold);border-radius:4px;padding:1.1rem 1.3rem 1rem;background:rgba(17,34,68,0.55);backdrop-filter:blur(4px);position:relative}
+.stamp-inner::before{content:'';position:absolute;top:-9px;left:8px;right:8px;height:8px;background:repeating-linear-gradient(90deg,transparent,transparent 5px,var(--bg) 5px,var(--bg) 10px);opacity:.6}
+.stamp-inner::after{content:'';position:absolute;bottom:-9px;left:8px;right:8px;height:8px;background:repeating-linear-gradient(90deg,transparent,transparent 5px,var(--bg) 5px,var(--bg) 10px);opacity:.6}
+.stamp-label{font-family:'Oswald',sans-serif;font-size:.55rem;font-weight:400;letter-spacing:.28em;text-transform:uppercase;color:var(--gold);opacity:.8;margin-bottom:.35rem}
+.stamp-title{font-family:'Oswald',sans-serif;font-size:2rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:#fff;line-height:1.05;margin-bottom:.55rem}
+.stamp-dest{font-family:'Oswald',sans-serif;font-size:.75rem;font-weight:300;letter-spacing:.22em;text-transform:uppercase;color:rgba(255,255,255,.7)}
+.year-badge{display:inline-block;background:var(--gold);color:var(--navy);font-family:'Oswald',sans-serif;font-size:.7rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;padding:.18rem .65rem;border-radius:3px;margin-bottom:.55rem}
+.header-tabs{position:relative;z-index:1;display:flex;gap:0;margin-top:auto}
+.h-tab{flex:1;padding:.55rem .4rem;text-align:center;font-family:'Oswald',sans-serif;font-size:.58rem;font-weight:400;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.55);border-bottom:3px solid transparent;cursor:pointer;transition:all .2s;border-radius:3px 3px 0 0;background:none;border-top:none;border-left:none;border-right:none}
+.h-tab:hover{color:rgba(255,255,255,.8)}
+.h-tab.active{color:var(--gold);border-bottom-color:var(--gold);background:rgba(245,200,66,.06)}
+.transparency{background:var(--gold-pale);border:1px solid rgba(200,154,16,.3);border-radius:var(--radius);padding:.9rem 1rem;margin-bottom:1.2rem}
+.t-head{font-family:'Oswald',sans-serif;font-size:.6rem;font-weight:500;letter-spacing:.18em;text-transform:uppercase;color:var(--gold-dark);margin-bottom:.35rem}
+.t-text{font-size:.78rem;color:var(--text-mid);line-height:1.5}
+.content{max-width:640px;margin:0 auto;padding:1.2rem 1.1rem 2rem}
+.section{margin-bottom:3rem;opacity:0;transform:translateY(14px);transition:opacity .45s ease,transform .45s ease}
+.section.visible{opacity:1;transform:translateY(0)}
+.section-head{position:sticky;top:0;z-index:10;background:var(--bg);display:flex;align-items:center;justify-content:space-between;padding:.6rem 0 .55rem;margin-bottom:.9rem;border-bottom:2.5px solid var(--navy);box-shadow:0 4px 12px rgba(240,244,251,.95)}
+.sh-left{display:flex;align-items:center;gap:.55rem}
+.sh-pip{width:10px;height:10px;border-radius:2px;flex-shrink:0}
+.sp-bad{background:var(--bad)}.sp-warn{background:var(--warn)}.sp-ok{background:var(--ok)}.sp-new{background:var(--new)}
+.sh-title{font-family:'Oswald',sans-serif;font-size:1rem;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--navy)}
+.sh-date{font-size:.6rem;color:var(--text-muted);letter-spacing:.04em;white-space:nowrap}
+.zone{display:flex;align-items:center;gap:.55rem;margin:1.1rem 0 .6rem}
+.zone-label{font-family:'Oswald',sans-serif;font-size:.6rem;font-weight:500;letter-spacing:.22em;text-transform:uppercase;color:var(--gold-dark);white-space:nowrap}
+.zone-line{flex:1;height:1px;background:var(--border)}
+.card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:.55rem;overflow:hidden;position:relative;box-shadow:var(--shadow)}
+.card-bar{position:absolute;left:0;top:0;bottom:0;width:4px}
+.cb-bad{background:var(--bad)}.cb-warn{background:var(--warn)}.cb-new{background:var(--new)}.cb-ok{background:var(--ok)}
+.card-body{padding:.88rem 1rem .88rem 1.3rem}
+.card-place{font-family:'Oswald',sans-serif;font-size:.58rem;font-weight:300;letter-spacing:.18em;text-transform:uppercase;color:var(--text-muted);margin-bottom:.18rem}
+.card-text{font-size:.85rem;color:var(--text-mid);line-height:1.58}
+.card-text strong{color:var(--text);font-weight:700}
+.card-text em{font-style:italic;color:var(--text-muted)}
+.price-row{display:flex;align-items:center;gap:.45rem;margin-top:.6rem;padding-top:.5rem;border-top:1px solid var(--border-lt);flex-wrap:wrap}
+.pr-old{font-size:.76rem;color:var(--text-muted);text-decoration:line-through}
+.pr-arrow{font-size:.6rem;color:var(--text-muted)}
+.pr-new{font-size:.86rem;font-weight:700;color:var(--bad)}
+.pr-ok{font-size:.86rem;font-weight:700;color:var(--ok)}
+.pr-src{font-size:.65rem;color:var(--text-muted);margin-left:auto}
+.alert-block{border-radius:var(--radius);padding:.85rem 1rem;margin-bottom:.55rem;border:1px solid}
+.ab-bad{background:var(--bad-pale);border-color:rgba(140,32,32,.2)}
+.ab-new{background:var(--new-pale);border-color:rgba(26,74,128,.2)}
+.ab-warn{background:var(--warn-pale);border-color:rgba(179,106,16,.2)}
+.alert-head{font-family:'Oswald',sans-serif;font-size:.62rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;margin-bottom:.25rem}
+.ah-bad{color:var(--bad)}.ah-new{color:var(--new)}.ah-warn{color:var(--warn)}
+.alert-text{font-size:.8rem;color:var(--text-mid);line-height:1.5}
+.ok-list{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow)}
+.ok-row{display:flex;gap:.7rem;align-items:flex-start;padding:.75rem 1rem;border-bottom:1px solid var(--border-lt)}
+.ok-row:last-child{border-bottom:none}
+.ok-badge{width:20px;height:20px;border-radius:50%;background:var(--ok-pale);color:var(--ok);font-size:.65rem;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:.08rem}
+.ok-text{font-size:.83rem;color:var(--text-mid);line-height:1.48}
+.ok-text strong{color:var(--text);font-weight:700;display:block;font-size:.77rem;margin-bottom:.08rem}
+.changelog{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow)}
+.cl-head{background:var(--navy);padding:.65rem 1rem;font-family:'Oswald',sans-serif;font-size:.62rem;font-weight:400;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,.8)}
+.cl-row{display:flex;gap:.8rem;align-items:flex-start;padding:.7rem 1rem;border-bottom:1px solid var(--border-lt)}
+.cl-row:last-child{border-bottom:none}
+.cl-year{font-family:'Oswald',sans-serif;font-size:.72rem;font-weight:600;color:var(--navy);min-width:38px;flex-shrink:0;padding-top:.05rem}
+.cl-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:.28rem}
+.cd-active{background:var(--ok)}.cd-sched{background:var(--border)}
+.cl-text{font-size:.78rem;color:var(--text-mid);line-height:1.45}
+.cl-text.sched{color:var(--text-muted);font-style:italic}
+.cl-badge{display:inline-block;background:var(--ok-pale);color:var(--ok);font-family:'Oswald',sans-serif;font-size:.55rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;padding:.1rem .45rem;border-radius:3px;margin-left:.4rem;vertical-align:middle}
+footer{background:var(--navy)}
+.footer-gold{background:var(--gold);padding:1.1rem 1.5rem;display:flex;align-items:center;justify-content:center}
+.footer-brand{font-family:'Oswald',sans-serif;font-size:1rem;font-weight:700;color:var(--navy);letter-spacing:.14em;text-transform:uppercase}
+.footer-brand-sub{font-family:'Oswald',sans-serif;font-size:.58rem;font-weight:300;letter-spacing:.16em;text-transform:uppercase;color:var(--navy);opacity:.6;margin-top:.15rem}
+.footer-body{padding:1.5rem 1.5rem 2rem;color:rgba(255,255,255,.75)}
+.footer-promise{font-size:.8rem;line-height:1.6;margin-bottom:1rem;color:rgba(255,255,255,.85)}
+.footer-contact{font-size:.75rem;color:rgba(255,255,255,.55);margin-bottom:1rem}
+.footer-contact a{color:var(--gold);text-decoration:none}
+.footer-legal{font-size:.68rem;color:rgba(255,255,255,.35);line-height:1.55}
+@media(min-width:600px){.stamp-title{font-size:2.5rem}.content{padding:1.5rem 1.5rem 3rem}}
+</style>
+</head>
+<body>
+<header class="header">
+  <div class="stamp">
+    <div class="stamp-inner">
+      <div class="stamp-label">No-Stress Guides &mdash; Digital Companion</div>
+      <div class="year-badge">2026 Edition</div>
+      <div class="stamp-title">Belgium</div>
+      <div class="stamp-dest">Yearly Updates</div>
+    </div>
+  </div>
+  <div class="header-tabs">
+    <button class="h-tab active" data-target="sec-changed">What Changed</button>
+    <button class="h-tab" data-target="sec-confirmed">Confirmed</button>
+    <button class="h-tab" data-target="sec-new">New Tips</button>
+    <button class="h-tab" data-target="sec-seasonal">Seasonal Alerts</button>
+  </div>
+</header>
+<main class="content">
+  <div class="transparency">
+    <div class="t-head">How this page works</div>
+    <div class="t-text">Every item verified for 2026 against official sources: SNCB/NMBS, STIB/MIVB, visitbrussels.be, visitbruges.be, and direct attraction websites. Check 3&ndash;5 days before departure for any last-minute changes. Email us if something has shifted.</div>
+  </div>
 
+  <!-- WHAT CHANGED -->
+  <section class="section" id="sec-changed">
+    <div class="section-head">
+      <div class="sh-left"><span class="sh-pip sp-bad"></span><span class="sh-title">What Changed</span></div>
+      <span class="sh-date">Verified March 2026</span>
+    </div>
+
+    <div class="zone"><span class="zone-label">Brussels Airport &mdash; train and taxi</span><span class="zone-line"></span></div>
+
+    <div class="alert-block ab-bad">
+      <div class="alert-head ah-bad">Brussels Airport train: Diabolo surcharge now &euro;6.10 &mdash; action required</div>
+      <div class="alert-text">The Belgian rail network charges a mandatory <strong>Diabolo supplement</strong> on all train journeys to and from Brussels Airport (Zaventem). This surcharge increased to <strong>&euro;6.10</strong> in January 2026 (up from &euro;4.80). It is charged on top of your standard SNCB ticket and applies automatically when you purchase a ticket to or from the airport. A standard adult Brussels Airport &rarr; Brussels-Central now costs approximately <strong>&euro;14.90 total</strong> including the Diabolo fee. <strong>The surcharge is not covered by the Go Pass or Rail Pass</strong> &mdash; you pay it separately regardless of which pass you hold.</div>
+    </div>
+
+    <div class="card">
+      <div class="card-bar cb-bad"></div>
+      <div class="card-body">
+        <div class="card-place">SNCB/NMBS &mdash; standard domestic fares</div>
+        <div class="card-text">Belgian domestic train fares increased by approximately <strong>5.9%</strong> on 1 February 2026, in line with Belgium&rsquo;s automatic cost-of-living indexation. Key fares: Brussels&ndash;Bruges now <strong>&euro;15.90</strong>, Brussels&ndash;Ghent <strong>&euro;8.70</strong>, Brussels&ndash;Antwerp <strong>&euro;8.70</strong>, Brussels&ndash;Liège <strong>&euro;13</strong>, Brussels&ndash;Namur <strong>&euro;11</strong>. The Rail Pass for adults 26+ (10 journeys, 2nd class) is now <strong>&euro;97</strong>. The Go Pass 10 for under-26 travelers is now <strong>&euro;57</strong>. All current fares confirmed at sncb.be.</div>
+        <div class="price-row">
+          <span class="pr-old">Bxl&ndash;Bruges: &euro;15 (book)</span>
+          <span class="pr-arrow">&rarr;</span>
+          <span class="pr-new">&euro;15.90 (2026)</span>
+          <span class="pr-src">sncb.be</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-bar cb-bad"></div>
+      <div class="card-body">
+        <div class="card-place">Brussels Airport &mdash; regulated taxi flat rate</div>
+        <div class="card-text">The regulated flat-rate taxi from Brussels Airport to central Brussels is now <strong>&euro;55</strong> for up to four passengers with standard luggage. Use only taxis with the official blue-and-yellow &ldquo;Brussels Airport Taxi&rdquo; livery, from the official rank on Level -1 of the terminal. <strong>Unlicensed drivers inside the arrivals hall routinely charge &euro;80&ndash;120 for the same journey.</strong> If approached inside the building, decline and proceed to the official rank. The SNCB Airport Express train remains faster and cheaper at peak hours.</div>
+        <div class="price-row">
+          <span class="pr-old">&euro;45&ndash;50 (book)</span>
+          <span class="pr-arrow">&rarr;</span>
+          <span class="pr-new">&euro;55 regulated (2026)</span>
+          <span class="pr-src">brusselsairport.be</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="zone"><span class="zone-label">Attractions &mdash; key price and access changes</span><span class="zone-line"></span></div>
+
+    <div class="card">
+      <div class="card-bar cb-warn"></div>
+      <div class="card-body">
+        <div class="card-place">Bruges &mdash; Belfry (Belfort)</div>
+        <div class="card-text">The Bruges Belfry now operates on a <strong>mandatory timed-ticket system</strong>. Walk-up tickets are no longer sold at the door during April&ndash;October. Book online at ticket.bruges.be in advance. Adult price: <strong>&euro;16</strong>. Capacity is strictly controlled to reduce congestion on the 366-step spiral staircase. <strong>In July&ndash;August, slots fill 3&ndash;5 days ahead.</strong> Book the Belfry before anything else when planning your Bruges visit.</div>
+        <div class="price-row">
+          <span class="pr-old">&euro;14 (book)</span>
+          <span class="pr-arrow">&rarr;</span>
+          <span class="pr-new">&euro;16 + advance booking required (2026)</span>
+          <span class="pr-src">ticket.bruges.be</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-bar cb-warn"></div>
+      <div class="card-body">
+        <div class="card-place">Ghent &mdash; The Ghent Altarpiece, Sint-Baafskathedraal</div>
+        <div class="card-text">The Ghent Altarpiece (Van Eyck, 1432) now requires <strong>separate timed-entry booking</strong> to the dedicated chapel within Sint-Baafskathedraal. General cathedral access remains free. Viewing the Altarpiece costs <strong>&euro;6</strong> and must be booked at sintbaafskathedraal.be. Peak season weekend slots sell out. Walk-up availability exists on weekday mornings in low season only. The book&rsquo;s reference to free access is no longer accurate.</div>
+        <div class="price-row">
+          <span class="pr-old">Free with cathedral access (book)</span>
+          <span class="pr-arrow">&rarr;</span>
+          <span class="pr-new">&euro;6, advance booking required (2026)</span>
+          <span class="pr-src">sintbaafskathedraal.be</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-bar cb-warn"></div>
+      <div class="card-body">
+        <div class="card-place">Brussels &mdash; Atomium</div>
+        <div class="card-text">Atomium adult entry increased to <strong>&euro;18</strong>. Online booking is strongly recommended &mdash; the Atomium sells out on weekends and public holidays. Book at atomium.be. The price covers all currently open spheres and the panoramic top sphere. Combination tickets with adjacent Mini-Europe offer better value if visiting both.</div>
+        <div class="price-row">
+          <span class="pr-old">&euro;16 (book)</span>
+          <span class="pr-arrow">&rarr;</span>
+          <span class="pr-new">&euro;18 (2026)</span>
+          <span class="pr-src">atomium.be</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="zone"><span class="zone-label">Entry requirements</span><span class="zone-line"></span></div>
+
+    <div class="card">
+      <div class="card-bar cb-warn"></div>
+      <div class="card-body">
+        <div class="card-place">ETIAS &mdash; US, UK, Canadian, Australian travelers</div>
+        <div class="card-text">The book correctly notes ETIAS has been <strong>delayed repeatedly</strong>. As of early 2026, ETIAS is still not in force for Belgium or any Schengen country. Check current requirements at etiasvisa.com or the EU&rsquo;s official travel portal before departure. When it launches: fully online, approximately &euro;7, valid three years. Not a visa &mdash; a pre-travel authorization similar to the US ESTA. Non-EU citizens who currently enter Belgium without a visa will need ETIAS once active.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONFIRMED -->
+  <section class="section" id="sec-confirmed">
+    <div class="section-head">
+      <div class="sh-left"><span class="sh-pip sp-ok"></span><span class="sh-title">Confirmed Correct</span></div>
+      <span class="sh-date">Verified March 2026</span>
+    </div>
+    <div class="ok-list">
+      <div class="ok-row">
+        <div class="ok-badge">&#10003;</div>
+        <div class="ok-text"><strong>SNCB Rail Pass (adults 26+) &mdash; 10 journeys, &euro;97</strong> Confirmed for 2026. Valid on any 2nd class IC or L train in Belgium for one year from first use. Does not cover the Diabolo airport surcharge, Thalys, or Eurostar. Best value for trips with 4+ domestic journeys. Buy at any staffed station or sncb.be.</div>
+      </div>
+      <div class="ok-row">
+        <div class="ok-badge">&#10003;</div>
+        <div class="ok-text"><strong>Go Pass 10 (under 26) &mdash; 10 journeys, &euro;57</strong> Confirmed. Same coverage as Rail Pass, same Diabolo exclusion. Multiple travelers can share a single Go Pass &mdash; one credit per journey, regardless of distance within Belgium.</div>
+      </div>
+      <div class="ok-row">
+        <div class="ok-badge">&#10003;</div>
+        <div class="ok-text"><strong>Brussels STIB/MIVB &mdash; 24h pass &euro;8.50, 48h &euro;14, 72h &euro;19</strong> Confirmed. Covers metro, tram, and bus within Brussels. Buy at machines in any metro station. Do not buy from the driver &mdash; single tickets on board are more expensive. Validate at every boarding.</div>
+      </div>
+      <div class="ok-row">
+        <div class="ok-badge">&#10003;</div>
+        <div class="ok-text"><strong>Brussels Airport Express &mdash; every 20 minutes, 24/7</strong> Confirmed. Direct trains to Brussels-Nord (11 min), Brussels-Central (17 min), Brussels-Midi (25 min), running through the night. Add the Diabolo surcharge (&euro;6.10) to the standard fare when calculating your total cost.</div>
+      </div>
+      <div class="ok-row">
+        <div class="ok-badge">&#10003;</div>
+        <div class="ok-text"><strong>Groeningemuseum, Bruges &mdash; &euro;14</strong> Confirmed. Finest collection of Flemish Primitive painting outside the major national galleries: Van Eyck, Memling, Gerard David. Book at ticket.bruges.be. Closed Mondays.</div>
+      </div>
+      <div class="ok-row">
+        <div class="ok-badge">&#10003;</div>
+        <div class="ok-text"><strong>Gravensteen Castle, Ghent &mdash; &euro;14</strong> Confirmed. Medieval 10th-century fortress in the city centre. Self-guided audio tour included. Book online at historischehuizen.be to skip the queue. Open daily.</div>
+      </div>
+      <div class="ok-row">
+        <div class="ok-badge">&#10003;</div>
+        <div class="ok-text"><strong>Rubens House, Antwerp &mdash; &euro;12</strong> Confirmed. Home and studio of Peter Paul Rubens, 1610&ndash;1616. Outstanding Flemish Baroque collection. Book at rubenshuis.be. Open Tuesday&ndash;Sunday.</div>
+      </div>
+      <div class="ok-row">
+        <div class="ok-badge">&#10003;</div>
+        <div class="ok-text"><strong>In Flanders Fields Museum, Ypres &mdash; &euro;14</strong> Confirmed. Among Europe&rsquo;s best WWI museums. Allow 2&ndash;3 hours. Book at inflandersfields.be. The Menin Gate Last Post remains free, every evening at exactly 20:00, every day of the year without exception.</div>
+      </div>
+      <div class="ok-row">
+        <div class="ok-badge">&#10003;</div>
+        <div class="ok-text"><strong>MAS Museum rooftop, Antwerp &mdash; free</strong> Confirmed. The Museum aan de Stroom&rsquo;s rooftop panoramic decks remain free. Full permanent collection: &euro;12. First Wednesday of every month: free entry to the full museum.</div>
+      </div>
+      <div class="ok-row">
+        <div class="ok-badge">&#10003;</div>
+        <div class="ok-text"><strong>Bruges canal boat tour &mdash; &euro;12, 30 minutes</strong> Confirmed. No advance booking possible. Join the queue at any landing stage near Burg or Rozenhoedkaai. Shortest queues before 11:00 or after 16:00.</div>
+      </div>
+      <div class="ok-row">
+        <div class="ok-badge">&#10003;</div>
+        <div class="ok-text"><strong>De Halve Maan Brewery Tour, Bruges &mdash; &euro;15 including beer</strong> Confirmed. Only active brewery in Bruges historic centre. Book at halvemaan.be &mdash; tours sell out, especially on weekends. Includes Brugse Zot tasting and the underground pipeline story.</div>
+      </div>
+      <div class="ok-row">
+        <div class="ok-badge">&#10003;</div>
+        <div class="ok-text"><strong>Magritte Museum, Brussels &mdash; &euro;10</strong> Confirmed. World&rsquo;s largest Magritte collection. Part of Royal Museums of Fine Arts complex. Book at fine-arts-museum.be. Closed Mondays. Combination ticket with other Royal Museums available.</div>
+      </div>
+      <div class="ok-row">
+        <div class="ok-badge">&#10003;</div>
+        <div class="ok-text"><strong>Brussels tourist tax &mdash; &euro;4.24 per person per night</strong> Confirmed for 2026. Applied to all paid accommodation in Brussels Capital Region. Added at checkout, separate from room rate. Bruges and Ghent charge slightly different rates. Budget for it across your full stay.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- NEW TIPS -->
+  <section class="section" id="sec-new">
+    <div class="section-head">
+      <div class="sh-left"><span class="sh-pip sp-new"></span><span class="sh-title">New for 2026</span></div>
+      <span class="sh-date">Added March 2026</span>
+    </div>
+
+    <div class="card">
+      <div class="card-bar cb-new"></div>
+      <div class="card-body">
+        <div class="card-place">Bruges &mdash; visitor management measures in force</div>
+        <div class="card-text">Bruges has introduced light crowd-management measures in the historic centre during peak season (July&ndash;August and holiday weekends). These include pedestrian flow guidance at Markt, Rozenhoedkaai, and Burg, and occasional flow caps on the Belfry staircase. No formal daily visitor cap on the city itself exists yet. <strong>The practical effect: arriving in Bruges on a Saturday in August without pre-booked accommodation and a Belfry ticket means a very different experience than described in the book.</strong> Weekday visits in May, June, September, or October remain unhurried.</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-bar cb-new"></div>
+      <div class="card-body">
+        <div class="card-place">Antwerp &mdash; Antwerp City Card (new for 2026)</div>
+        <div class="card-text">Antwerp has launched a consolidated <strong>Antwerp City Card</strong> covering free entry to 20+ museums including MAS, Rubens House, Museum Plantin-Moretus, and KMSKA (Royal Museum of Fine Arts), plus unlimited city tram and bus. Available in 24h (&euro;29), 48h (&euro;39), and 72h (&euro;49) versions at visitantwerpen.be. Worth calculating: Rubens House (&euro;12) + MAS (&euro;12) + one further museum already covers the 24h card price.</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-bar cb-new"></div>
+      <div class="card-body">
+        <div class="card-place">Belgium-wide &mdash; SNCB Weekend Ticket confirmed</div>
+        <div class="card-text">SNCB has confirmed the continuation of the <strong>Weekend Ticket</strong>: a return journey purchased on Saturday, Sunday, or a public holiday costs the same as a single one-way fare &mdash; a 50% return discount. Buy at any station on the day or at sncb.be. <strong>This is one of the best-value transport deals in Europe and is frequently overlooked by visitors.</strong> Brussels &rarr; Bruges return on a Saturday: &euro;15.90 instead of &euro;31.80.</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-bar cb-new"></div>
+      <div class="card-body">
+        <div class="card-place">Brussels &mdash; STIB Noctis night network expanded</div>
+        <div class="card-text">Brussels STIB has expanded its Noctis night bus network. Noctis buses now run Friday and Saturday nights from approximately 00:30 to 05:00, covering all main nightlife areas and connecting to the main stations. <strong>Standard STIB day passes are not valid on Noctis lines</strong> &mdash; a flat-rate Noctis ticket (&euro;3) is required per journey, bought on board. Route maps at stib.be under &ldquo;Night bus.&rdquo;</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-bar cb-new"></div>
+      <div class="card-body">
+        <div class="card-place">Belgium-wide &mdash; contactless payment rolling out on SNCB</div>
+        <div class="card-text">SNCB is rolling out contactless bank card (Visa/Mastercard) tap-to-pay at gates in major stations throughout 2026. Operational at Brussels-Midi, Brussels-Central, Brussels-Nord, Antwerp-Centraal, and Ghent-Sint-Pieters as of March 2026. <strong>Tapping a bank card charges a single full-price ticket &mdash; no Rail Pass or Go Pass discount applies.</strong> Use the SNCB app or physical pass for discounted journeys. Bank card tap is for single ticket purchases only.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SEASONAL ALERTS -->
+  <section class="section" id="sec-seasonal">
+    <div class="section-head">
+      <div class="sh-left"><span class="sh-pip sp-warn"></span><span class="sh-title">Seasonal Alerts</span></div>
+      <span class="sh-date">2026 Calendar</span>
+    </div>
+    <div class="ok-list">
+      <div class="ok-row">
+        <div class="ok-badge" style="background:var(--bad-pale);color:var(--bad)">!</div>
+        <div class="ok-text"><strong>Bruges summer weekends &mdash; July and August</strong> Bruges receives over 8 million day-trippers a year in a historic centre roughly 1km across. Saturday and Sunday afternoons in July&ndash;August are genuinely unpleasant at the Markt and Rozenhoedkaai. Hotel prices peak and availability disappears months ahead. Arrive Friday evening, leave Sunday morning before noon &mdash; or choose Ghent instead: equally beautiful, half the crowd, 30 minutes by IC.</div>
+      </div>
+      <div class="ok-row">
+        <div class="ok-badge" style="background:var(--bad-pale);color:var(--bad)">!</div>
+        <div class="ok-text"><strong>Gentse Feesten &mdash; third week of July</strong> Ten days of free open-air concerts across Ghent&rsquo;s entire historic centre. Over a million visitors. Hotels book out a year ahead. If your dates overlap: book accommodation months in advance or base in Bruges or Brussels (30&ndash;35 min by IC). Spectacular if planned for; logistically impossible if not.</div>
+      </div>
+      <div class="ok-row">
+        <div class="ok-badge" style="background:var(--bad-pale);color:var(--bad)">!</div>
+        <div class="ok-text"><strong>Belgian National Day &mdash; 21 July</strong> Public holiday. Military parade and celebrations in Brussels. Most shops and some museums close. Transport runs on Sunday schedule. Brussels hotels around July 21 book early &mdash; verify availability if your dates overlap.</div>
+      </div>
+      <div class="ok-row">
+        <div class="ok-badge" style="background:var(--bad-pale);color:var(--bad)">!</div>
+        <div class="ok-text"><strong>Formula 1 Belgian Grand Prix &mdash; late August, Spa-Francorchamps</strong> Hotels within 60km of the circuit fill completely. Liège, Namur, and Brussels see elevated prices that weekend. Tickets at spa-francorchamps.be open a year ahead. If your dates overlap unintentionally: book accommodation early or accept significantly higher rates.</div>
+      </div>
+      <div class="ok-row">
+        <div class="ok-badge" style="background:var(--bad-pale);color:var(--bad)">!</div>
+        <div class="ok-text"><strong>Belgian school holidays &mdash; rolling crowds</strong> Belgium&rsquo;s Flemish, French-speaking, and German-speaking communities stagger their breaks slightly. Major attractions and coastal areas see rolling surges through February, Easter, July&ndash;August, and autumn half-term. Check exact dates at belgium.be against your travel window.</div>
+      </div>
+      <div class="ok-row">
+        <div class="ok-badge" style="background:var(--ok-pale);color:var(--ok)">&#10003;</div>
+        <div class="ok-text"><strong>Best windows &mdash; May to mid-June and September&ndash;October</strong> Spring in Belgium is consistently excellent: full museum programs, 14&ndash;20&deg;C, manageable crowds. October brings Ardennes autumn colours, quieter Bruges, and harvest-season Wallonian food. These are the months the guide was written for.</div>
+      </div>
+      <div class="ok-row">
+        <div class="ok-badge" style="background:var(--ok-pale);color:var(--ok)">&#10003;</div>
+        <div class="ok-text"><strong>Christmas markets &mdash; late November through 5 January</strong> Belgium runs some of northern Europe&rsquo;s finest Christmas markets. Brussels&rsquo; Winter Wonders on Grand Place is the largest. Bruges on the Markt is atmospheric but crowded. Ghent runs a quieter local market. Li&egrave;ge (one of Europe&rsquo;s longest-running, since 1989) is excellent and significantly less touristy. Early December weekday visits give you the atmosphere without the worst crowds.</div>
+      </div>
+    </div>
+    <div class="changelog" style="margin-top:1.5rem">
+      <div class="cl-head">Annual review schedule &mdash; every March</div>
+      <div class="cl-row">
+        <div class="cl-year">2026</div>
+        <div class="cl-dot cd-active"></div>
+        <div class="cl-text">Full review completed March 2026 &mdash; 17 items verified. SNCB fare increase +5.9% Feb 2026. Diabolo surcharge &euro;4.80&rarr;&euro;6.10. Belfry timed entry &euro;14&rarr;&euro;16, advance booking mandatory. Ghent Altarpiece chapel &euro;6 timed entry. Atomium &euro;16&rarr;&euro;18. Airport taxi &euro;55 regulated. Antwerp City Card (new). SNCB Weekend Ticket confirmed. ETIAS still pending. <span class="cl-badge">Active</span></div>
+      </div>
+      <div class="cl-row">
+        <div class="cl-year">2027</div>
+        <div class="cl-dot cd-sched"></div>
+        <div class="cl-text sched">Scheduled review &mdash; March 2027. ETIAS implementation to be confirmed. Bruges crowd management to be reassessed.</div>
+      </div>
+    </div>
+  </section>
+</main>
+<footer>
+  <div class="footer-gold">
+    <div>
+      <div class="footer-brand">No-Stress Guides</div>
+      <div class="footer-brand-sub">Belgium Travel Guide &mdash; 2026</div>
+    </div>
+  </div>
+  <div class="footer-body">
+    <p class="footer-promise">This page is reviewed every March. No sponsored content. No affiliate links. Every price comes from the official source.</p>
+    <p class="footer-contact">Questions or corrections: <a href="mailto:info@nostressguides.com">info@nostressguides.com</a></p>
+    <p class="footer-legal">&copy; 2026 No-Stress Guides. For personal travel use only.</p>
+  </div>
+</footer>
+<script>
+document.querySelectorAll('.section').forEach(function(s, i) {
+  setTimeout(function() { s.classList.add('visible'); }, 100 + i * 80);
+});
+var headerEl = document.querySelector('.header');
+document.querySelectorAll('.h-tab').forEach(function(btn) {
+  btn.addEventListener('click', function() {
+    var target = this.getAttribute('data-target');
+    document.querySelectorAll('.h-tab').forEach(function(t) { t.classList.remove('active'); });
+    btn.classList.add('active');
+    var el = document.getElementById(target);
+    if (!el) return;
+    var hh = headerEl ? headerEl.offsetHeight : 0;
+    window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY - hh - 8, behavior: 'smooth' });
+  });
+});
+var sIds = ['sec-changed','sec-confirmed','sec-new','sec-seasonal'];
+var allTabs = document.querySelectorAll('.h-tab');
+function updateTab() {
+  var hh = headerEl ? headerEl.offsetHeight : 0;
+  var active = 0;
+  sIds.forEach(function(id, i) {
+    var el = document.getElementById(id);
+    if (el && el.getBoundingClientRect().top <= hh + 20) active = i;
+  });
+  allTabs.forEach(function(t, i) { t.classList.toggle('active', i === active); });
+}
+window.addEventListener('scroll', updateTab, { passive: true });
+updateTab();
+</script>
+</body>
+</html>
