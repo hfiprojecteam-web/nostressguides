@@ -1,1 +1,441 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>The Black List &mdash; The No-Stress Portugal Travel Guide</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@300;400;500;600;700&family=Lato:ital,wght@0,300;0,400;0,700;1,300&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#112244;--navy-mid:#1B3566;
+  --gold:#F5C842;--gold-dark:#C89A10;
+  --bg:#F0F4FB;--white:#FFFFFF;
+  --text:#1A2340;--text-mid:#3A4A6A;--text-muted:#6A7A9A;
+  --bad:#8C2020;--bad-pale:#FBF0F0;
+  --warn:#B36A10;--warn-pale:#FDF3E3;
+  --trap:#1A6B5A;--trap-pale:#E3F5EE;
+  --tour:#8A5A10;--tour-pale:#FDF0DC;
+  --mistake:#5A3A8A;--mistake-pale:#EEEAF8;
+  --border:#C8D6EE;--border-lt:#E2EAF8;
+  --radius:10px;--shadow:0 2px 12px rgba(17,34,68,0.08);
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html{font-size:16px;-webkit-text-size-adjust:100%;scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:'Lato',sans-serif;font-weight:300;line-height:1.65;min-height:100vh;-webkit-font-smoothing:antialiased}
+.header{background:var(--navy);background-image:radial-gradient(ellipse at 80% 0%,rgba(37,69,128,0.8) 0%,transparent 60%),radial-gradient(ellipse at 20% 100%,rgba(17,34,68,0.9) 0%,transparent 50%);padding:2rem 1.5rem 0;position:relative;overflow:hidden}
+.header::before{content:'';position:absolute;inset:0;background-image:radial-gradient(rgba(255,255,255,0.06) 1px,transparent 1px);background-size:20px 20px;pointer-events:none}
+.stamp{position:relative;z-index:1;margin-bottom:1.5rem}
+.stamp-inner{border:2.5px solid var(--gold);border-radius:4px;padding:1.1rem 1.3rem 1rem;background:rgba(17,34,68,0.55);backdrop-filter:blur(4px);position:relative}
+.stamp-inner::before{content:'';position:absolute;top:-9px;left:8px;right:8px;height:8px;background:repeating-linear-gradient(90deg,transparent 0px,transparent 3px,var(--gold) 3px,var(--gold) 7px,transparent 7px,transparent 10px);opacity:.5}
+.stamp-inner::after{content:'';position:absolute;bottom:-9px;left:8px;right:8px;height:8px;background:repeating-linear-gradient(90deg,transparent 0px,transparent 3px,var(--gold) 3px,var(--gold) 7px,transparent 7px,transparent 10px);opacity:.5}
+.stamp-eyebrow{font-family:'Oswald',sans-serif;font-size:.56rem;font-weight:300;letter-spacing:.24em;text-transform:uppercase;color:rgba(245,200,66,.7);margin-bottom:.5rem}
+.stamp-the{font-family:'Oswald',sans-serif;font-size:.78rem;font-weight:300;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,.6);line-height:1}
+.stamp-city{font-family:'Oswald',sans-serif;font-size:3.2rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--white);line-height:.85}
+.stamp-guide{font-family:'Oswald',sans-serif;font-size:.82rem;font-weight:300;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,.6);margin-top:.15rem}
+.stamp-blacklist{font-family:'Oswald',sans-serif;font-size:2rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--gold);line-height:1;margin-top:.4rem}
+.stamp-rule{height:1px;background:linear-gradient(90deg,rgba(245,200,66,.5),transparent);margin:.85rem 0 .7rem}
+.stamp-footer{display:flex;align-items:center;justify-content:space-between}
+.stamp-footer-tag{font-family:'Oswald',sans-serif;font-size:.58rem;font-weight:400;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);opacity:.85}
+.stamp-year{font-family:'Oswald',sans-serif;font-size:1.2rem;font-weight:700;color:var(--gold);letter-spacing:.06em}
+.header-sub{position:relative;z-index:1;display:flex;align-items:center;gap:.75rem;padding-bottom:1.3rem;flex-wrap:wrap}
+.bl-badge{display:inline-flex;align-items:center;gap:.38rem;background:rgba(140,32,32,.18);border:1px solid rgba(140,32,32,.35);border-radius:2rem;padding:.3rem .8rem;font-family:'Oswald',sans-serif;font-size:.62rem;font-weight:400;letter-spacing:.12em;text-transform:uppercase;color:#E07A7A;min-height:44px}
+.header-note{font-size:.67rem;color:rgba(255,255,255,.28);letter-spacing:.02em}
+.intro-bar{background:var(--bad);color:#fff;padding:.85rem 1.4rem;display:flex;gap:.65rem;align-items:flex-start;font-size:.8rem;font-weight:400;line-height:1.55}
+.intro-bar svg{flex-shrink:0;margin-top:.12rem;opacity:.85}
+.disclaimer{background:var(--white);border-left:4px solid var(--navy-mid);padding:.9rem 1.4rem;font-size:.78rem;color:var(--text-mid);line-height:1.6}
+.disclaimer-label{font-family:'Oswald',sans-serif;font-size:.6rem;font-weight:500;letter-spacing:.18em;text-transform:uppercase;color:var(--navy-mid);display:block;margin-bottom:.35rem}
+main{padding:1.6rem 1.25rem 6rem;max-width:560px;margin:0 auto}
+.legend{display:flex;gap:.4rem;flex-wrap:wrap;margin-bottom:1.8rem}
+.leg{display:inline-flex;align-items:center;gap:.32rem;background:var(--white);border:1px solid var(--border);border-radius:2rem;padding:.3rem .7rem;font-family:'Oswald',sans-serif;font-size:.62rem;font-weight:400;letter-spacing:.1em;text-transform:uppercase;color:var(--text-mid);min-height:44px}
+.leg-pip{width:7px;height:7px;border-radius:2px;flex-shrink:0}
+.lp-scam{background:var(--bad)}.lp-trap{background:var(--trap)}.lp-tour{background:var(--tour)}.lp-mistake{background:var(--mistake)}
+.section{margin-bottom:3rem;opacity:0;transform:translateY(14px);transition:opacity .45s ease,transform .45s ease}
+.section.visible{opacity:1;transform:translateY(0)}
+.section-head{position:sticky;top:0;z-index:10;background:var(--bg);display:flex;align-items:center;justify-content:space-between;padding:.6rem 0 .55rem;margin-bottom:.9rem;border-bottom:2.5px solid var(--navy);box-shadow:0 4px 12px rgba(240,244,251,.95)}
+.sh-left{display:flex;align-items:center;gap:.55rem}
+.sh-pip{width:10px;height:10px;border-radius:2px;flex-shrink:0}
+.sp-scam{background:var(--bad)}.sp-trap{background:var(--trap)}.sp-tour{background:var(--tour)}.sp-mistake{background:var(--mistake)}
+.sh-title{font-family:'Oswald',sans-serif;font-size:1rem;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--navy)}
+.sh-count{font-size:.6rem;color:var(--text-muted);letter-spacing:.04em;white-space:nowrap}
+.zone{display:flex;align-items:center;gap:.55rem;margin:1.1rem 0 .6rem}
+.zone-label{font-family:'Oswald',sans-serif;font-size:.6rem;font-weight:500;letter-spacing:.22em;text-transform:uppercase;color:var(--gold-dark);white-space:nowrap}
+.zone-line{flex:1;height:1px;background:var(--border)}
+.card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:.55rem;overflow:hidden;position:relative;box-shadow:var(--shadow)}
+.card-bar{position:absolute;left:0;top:0;bottom:0;width:4px}
+.cb-scam{background:var(--bad)}.cb-trap{background:var(--trap)}.cb-tour{background:var(--tour)}.cb-mistake{background:var(--mistake)}
+.card-body{padding:.88rem 1rem .88rem 1.3rem}
+.card-place{font-family:'Oswald',sans-serif;font-size:.58rem;font-weight:300;letter-spacing:.18em;text-transform:uppercase;color:var(--text-muted);margin-bottom:.18rem}
+.card-title{font-family:'Oswald',sans-serif;font-size:.92rem;font-weight:600;color:var(--text);letter-spacing:.02em;margin-bottom:.3rem;line-height:1.2}
+.card-text{font-size:.85rem;color:var(--text-mid);line-height:1.58}
+.card-text strong{color:var(--text);font-weight:700}
+.card-text em{font-style:italic;color:var(--text-muted)}
+.signal{margin-top:.65rem;padding:.55rem .75rem;border-radius:6px;font-size:.77rem;line-height:1.55}
+.signal-label{font-family:'Oswald',sans-serif;font-size:.58rem;font-weight:500;letter-spacing:.16em;text-transform:uppercase;display:block;margin-bottom:.22rem;opacity:.8}
+.sig-trap{background:var(--trap-pale);color:var(--trap)}.sig-scam{background:var(--bad-pale);color:var(--bad)}.sig-warn{background:var(--warn-pale);color:var(--warn)}.sig-mistake{background:var(--mistake-pale);color:var(--mistake)}
+footer{background:var(--navy)}
+.footer-gold{background:var(--gold);padding:1.1rem 1.5rem;display:flex;align-items:center;justify-content:center;gap:.55rem}
+.footer-brand{font-family:'Oswald',sans-serif;font-size:1.4rem;font-weight:700;color:var(--navy);letter-spacing:.14em;text-transform:uppercase;line-height:1}
+.footer-brand-sub{font-family:'Oswald',sans-serif;font-size:.9rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--navy);opacity:.85;margin-top:.25rem;text-align:center}
+.footer-body{padding:2rem 1.5rem 3rem;text-align:center}
+.footer-promise{background:rgba(255,255,255,.04);border:1px solid rgba(245,200,66,.2);border-radius:8px;padding:1rem 1.2rem;font-size:.76rem;color:rgba(255,255,255,.58);line-height:1.7;text-align:left;margin-bottom:1.6rem;max-width:360px;display:inline-block}
+.fp-title{font-family:'Oswald',sans-serif;font-size:.62rem;font-weight:500;letter-spacing:.18em;text-transform:uppercase;color:rgba(245,200,66,.7);display:block;margin-bottom:.55rem}
+.footer-contact{font-size:.75rem;color:rgba(255,255,255,.4);margin-bottom:.5rem}
+.footer-contact a{color:var(--gold);text-decoration:none}
+.footer-legal{font-size:.65rem;color:rgba(255,255,255,.28);line-height:1.6}
+@media(min-width:600px){.stamp-city{font-size:4rem}main{padding:2rem 1.5rem 6rem}}
+</style>
+</head>
+<body>
+<header class="header">
+  <div class="stamp">
+    <div class="stamp-inner">
+      <div class="stamp-eyebrow">No-Stress Guides &mdash; Digital Companion</div>
+      <div class="stamp-the">The No-Stress</div>
+      <div class="stamp-city">Portugal</div>
+      <div class="stamp-guide">Travel Guide &middot; 2026</div>
+      <div class="stamp-blacklist">The Black List</div>
+      <div class="stamp-rule"></div>
+      <div class="stamp-footer">
+        <span class="stamp-footer-tag">What the other guides won&rsquo;t tell you</span>
+        <span class="stamp-year">2026</span>
+      </div>
+    </div>
+  </div>
+  <div class="header-sub">
+    <div class="bl-badge">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+      22 things to avoid
+    </div>
+    <span class="header-note">Restaurants &bull; Transport &bull; Tourist Traps &bull; Classic Mistakes</span>
+  </div>
+</header>
+<div class="intro-bar">
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+  Portugal is one of Europe&rsquo;s most welcoming and genuinely hospitable destinations. The traps on this list are not Portuguese &mdash; they are the predictable infrastructure that grows wherever visitor numbers surge beyond a certain threshold. Knowing these patterns means your money goes to people who deserve it.
+</div>
+<div class="disclaimer">
+  <span class="disclaimer-label">How to use this list</span>
+  These are patterns, not universal rules. Every item describes a consistent, repeatable situation &mdash; not an indictment of an entire neighbourhood or industry. Use this list to recognise the moment it&rsquo;s happening, so you can make an informed choice.
+</div>
+<main>
+  <div class="legend">
+    <div class="leg"><span class="leg-pip lp-scam"></span> Scam / Overcharge</div>
+    <div class="leg"><span class="leg-pip lp-trap"></span> Avoidable Tourist Trap</div>
+    <div class="leg"><span class="leg-pip lp-tour"></span> Overpriced Experience</div>
+    <div class="leg"><span class="leg-pip lp-mistake"></span> Classic Mistake</div>
+  </div>
 
+  <!-- RESTAURANTS -->
+  <section class="section" id="sec-restaurants">
+    <div class="section-head">
+      <div class="sh-left"><span class="sh-pip sp-scam"></span><span class="sh-title">Restaurant Traps</span></div>
+      <span class="sh-count">5 patterns</span>
+    </div>
+
+    <div class="zone"><span class="zone-label">Lisbon &mdash; the tourist-facing restaurant zones</span><span class="zone-line"></span></div>
+
+    <div class="card">
+      <div class="card-bar cb-scam"></div>
+      <div class="card-body">
+        <div class="card-place">Lisbon &mdash; Alfama tourist restaurant corridor</div>
+        <div class="card-title">Restaurants immediately below the Sé Cathedral</div>
+        <div class="card-text">The stretch of restaurants between the Sé Cathedral and the Alfama viewpoints (Portas do Sol, Santa Luzia) operates almost entirely on exhausted visitors who have just climbed the hill and do not know where else to eat. <strong>Menus are plastered to easels outside with photos of bacalhau, prices 30&ndash;50% above the Lisbon average, and quality that rarely justifies even the inflated cost.</strong> These restaurants exist because the location is right, not because the food is. Walk 200 metres in any direction up into Alfama&rsquo;s residential streets and the options improve immediately.</div>
+        <div class="signal sig-trap">
+          <span class="signal-label">Where to go instead</span>
+          Taberna da Rua das Flores (Chiado), Zé da Mouraria (Mouraria), and any tasca recommended by your guesthouse owner in the Alfama residential streets above the tourist corridor.
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-bar cb-scam"></div>
+      <div class="card-body">
+        <div class="card-place">Lisbon &mdash; Baixa (downtown) restaurant strip</div>
+        <div class="card-title">Rua Augusta and Praça do Comércio &mdash; tourist-price restaurants</div>
+        <div class="card-text">The pedestrian street of Rua Augusta and the cafés and restaurants facing Praça do Comércio (Black Horse Square) are Lisbon&rsquo;s most visible eating options for arriving visitors &mdash; and among the worst value in the city. <strong>Grilled fish dishes priced at &euro;25&ndash;35 that cost &euro;14&ndash;18 in the Mouraria or Intendente neighbourhoods three minutes&rsquo; walk away.</strong> The square itself is worth visiting; eating there is not. Cross the Rossio uphill toward Bairro Alto or Mouraria for honest prices.</div>
+        <div class="signal sig-scam">
+          <span class="signal-label">Signal to watch for</span>
+          A menu board in six languages outside the door, a smiling staff member positioned to intercept passing tourists, and a bacalhau dish over &euro;20. Any two of these and you are in the wrong place.
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-bar cb-tour"></div>
+      <div class="card-body">
+        <div class="card-place">Lisbon &mdash; tourist-facing &ldquo;fado dinner&rdquo; shows</div>
+        <div class="card-title">Packaged fado dinner restaurants: expensive, sanitised, not fado</div>
+        <div class="card-text">The packaged fado dinner experience &mdash; &euro;60&ndash;90 per person, set menu, performers rotating between tables of tourists &mdash; is a theatrical approximation of fado produced for people who will not return to verify it against the real thing. <strong>Authentic fado happens in small, dark <em>casas de fado</em> in Mouraria and Alfama</strong> where professionals perform for local audiences and serious aficionados. The experience is quieter, cheaper (entry &euro;10&ndash;15 with a drink), and infinitely more real. Fado é musica de intimidade &mdash; it does not work in a room of 80 tourists eating soup.</div>
+        <div class="signal sig-trap">
+          <span class="signal-label">Genuine alternatives</span>
+          Tasca do Chico (Mouraria), A Tasca do Jaime (Alfama), Mesa de Frades (Alfama) for a slightly more theatrical but still authentic experience. Book in advance &mdash; these are small rooms.
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-bar cb-tour"></div>
+      <div class="card-body">
+        <div class="card-place">Portugal-wide &mdash; tourist pastel de nata imitations</div>
+        <div class="card-title">Pastéis de nata sold everywhere as &ldquo;original&rdquo;</div>
+        <div class="card-text">Every café, bakery, and tourist shop in Lisbon sells pastéis de nata. Many label them &ldquo;the original recipe&rdquo; or &ldquo;traditional.&rdquo; <strong>There is only one original recipe: the one made at Pastéis de Belém, Rua de Belém 84&ndash;92, since 1837.</strong> The recipe is legally protected and has never left the building. Pastéis de nata sold elsewhere range from excellent (most neighbourhood pastelerias) to indifferent (tourist shop vacuum-packed versions at &euro;3.50 each). The correct price for a fresh pastel de nata is &euro;1.20&ndash;1.50 at a neighbourhood pasteleria. Any price above &euro;2.50 per individual tart in a non-premium setting is a tourist surcharge.</div>
+        <div class="signal sig-warn">
+          <span class="signal-label">The correct approach</span>
+          Go to Pastéis de Belém for the original. For the best non-Belém nata in central Lisbon: Manteigaria (Rua do Loreto), Nata Lisboa (Chiado), or any local neighbourhood padaria.
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-bar cb-scam"></div>
+      <div class="card-body">
+        <div class="card-place">Sintra &mdash; restaurants on the approach to Pena Palace</div>
+        <div class="card-title">Restaurants on the Sintra palace road: highest prices, weakest food</div>
+        <div class="card-text">The café and restaurant cluster at the base of the Pena Palace approach road serves an entirely captive audience: visitors who have just arrived and need to eat before the climb, or who are hungry after it. <strong>Sandwiches at &euro;8, coffee at &euro;4, and set menus at &euro;22&ndash;28 for tourist-grade bacalhau.</strong> Eat before leaving Lisbon, or descend to the village of Sintra itself (15 minutes on foot from the palace) where restaurants compete on quality and price rather than location.</div>
+        <div class="signal sig-trap">
+          <span class="signal-label">Better timing</span>
+          Have breakfast in Lisbon before the train, enter Pena Palace at 09:30, explore until midday, then descend to the village for lunch. The tourist restaurant cluster at the palace entrance is then avoidable entirely.
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TRANSPORT TRAPS -->
+  <section class="section" id="sec-transport">
+    <div class="section-head">
+      <div class="sh-left"><span class="sh-pip sp-scam"></span><span class="sh-title">Transport Traps</span></div>
+      <span class="sh-count">5 patterns</span>
+    </div>
+
+    <div class="card">
+      <div class="card-bar cb-scam"></div>
+      <div class="card-body">
+        <div class="card-place">Lisbon &mdash; unlicensed tuk-tuks</div>
+        <div class="card-title">Tuk-tuk tours: extremely overpriced, unlicensed versions common</div>
+        <div class="card-text">Lisbon&rsquo;s tuk-tuks (electric three-wheeled tourist vehicles) are everywhere in Alfama and Baixa, and range from licensed operators with fixed prices to completely unlicensed drivers charging whatever the tourist will pay. <strong>Unlicensed tuk-tuks have no meter, no fixed rate, and charge &euro;40&ndash;80 for 30-minute routes that cost &euro;20&ndash;25 with a licensed operator.</strong> Licensed tuk-tuks display a municipality registration plate and have their rates posted inside. Tram 28 covers much of the same scenic route (Martim Moniz &rarr; Prazeres) for &euro;3.50 with a Zapping card, with better views, in the same time.</div>
+        <div class="signal sig-scam">
+          <span class="signal-label">The correct move</span>
+          Ride Tram 28 for the same hillside-neighbourhood experience at &euro;3.50. If you want a tuk-tuk tour, use only licensed operators with displayed fixed rates. Do not negotiate the price mid-journey.
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-bar cb-scam"></div>
+      <div class="card-body">
+        <div class="card-place">Lisbon Airport &mdash; taxi overcharges and unlicensed drivers</div>
+        <div class="card-title">Airport taxi: take the Metro or use only official rank taxis</div>
+        <div class="card-text">Lisbon Airport to central Lisbon by regulated taxi should cost &euro;10&ndash;16 depending on destination and traffic. <strong>Unlicensed taxi and transfer touts inside the arrivals hall regularly charge &euro;30&ndash;50 for the same journey.</strong> Official taxis (green-and-black or cream livery) queue outside the terminal. Alternatively: the Lisbon Metro (red line from Aeroporto station) reaches central Lisbon (Marquês de Pombal, Baixa-Chiado) in 20&ndash;30 minutes for &euro;1.61 with Zapping. The Metro is the correct choice for single travelers with manageable luggage.</div>
+        <div class="signal sig-scam">
+          <span class="signal-label">The correct approach</span>
+          Take the Metro red line from Aeroporto station. Buy a Zapping card (&euro;0.50 + credit) at the machine. Do not speak to any driver or agent inside the arrivals building.
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-bar cb-mistake"></div>
+      <div class="card-body">
+        <div class="card-place">Lisbon &mdash; Tram 28</div>
+        <div class="card-title">Riding Tram 28 without a pre-loaded Zapping card</div>
+        <div class="card-text">Tram 28 is one of Lisbon&rsquo;s most scenic transport experiences &mdash; through Alfama, Mouraria, and the hillside neighbourhoods. <strong>Buying a single ticket on the tram from the driver costs &euro;3.50. Riding with a Zapping card costs &euro;1.59.</strong> The queues at Martim Moniz (the main starting stop) are entirely for tourists who have not loaded a card. Buy Zapping at any Metro station before joining the queue &mdash; you&rsquo;ll board faster and pay less. Beware: pickpockets work specifically on crowded Tram 28. Keep bags in front of you.</div>
+        <div class="signal sig-warn">
+          <span class="signal-label">Pickpocket note</span>
+          Tram 28 is the most pickpocket-active location in Lisbon. Crowded standing sections between Alfama stops are where it consistently happens. Bag on front, phone in pocket, no shoulder bags hanging loose.
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-bar cb-scam"></div>
+      <div class="card-body">
+        <div class="card-place">Portugal-wide &mdash; card terminals in tourist areas</div>
+        <div class="card-title">Dynamic Currency Conversion</div>
+        <div class="card-text">When paying by card, tourist-facing restaurants and shops in Lisbon, Porto, and Sintra frequently offer to charge in your home currency. This is Dynamic Currency Conversion &mdash; the rate applied is 3&ndash;8% worse than your card&rsquo;s interbank rate. <strong>Always select &ldquo;Pay in EUR&rdquo; (euros).</strong> If the terminal has been pre-selected to your home currency by the merchant, ask them to cancel and redo in euros. This is your legal right as a consumer in the EU. The DCC offer may be made verbally before the terminal is shown to you &mdash; state your preference upfront.</div>
+        <div class="signal sig-scam">
+          <span class="signal-label">What to say</span>
+          Before any card transaction in a tourist area: &ldquo;Quero pagar em euros, por favor.&rdquo; Or in English: &ldquo;In euros, please.&rdquo;
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-bar cb-tour"></div>
+      <div class="card-body">
+        <div class="card-place">Sintra &mdash; tourist shuttle bus vs walking</div>
+        <div class="card-title">Overpriced shuttle buses between Sintra palaces</div>
+        <div class="card-text">Private shuttle buses operating between Sintra village and the palaces charge &euro;5&ndash;7 per single journey per person and market themselves as the only practical transport between sites. <strong>The municipality&rsquo;s Scotturb bus 434 does the same circular route for &euro;4.50 for an all-day pass</strong> covering Pena, Moorish Castle, Monserrate, and back to the village. Alternatively: the 45-minute walk from Sintra village to Pena Palace is well-signposted, shaded for most of the route, and more enjoyable than a shuttle. The shuttle is only necessary in the first or last 15 minutes of the day when the 434 is not running.</div>
+        <div class="signal sig-trap">
+          <span class="signal-label">Correct option</span>
+          Buy the Scotturb 434 all-day pass at &euro;4.50 from the bus stop in Sintra village (opposite the train station). Covers all palace stops on a circular loop throughout the day.
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TOURIST TRAPS -->
+  <section class="section" id="sec-tourist">
+    <div class="section-head">
+      <div class="sh-left"><span class="sh-pip sp-tour"></span><span class="sh-title">Tourist Traps</span></div>
+      <span class="sh-count">5 patterns</span>
+    </div>
+
+    <div class="card">
+      <div class="card-bar cb-tour"></div>
+      <div class="card-body">
+        <div class="card-place">Lisbon &mdash; LX Factory on non-Saturday days</div>
+        <div class="card-title">LX Factory: the market is the point, not the everyday experience</div>
+        <div class="card-text">LX Factory (a converted industrial complex in Alcântara) is marketed year-round as Lisbon&rsquo;s &ldquo;creative hub.&rdquo; On weekdays and Sundays, it is largely empty &mdash; a few restaurants and a handful of shops, but little of the atmosphere that draws visitors. <strong>The LX Market (Saturday only, 10:00&ndash;18:00) is the reason to visit</strong> &mdash; local designers, vintage clothing, vinyl records, craft food, and genuine energy. Visit on any other day and the experience is largely a walk past closed shutters in a photogenic building.</div>
+        <div class="signal sig-trap">
+          <span class="signal-label">Saturday morning</span>
+          Arrive at LX Market between 10:00 and 13:00 on Saturday for the best selection before the crowd peaks. Tram 15E from Praça da Figueira reaches Calvário stop (3-minute walk) in 25 minutes.
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-bar cb-tour"></div>
+      <div class="card-body">
+        <div class="card-place">Porto &mdash; Livraria Lello queuing without a valid reason</div>
+        <div class="card-title">Livraria Lello: the queue is the product, not the bookshop</div>
+        <div class="card-text">Livraria Lello is one of the world&rsquo;s most beautiful bookshops &mdash; a 1906 Art Nouveau masterpiece with a famous central staircase. <strong>Entry now costs &euro;8 (redeemable against a book purchase), and peak-hour queues run 45&ndash;90 minutes.</strong> The interior takes 15&ndash;20 minutes to see at a relaxed pace. This is a genuinely worthwhile visit if you are interested in the architecture or in Portuguese literature &mdash; the book selection is excellent and the space is beautiful. It is not worthwhile if you are queuing to take a staircase photograph for social media and leave without entering the spirit of the place.</div>
+        <div class="signal sig-warn">
+          <span class="signal-label">Visit well</span>
+          Open Monday&ndash;Sunday from 09:30. First 30 minutes of the day (09:30&ndash;10:00) have the shortest queues. The &euro;8 voucher is redeemable against any book, including Portuguese-language titles that make excellent personal souvenirs.
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-bar cb-tour"></div>
+      <div class="card-body">
+        <div class="card-place">Algarve &mdash; hotel beach concession chairs</div>
+        <div class="card-title">Beach sunbed concessions: optional and expensive</div>
+        <div class="card-text">The large beach concession areas on Algarve beaches (sunbeds &euro;10&ndash;18 per person per day, umbrella &euro;6&ndash;10 extra) are the most visible part of the beach but not the only option. <strong>Portuguese beaches have a legal free public zone</strong> beyond the concession area where you can lay your own towel. The free zone is often equally well-positioned and perfectly comfortable. The concession service (waiter, sunbed, shade) has value in the peak July&ndash;August heat; in June and September when crowds are lower and temperatures still good, it is an optional cost. Know it is optional before you settle into the nearest sunbed.</div>
+        <div class="signal sig-warn">
+          <span class="signal-label">Your right</span>
+          Portuguese coastal law requires a free public access zone on all beaches. Look for the edge of the concession area (usually marked with ropes or the last row of sunbeds) and set up your own space beyond it.
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-bar cb-scam"></div>
+      <div class="card-body">
+        <div class="card-place">Portugal-wide &mdash; fake azulejo tiles</div>
+        <div class="card-title">Machine-printed azulejo &ldquo;souvenirs&rdquo; sold as handmade</div>
+        <div class="card-text">Authentic Portuguese azulejo tiles are hand-painted in the traditional style, typically at studios in Lisbon or Sintra, and cost &euro;15&ndash;40+ per tile depending on complexity. <strong>The majority of azulejo souvenirs sold in tourist shops are digitally printed ceramic tiles manufactured at scale</strong> &mdash; some in Portugal, many outside it &mdash; at prices of &euro;5&ndash;12. The difference is visible: hand-painted tiles have slight variations in brushwork, depth of colour, and imperfection. Machine tiles are perfectly uniform. Neither is dishonest to buy &mdash; but the price should reflect the method, not the other way around.</div>
+        <div class="signal sig-trap">
+          <span class="signal-label">Genuine options</span>
+          Sant&rsquo;Anna tile factory (Chiado, Lisbon) and Viúva Lamego (Intendente, Lisbon) both sell authenticated hand-painted tiles from their own kilns. Sant&rsquo;Anna has been operating since 1741.
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-bar cb-tour"></div>
+      <div class="card-body">
+        <div class="card-place">Porto &mdash; port wine at tourist-facing restaurants</div>
+        <div class="card-title">Drinking port wine in Porto restaurants vs. in the lodges</div>
+        <div class="card-text">Port wine served by the glass at tourist-facing restaurants in Porto&rsquo;s Ribeira district costs &euro;6&ndash;12 for a 75ml pour of entry-level tawny. <strong>Crossing Ponte Dom Luís I on foot to Vila Nova de Gaia and visiting a lodge directly</strong> gives you a tasting of 3&ndash;5 ports including aged tawnies and vintage reserve categories for &euro;12&ndash;25, with expert guidance in the cellars where the wine is actually stored. There is no comparison between these experiences. The lodge tasting is Portugal&rsquo;s best &euro;20 you will spend.</div>
+        <div class="signal sig-trap">
+          <span class="signal-label">Recommended lodges</span>
+          Graham&rsquo;s (best cellar and city view), Taylor&rsquo;s (oldest, most serious tasting programme), Ramos Pinto (best museum context). Book directly at the lodge or at grahams-port.com / taylor.pt.
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CLASSIC MISTAKES -->
+  <section class="section" id="sec-mistakes">
+    <div class="section-head">
+      <div class="sh-left"><span class="sh-pip sp-mistake"></span><span class="sh-title">Classic Mistakes</span></div>
+      <span class="sh-count">7 patterns</span>
+    </div>
+
+    <div class="card">
+      <div class="card-bar cb-mistake"></div>
+      <div class="card-body">
+        <div class="card-place">Portugal-wide &mdash; itinerary planning</div>
+        <div class="card-title">Treating Portugal as &ldquo;Lisbon + Sintra + Porto&rdquo;</div>
+        <div class="card-text">The Lisbon&ndash;Sintra&ndash;Porto circuit is the skeleton of most first-time itineraries &mdash; excellent, well-connected, and genuinely rewarding. <strong>The parts of Portugal that are undervisited relative to their quality are equally remarkable.</strong> The Alentejo (vast wheat plains, whitewashed villages, Roman ruins at Évora) is one hour from Lisbon by train. The Douro Valley during harvest (September&ndash;October) is one of Europe&rsquo;s great landscape experiences. The Serra da Arrábida coastline is among the most dramatic on the Iberian Peninsula. None of these require a car or significant planning.</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-bar cb-mistake"></div>
+      <div class="card-body">
+        <div class="card-place">Lisbon &mdash; Sintra planning</div>
+        <div class="card-title">Arriving in Sintra without having booked any palace</div>
+        <div class="card-text">Since 2022, all four major Sintra palaces operate mandatory advance booking. Since 2024, this has been rigorously enforced. <strong>Arriving in Sintra &ldquo;to see what&rsquo;s available&rdquo; in peak season will result in climbing to Pena Palace and being turned away at the gate</strong> &mdash; or worse, joining a shuttle queue to discover the same. There are no same-day tickets at the door. Book at sintrapatrimoniomundial.pt the moment your travel dates are fixed. This is the single most common logistical failure among Lisbon visitors.</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-bar cb-mistake"></div>
+      <div class="card-body">
+        <div class="card-place">Portugal-wide &mdash; restaurant hours</div>
+        <div class="card-title">Attempting lunch before 12:30 or dinner before 19:30</div>
+        <div class="card-text">Portuguese meal times are later than most Northern European or North American visitors expect. Lunch service starts at 12:30 and is busiest between 13:00 and 14:30. <strong>Arriving at a restaurant at 11:30 or 12:00 expecting lunch will mean an empty room and a waiter explaining that the kitchen does not open until 12:30.</strong> Dinner before 19:30 is unusual; most Portuguese eat between 20:00 and 22:00. Tourist-facing restaurants open earlier specifically for international guests &mdash; this is itself a mild indicator of tourist-facing quality. Adjust your schedule by one hour and the restaurant quality immediately improves.</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-bar cb-mistake"></div>
+      <div class="card-body">
+        <div class="card-place">Portugal-wide &mdash; museum planning</div>
+        <div class="card-title">Not checking Monday closures</div>
+        <div class="card-text">Most Portuguese national museums close on Mondays, including the Museu Nacional do Azulejo, Museu Nacional de Arte Antiga, Museu Nacional dos Coches, and the Museu de Arte e Arqueologia in Porto. <strong>Arriving at the Museu Nacional do Azulejo on a Monday is the most common museum disappointment in Lisbon</strong> &mdash; the building is unmistakably present but the gates are locked. Several regional museums also close on Tuesdays. Verify opening days at the museum&rsquo;s official website, not at a travel aggregator.</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-bar cb-mistake"></div>
+      <div class="card-body">
+        <div class="card-place">Lisbon &mdash; the &ldquo;bread&rdquo; at the table problem</div>
+        <div class="card-title">The couvert: bread, olives, and cheese that appear automatically</div>
+        <div class="card-text">In Portugal (unlike much of Europe), bread, butter, olives, local cheese, and cured meats that appear on your table at the start of a meal are not free. This is the <em>couvert</em> or <em>acepipes</em> &mdash; charged per person whether you eat them or not. <strong>Touching the bread means paying for the bread.</strong> The charge is typically &euro;1.50&ndash;4 per person depending on the restaurant. You may legally ask the waiter to remove the couvert if you do not want it; this is standard practice in Portugal, not rude. The bill charge line will show &ldquo;couvert&rdquo; or &ldquo;pão e manteiga&rdquo; (bread and butter).</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-bar cb-mistake"></div>
+      <div class="card-body">
+        <div class="card-place">Porto &mdash; the Francesinha</div>
+        <div class="card-title">Ordering the Francesinha without understanding what it is</div>
+        <div class="card-text">The Francesinha is Porto&rsquo;s defining sandwich: bread, cured meats, a sausage, a steak or roasted ham, covered in melted cheese, submerged in a spiced tomato-and-beer sauce, topped with a fried egg. It weighs approximately 600 grams and contains roughly 800 calories. <strong>Visitors who order it without being told what it is sometimes return it.</strong> This is not a problem &mdash; it is a glorious and extremely local thing &mdash; but order it knowingly and on an empty stomach, not as a light lunch between museum visits. The best Francesinhas in Porto: Café Santiago (Rua Passos Manuel) and Lado B.</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-bar cb-mistake"></div>
+      <div class="card-body">
+        <div class="card-place">Algarve &mdash; rental car planning</div>
+        <div class="card-title">Underestimating the Algarve&rsquo;s east-west distance</div>
+        <div class="card-text">The Algarve coastline stretches 150 kilometres from the Spanish border to Cabo de São Vicente. <strong>Visitors who book accommodation in the eastern Algarve (Tavira, Manta Rota) and try to day-trip to Lagos or Sagres will spend 3 hours each way in the car.</strong> Plan your Algarve base relative to your priorities: eastern Algarve (flat beaches, quiet lagoons, Ria Formosa) is different from western Algarve (dramatic cliffs, surf, Cape Sagres). Pick one coast and stay within it. The drive from Faro to Lagos is 1h 20m in summer traffic &mdash; longer than most visitors expect.</div>
+      </div>
+    </div>
+  </section>
+</main>
+<footer>
+  <div class="footer-gold">
+    <div>
+      <div class="footer-brand">No-Stress Guides</div>
+      <div class="footer-brand-sub">Portugal Travel Guide &mdash; 2026</div>
+    </div>
+  </div>
+  <div class="footer-body">
+    <div class="footer-promise">
+      <span class="fp-title">Our commitment</span>
+      This list exists because we believe the best guides protect their readers, not just inspire them. Nothing here is sponsored or paid placement. Every item on this list is a pattern we identified independently.
+    </div>
+    <p class="footer-contact">Questions or corrections: <a href="mailto:info@nostressguides.com">info@nostressguides.com</a></p>
+    <p class="footer-legal">&copy; 2026 No-Stress Guides. For personal travel use only.</p>
+  </div>
+</footer>
+<script>
+document.querySelectorAll('.section').forEach(function(s,i){setTimeout(function(){s.classList.add('visible')},100+i*80);});
+</script>
+</body>
+</html>
