@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>2026 Updates &mdash; The No-Stress Germany Travel Guide</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@300;400;500;600;700&family=Lato:ital,wght@0,300;0,400;0,700;1,300&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#112244;--navy-mid:#1B3566;--navy-light:#254580;
+  --gold:#F5C842;--gold-dark:#C89A10;--gold-pale:#FDF6DC;
+  --bg:#F0F4FB;--white:#FFFFFF;
+  --text:#1A2340;--text-mid:#3A4A6A;--text-muted:#6A7A9A;
+  --bad:#8C2020;--bad-pale:#FBF0F0;
+  --warn:#B36A10;--warn-pale:#FDF3E3;
+  --ok:#1A5C30;--ok-pale:#E4F5EB;
+  --new:#1A4A80;--new-pale:#E4EEF8;
+  --border:#C8D6EE;--border-lt:#E2EAF8;
+  --radius:10px;--shadow:0 2px 12px rgba(17,34,68,0.08);
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html{font-size:16px;-webkit-text-size-adjust:100%;scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:'Lato',sans-serif;font-weight:300;line-height:1.65;min-height:100vh;-webkit-font-smoothing:antialiased}
+.header{background:var(--navy);background-image:radial-gradient(ellipse at 80% 0%,rgba(37,69,128,0.8) 0%,transparent 60%);padding:2rem 1.5rem 0;position:sticky;top:0;z-index:100;overflow:hidden}
+.header::before{content:'';position:absolute;inset:0;background-image:radial-gradient(rgba(255,255,255,0.06) 1px,transparent 1px);background-size:20px 20px;pointer-events:none}
+.stamp{position:relative;z-index:1;margin-bottom:1.5rem}
+.stamp-inner{border:2.5px solid var(--gold);border-radius:4px;padding:1.1rem 1.3rem 1rem;background:rgba(17,34,68,0.55);backdrop-filter:blur(4px);position:relative}
+.stamp-inner::before{content:'';position:absolute;top:-9px;left:8px;right:8px;height:8px;background:repeating-linear-gradient(90deg,transparent,transparent 5px,var(--bg) 5px,var(--bg) 10px);opacity:.6}
+.stamp-inner::after{content:'';position:absolute;bottom:-9px;left:8px;right:8px;height:8px;background:repeating-linear-gradient(90deg,transparent,transparent 5px,var(--bg) 5px,var(--bg) 10px);opacity:.6}
+.stamp-label{font-family:'Oswald',sans-serif;font-size:.55rem;font-weight:400;letter-spacing:.28em;text-transform:uppercase;color:var(--gold);opacity:.8;margin-bottom:.35rem}
+.stamp-title{font-family:'Oswald',sans-serif;font-size:2rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:#fff;line-height:1.05;margin-bottom:.55rem}
+.stamp-dest{font-family:'Oswald',sans-serif;font-size:.75rem;font-weight:300;letter-spacing:.22em;text-transform:uppercase;color:rgba(255,255,255,.7)}
+.year-badge{display:inline-block;background:var(--gold);color:var(--navy);font-family:'Oswald',sans-serif;font-size:.7rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;padding:.18rem .65rem;border-radius:3px;margin-bottom:.55rem}
+.header-tabs{position:relative;z-index:1;display:flex;gap:0;margin-top:auto}
+.h-tab{flex:1;padding:.55rem .4rem;text-align:center;font-family:'Oswald',sans-serif;font-size:.58rem;font-weight:400;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.55);border-bottom:3px solid transparent;cursor:pointer;transition:all .2s;border-radius:3px 3px 0 0;background:none;border-top:none;border-left:none;border-right:none}
+.h-tab:hover{color:rgba(255,255,255,.8)}
+.h-tab.active{color:var(--gold);border-bottom-color:var(--gold);background:rgba(245,200,66,.06)}
+.transparency{background:var(--gold-pale);border:1px solid rgba(200,154,16,.3);border-radius:var(--radius);padding:.9rem 1rem;margin-bottom:1.2rem}
+.t-head{font-family:'Oswald',sans-serif;font-size:.6rem;font-weight:500;letter-spacing:.18em;text-transform:uppercase;color:var(--gold-dark);margin-bottom:.35rem}
+.t-text{font-size:.78rem;color:var(--text-mid);line-height:1.5}
+.content{max-width:640px;margin:0 auto;padding:1.2rem 1.1rem 2rem}
+.section{margin-bottom:3rem;opacity:0;transform:translateY(14px);transition:opacity .45s ease,transform .45s ease}
+.section.visible{opacity:1;transform:translateY(0)}
+.section-head{position:sticky;top:0;z-index:10;background:var(--bg);display:flex;align-items:center;justify-content:space-between;padding:.6rem 0 .55rem;margin-bottom:.9rem;border-bottom:2.5px solid var(--navy);box-shadow:0 4px 12px rgba(240,244,251,.95)}
+.sh-left{display:flex;align-items:center;gap:.55rem}
+.sh-pip{width:10px;height:10px;border-radius:2px;flex-shrink:0}
+.sp-bad{background:var(--bad)}.sp-warn{background:var(--warn)}.sp-ok{background:var(--ok)}.sp-new{background:var(--new)}
+.sh-title{font-family:'Oswald',sans-serif;font-size:1rem;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--navy)}
+.sh-date{font-size:.6rem;color:var(--text-muted);letter-spacing:.04em;white-space:nowrap}
+.zone{display:flex;align-items:center;gap:.55rem;margin:1.1rem 0 .6rem}
+.zone-label{font-family:'Oswald',sans-serif;font-size:.6rem;font-weight:500;letter-spacing:.22em;text-transform:uppercase;color:var(--gold-dark);white-space:nowrap}
+.zone-line{flex:1;height:1px;background:var(--border)}
+.card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:.55rem;overflow:hidden;position:relative;box-shadow:var(--shadow)}
+.card-bar{position:absolute;left:0;top:0;bottom:0;width:4px}
+.cb-bad{background:var(--bad)}.cb-warn{background:var(--warn)}.cb-new{background:var(--new)}.cb-ok{background:var(--ok)}
+.card-body{padding:.88rem 1rem .88rem 1.3rem}
+.card-place{font-family:'Oswald',sans-serif;font-size:.58rem;font-weight:300;letter-spacing:.18em;text-transform:uppercase;color:var(--text-muted);margin-bottom:.18rem}
+.card-text{font-size:.85rem;color:var(--text-mid);line-height:1.58}
+.card-text strong{color:var(--text);font-weight:700}
+.card-text em{font-style:italic;color:var(--text-muted)}
+.price-row{display:flex;align-items:center;gap:.45rem;margin-top:.6rem;padding-top:.5rem;border-top:1px solid var(--border-lt);flex-wrap:wrap}
+.pr-old{font-size:.76rem;color:var(--text-muted);text-decoration:line-through}
+.pr-arrow{font-size:.6rem;color:var(--text-muted)}
+.pr-new{font-size:.86rem;font-weight:700;color:var(--bad)}
+.pr-ok{font-size:.86rem;font-weight:700;color:var(--ok)}
+.pr-src{font-size:.65rem;color:var(--text-muted);margin-left:auto}
+.alert-block{border-radius:var(--radius);padding:.85rem 1rem;margin-bottom:.55rem;border:1px solid}
+.ab-bad{background:var(--bad-pale);border-color:rgba(140,32,32,.2)}
+.ab-warn{background:var(--warn-pale);border-color:rgba(179,106,16,.2)}
+.alert-head{font-family:'Oswald',sans-serif;font-size:.62rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;margin-bottom:.25rem}
+.ah-bad{color:var(--bad)}.ah-warn{color:var(--warn)}
+.alert-text{font-size:.8rem;color:var(--text-mid);line-height:1.5}
+.ok-list{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow)}
+.ok-row{display:flex;gap:.7rem;align-items:flex-start;padding:.75rem 1rem;border-bottom:1px solid var(--border-lt)}
+.ok-row:last-child{border-bottom:none}
+.ok-badge{width:20px;height:20px;border-radius:50%;background:var(--ok-pale);color:var(--ok);font-size:.65rem;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:.08rem}
+.ok-text{font-size:.83rem;color:var(--text-mid);line-height:1.48}
+.ok-text strong{color:var(--text);font-weight:700;display:block;font-size:.77rem;margin-bottom:.08rem}
+.changelog{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow)}
+.cl-head{background:var(--navy);padding:.65rem 1rem;font-family:'Oswald',sans-serif;font-size:.62rem;font-weight:400;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,.8)}
+.cl-row{display:flex;gap:.8rem;align-items:flex-start;padding:.7rem 1rem;border-bottom:1px solid var(--border-lt)}
+.cl-row:last-child{border-bottom:none}
+.cl-year{font-family:'Oswald',sans-serif;font-size:.72rem;font-weight:600;color:var(--navy);min-width:38px;flex-shrink:0;padding-top:.05rem}
+.cl-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:.28rem}
+.cd-active{background:var(--ok)}.cd-sched{background:var(--border)}
+.cl-text{font-size:.78rem;color:var(--text-mid);line-height:1.45}
+.cl-text.sched{color:var(--text-muted);font-style:italic}
+.cl-badge{display:inline-block;background:var(--ok-pale);color:var(--ok);font-family:'Oswald',sans-serif;font-size:.55rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;padding:.1rem .45rem;border-radius:3px;margin-left:.4rem;vertical-align:middle}
+footer{background:var(--navy)}
+.footer-gold{background:var(--gold);padding:1.1rem 1.5rem;display:flex;align-items:center;justify-content:center}
+.footer-brand{font-family:'Oswald',sans-serif;font-size:1rem;font-weight:700;color:var(--navy);letter-spacing:.14em;text-transform:uppercase}
+.footer-brand-sub{font-family:'Oswald',sans-serif;font-size:.58rem;font-weight:300;letter-spacing:.16em;text-transform:uppercase;color:var(--navy);opacity:.6;margin-top:.15rem}
+.footer-body{padding:1.5rem 1.5rem 2rem;color:rgba(255,255,255,.75)}
+.footer-promise{font-size:.8rem;line-height:1.6;margin-bottom:1rem;color:rgba(255,255,255,.85)}
+.footer-contact{font-size:.75rem;color:rgba(255,255,255,.55);margin-bottom:1rem}
+.footer-contact a{color:var(--gold);text-decoration:none}
+.footer-legal{font-size:.68rem;color:rgba(255,255,255,.35);line-height:1.55}
+@media(min-width:600px){.stamp-title{font-size:2.5rem}.content{padding:1.5rem 1.5rem 3rem}}
+</style>
+</head>
+<body>
+<header class="header">
+  <div class="stamp">
+    <div class="stamp-inner">
+      <div class="stamp-label">No-Stress Guides &mdash; Digital Companion</div>
+      <div class="year-badge">2026 Edition</div>
+      <div class="stamp-title">Germany</div>
+      <div class="stamp-dest">Yearly Updates</div>
+    </div>
+  </div>
+  <div class="header-tabs">
+    <button class="h-tab active" data-target="sec-changed">What Changed</button>
+    <button class="h-tab" data-target="sec-confirmed">Confirmed</button>
+    <button class="h-tab" data-target="sec-new">New Tips</button>
+    <button class="h-tab" data-target="sec-seasonal">Seasonal Alerts</button>
+  </div>
+</header>
+<main class="content">
+  <div class="transparency">
+    <div class="t-head">How this page works</div>
+    <div class="t-text">Every item verified for 2026 against official sources: Deutsche Bahn (bahn.de), berlin.de, Bayern.de, Bayerische Schlösserverwaltung (neuschwanstein.de), and direct attraction websites. Check 3&ndash;5 days before departure for any last-minute changes. Email us if something has shifted.</div>
+  </div>
+
+  <!-- WHAT CHANGED -->
+  <section class="section" id="sec-changed">
+    <div class="section-head">
+      <div class="sh-left"><span class="sh-pip sp-bad"></span><span class="sh-title">What Changed</span></div>
+      <span class="sh-date">Verified March 2026</span>
+    </div>
+
+    <div class="zone"><span class="zone-label">Deutsche Bahn &mdash; fares and passes</span><span class="zone-line"></span></div>
+
+    <div class="card">
+      <div class="card-bar cb-bad"></div>
+      <div class="card-body">
+        <div class="card-place">Deutsche Bahn &mdash; Sparpreis (advance) fares increased</div>
+        <div class="card-text">Deutsche Bahn increased its base fare structure by approximately <strong>4.9%</strong> on 1 January 2026. Sparpreis (advance purchase) ICE fares still start from as low as &euro;17.90 for short corridors (Hamburg&ndash;Berlin, Frankfurt&ndash;Cologne) booked 90 days ahead. <strong>Key change: the Sparpreis Europe ticket</strong> (international journeys, e.g., Berlin&ndash;Prague, Munich&ndash;Vienna) is now bookable up to 180 days in advance. The DB Navigator app remains the best booking tool &mdash; prices visible in a calendar view. Flex tickets (anytime travel) are 60&ndash;90% more expensive than Sparpreis &mdash; advance booking saves meaningfully on the ICE network.</div>
+        <div class="price-row">
+          <span class="pr-old">Hamburg&ndash;Berlin Sparpreis from &euro;17.10 (book)</span>
+          <span class="pr-arrow">&rarr;</span>
+          <span class="pr-new">From &euro;17.90 (2026)</span>
+          <span class="pr-src">bahn.de</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-bar cb-warn"></div>
+      <div class="card-body">
+        <div class="card-place">Germany-wide &mdash; Deutschlandticket</div>
+        <div class="card-text">The Deutschlandticket (monthly subscription covering all regional trains, S-Bahn, U-Bahn, trams, and buses in Germany, excluding ICE/IC) increased to <strong>&euro;58 per month</strong> on 1 January 2026 (up from &euro;49). It remains extraordinary value for visitors spending a week or more in Germany making regional journeys. <strong>Key limitation: the Deutschlandticket does NOT cover ICE, IC, or EC (Eurocity) express trains</strong> &mdash; only regional (RE/RB) and urban (S-Bahn/U-Bahn) services. The Bayern-Ticket (&euro;29 for 1 person per day) remains valid as a regional Bavaria-only day pass and is often cheaper for short Bavaria-only trips.</div>
+        <div class="price-row">
+          <span class="pr-old">&euro;49/month (book)</span>
+          <span class="pr-arrow">&rarr;</span>
+          <span class="pr-new">&euro;58/month (2026)</span>
+          <span class="pr-src">deutschlandticket.de</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="zone"><span class="zone-label">Neuschwanstein &mdash; booking changes</span><span class="zone-line"></span></div>
+
+    <div class="alert-block ab-bad">
+      <div class="alert-head ah-bad">Neuschwanstein: no walk-up tickets available — advance booking mandatory</div>
+      <div class="alert-text">Since 2023, Neuschwanstein Castle has operated a <strong>fully mandatory advance booking system</strong> with no walk-up ticket sales at the castle or the Ticket Centre in Hohenschwangau village. <strong>Book exclusively at neuschwanstein.de.</strong> Adult interior tour: <strong>&euro;18</strong>. Tickets open 2 months ahead (calendar day) and peak-season slots (July&ndash;August, weekends in May&ndash;June) sell out within hours of release. The closest available slot for the interior tour is often 2&ndash;3 weeks out in summer. The exterior grounds and Marienbrücke viewpoint remain freely accessible without a ticket &mdash; the classic castle photograph does not require an entry ticket.</div>
+    </div>
+
+    <div class="zone"><span class="zone-label">Major museum price changes</span><span class="zone-line"></span></div>
+
+    <div class="card">
+      <div class="card-bar cb-warn"></div>
+      <div class="card-body">
+        <div class="card-place">Berlin &mdash; Museumsinsel (Museum Island)</div>
+        <div class="card-text">The Berlin Museum Island 3-day pass is now <strong>&euro;29</strong> covering the Pergamon Museum (partially open &mdash; the Pergamon Altar hall remains closed for renovation until at least 2027), Bode Museum, Alte Nationalgalerie, Altes Museum, and Neues Museum. The Pergamon Altar is the main reason many visitors come to the island &mdash; <strong>check pergamonmuseum.de for the current open exhibits before planning your visit.</strong> Individual museum entries: &euro;10&ndash;12 each. The Museum Island day pass (&euro;18) covers all five on a single day. Advance booking at smb.museum is recommended for peak season weekends.</div>
+        <div class="price-row">
+          <span class="pr-old">3-day pass &euro;24 (book)</span>
+          <span class="pr-arrow">&rarr;</span>
+          <span class="pr-new">&euro;29 (2026)</span>
+          <span class="pr-src">smb.museum</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-bar cb-warn"></div>
+      <div class="card-body">
+        <div class="card-place">Munich &mdash; Deutsches Museum</div>
+        <div class="card-text">The Deutsches Museum adult entry is now <strong>&euro;15</strong>. The museum has completed the first phase of its major renovation (the longest in its 120-year history) &mdash; several wings that were closed are now reopening through 2026. The full renovation is not expected to complete until 2028. <strong>Check deutsches-museum.de for the current open section map before planning your visit</strong> &mdash; the closing and reopening sequence of wings is ongoing. The museum still justifies a full day with what is currently accessible. Closed on major Bavarian public holidays.</div>
+        <div class="price-row">
+          <span class="pr-old">&euro;14 (book)</span>
+          <span class="pr-arrow">&rarr;</span>
+          <span class="pr-new">&euro;15, partial renovation ongoing (2026)</span>
+          <span class="pr-src">deutsches-museum.de</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-bar cb-warn"></div>
+      <div class="card-body">
+        <div class="card-place">Berlin &mdash; Reichstag dome visit</div>
+        <div class="card-text">The Reichstag rooftop dome remains <strong>free to visit</strong>, but the advance registration system has tightened. Slots now open <strong>exactly 90 days ahead</strong> via the official registration form at bundestag.de. The most popular time slots (10:00&ndash;13:00 on weekends) fill within hours of opening. Register the moment your dates are confirmed. <strong>Do not book via any third-party site</strong> &mdash; Reichstag dome access is only legitimately bookable at bundestag.de at no charge. Third-party &ldquo;tour&rdquo; offers charging for dome access are reselling what is legally free.</div>
+      </div>
+    </div>
+
+    <div class="zone"><span class="zone-label">Entry requirements</span><span class="zone-line"></span></div>
+
+    <div class="card">
+      <div class="card-bar cb-warn"></div>
+      <div class="card-body">
+        <div class="card-place">ETIAS &mdash; US, UK, Canadian, Australian travelers</div>
+        <div class="card-text">ETIAS remains <strong>not yet in force</strong> for Germany or any Schengen country as of early 2026. Repeated delayed launch dates have pushed implementation back. Check current requirements at etiasvisa.com or the EU official portal before departure. When active: online, approximately &euro;7, valid 3 years. Germany is fully within Schengen &mdash; one ETIAS covers all Schengen countries. UK travelers (post-Brexit) will need ETIAS once launched.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONFIRMED -->
+  <section class="section" id="sec-confirmed">
+    <div class="section-head">
+      <div class="sh-left"><span class="sh-pip sp-ok"></span><span class="sh-title">Confirmed Correct</span></div>
+      <span class="sh-date">Verified March 2026</span>
+    </div>
+    <div class="ok-list">
+      <div class="ok-row">
+        <div class="ok-badge">&#10003;</div>
+        <div class="ok-text"><strong>Bayern-Ticket &mdash; &euro;29 for 1 person, all regional trains in Bavaria all day</strong> Confirmed. The Bayern-Ticket covers all RE, RB, S-Bahn, and most bus services in Bavaria from 09:00 Mon&ndash;Fri (all day Sat&ndash;Sun) until 03:00 the following morning. Additional travelers: &euro;10 each (max 5 people). Valid for day trips from Munich to Füssen (Neuschwanstein), Salzburg, Nuremberg, Rothenburg, and beyond. Buy at any DB station machine or the DB Navigator app.</div>
+      </div>
+      <div class="ok-row">
+        <div class="ok-badge">&#10003;</div>
+        <div class="ok-text"><strong>Cologne Cathedral (Dom) &mdash; free entry, south tower &euro;6</strong> Confirmed. The cathedral itself remains free and open daily (mass times aside). The south tower climb (533 steps, no lift) costs &euro;6 and gives the best panoramic view of Cologne and the Rhine. The treasury (&euro;6 separately) has one of Germany&rsquo;s finest collections of medieval religious artefacts. No advance booking needed for entry — just join the queue.</div>
+      </div>
+      <div class="ok-row">
+        <div class="ok-badge">&#10003;</div>
+        <div class="ok-text"><strong>Würzburg Residence &mdash; &euro;9, Tiepolo ceiling included</strong> Confirmed. The staircase ceiling fresco by Giovanni Battista Tiepolo (1752&ndash;53, 677 sqm) remains the largest fresco in the world and is included in the standard entry ticket. Book at schloesser.bayern.de. Tours in English at fixed times. Closed Mondays in winter (November&ndash;March).</div>
+      </div>
+      <div class="ok-row">
+        <div class="ok-badge">&#10003;</div>
+        <div class="ok-text"><strong>Berlin &mdash; East Side Gallery free</strong> Confirmed. The longest remaining section of the Berlin Wall (1.3 km, East Side Gallery) remains freely accessible 24 hours a day along Mühlenstraße. No ticket, no booking, no time restriction. The murals were last restored in 2009. Outdoor mural art of this scale and historical weight, freely accessible in the middle of a major city, is genuinely rare in the world.</div>
+      </div>
+      <div class="ok-row">
+        <div class="ok-badge">&#10003;</div>
+        <div class="ok-text"><strong>Elbphilharmonie Hamburg &mdash; plaza free, concerts require tickets</strong> Confirmed. The Elbphilharmonie&rsquo;s public plaza (8th floor, via the curved escalator) remains free to access with a time-slot ticket (free, booked at elbphilharmonie.de). Concerts in the main hall sell out months ahead and start from &euro;10 for restricted-view seats. Even without a concert ticket, the architecture and harbour view from the plaza are among the best free experiences in Germany.</div>
+      </div>
+      <div class="ok-row">
+        <div class="ok-badge">&#10003;</div>
+        <div class="ok-text"><strong>Nuremberg Christmas Market &mdash; 1&ndash;24 December, free entry</strong> Confirmed. The Christkindlesmarkt on Nuremberg&rsquo;s Hauptmarkt is the most historically rooted Christmas market in Germany (since 1628) and remains free to enter. Operating hours: Mon&ndash;Sat 10:00&ndash;21:00, Sun 10:00&ndash;20:00. The market is at capacity on weekends &mdash; weekday mornings before 13:00 are significantly more atmospheric. The Frauenkirche Glockenspiel (daily at noon) is free to watch.</div>
+      </div>
+      <div class="ok-row">
+        <div class="ok-badge">&#10003;</div>
+        <div class="ok-text"><strong>Rhine Valley cruise &mdash; KD Line, Loreley section approximately &euro;18&ndash;24 one way</strong> Confirmed. The Loreley section (Rüdesheim to St Goarshausen, or Bacharach to Boppard) is the most dramatic part of the Rhine Gorge. Southbound (upstream) is slower but the view of castles on both banks is sustained. Buy at KD kiosks on the riverbank in any Rhine town. Rail travel along the same route (left bank, via Koblenz) covers the same scenery in half the time if schedule matters.</div>
+      </div>
+      <div class="ok-row">
+        <div class="ok-badge">&#10003;</div>
+        <div class="ok-text"><strong>Hohenschwangau Castle &mdash; &euro;18, no advance booking panic required</strong> Confirmed. The yellow castle below Neuschwanstein (where Ludwig II grew up) offers the same-day Ticket Centre purchase in most seasons. Less visited than Neuschwanstein but arguably more interesting historically &mdash; the interior has original 19th-century royal furnishings rather than the unfinished romantic pastiche of Neuschwanstein. Book at hohenschwangau.de or at the Ticket Centre on the day.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- NEW TIPS -->
+  <section class="section" id="sec-new">
+    <div class="section-head">
+      <div class="sh-left"><span class="sh-pip sp-new"></span><span class="sh-title">New for 2026</span></div>
+      <span class="sh-date">Added March 2026</span>
+    </div>
+
+    <div class="card">
+      <div class="card-bar cb-new"></div>
+      <div class="card-body">
+        <div class="card-place">Germany-wide &mdash; DB Navigator app updated for international travelers</div>
+        <div class="card-text">The DB Navigator app (iOS and Android) now fully supports international credit and debit cards for ticket purchase, and has improved English-language support throughout the booking flow. <strong>Sparpreis tickets bought in the app are digital and require no printing.</strong> The app shows real-time platform information and train delays &mdash; more reliable than station departure boards for connecting journeys. If a connection is missed due to DB delay, the app automatically suggests alternative routes and the original ticket remains valid on the later train. Download before arrival in Germany.</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-bar cb-new"></div>
+      <div class="card-body">
+        <div class="card-place">Munich &mdash; IsarCard 9-Uhr (9am card) for visitors</div>
+        <div class="card-text">The Munich MVV (transit authority) has simplified visitor pass options. The most practical for short stays: <strong>MVV CityTourCard</strong> (&euro;14.80 for 24h, &euro;23.80 for 48h, &euro;28.80 for 72h, single person) covering all MVV zones including the airport S-Bahn and Olympiapark. The card activates at first use and runs for the purchased duration. <strong>The airport S-Bahn to central Munich (S1 or S8, 40 min) costs &euro;13.60 without a pass</strong> &mdash; the 48h CityTourCard already pays for itself on the first journey plus return. Buy at any MVV ticket machine at the airport or Hauptbahnhof.</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-bar cb-new"></div>
+      <div class="card-body">
+        <div class="card-place">Berlin &mdash; Brandenburg Gate area visitor management</div>
+        <div class="card-text">Berlin has introduced pedestrian management measures around the Brandenburg Gate in 2025&ndash;2026, specifically on summer weekend afternoons between Pariser Platz and Tiergarten. Guided group tours of more than 20 people now require a permit in the immediate Brandenburg Gate precinct. <strong>For independent visitors, there is no restriction</strong> &mdash; you can access the gate freely at any time. The measures specifically target the largest commercial tour groups, which had created effectively impassable conditions on the pavement on peak Saturdays.</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-bar cb-new"></div>
+      <div class="card-body">
+        <div class="card-place">Bavaria-wide &mdash; Schlösser Bavaria combination ticket confirmed</div>
+        <div class="card-text">The Bayerische Schlösserverwaltung (Bavarian Palace Administration) annual combination ticket &mdash; covering Neuschwanstein, Hohenschwangau, Würzburg Residence, Herrenchiemsee, Nymphenburg, and Linderhof &mdash; is confirmed at <strong>&euro;30 for a 14-day pass</strong> (note: Neuschwanstein still requires a timed entry booking in addition to this pass). For visitors planning Bavaria-focused itineraries visiting 3+ palaces, the combination ticket offers substantial savings. Buy at schloesser.bayern.de or at any participating palace.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SEASONAL ALERTS -->
+  <section class="section" id="sec-seasonal">
+    <div class="section-head">
+      <div class="sh-left"><span class="sh-pip sp-warn"></span><span class="sh-title">Seasonal Alerts</span></div>
+      <span class="sh-date">2026 Calendar</span>
+    </div>
+    <div class="ok-list">
+      <div class="ok-row">
+        <div class="ok-badge" style="background:var(--bad-pale);color:var(--bad)">!</div>
+        <div class="ok-text"><strong>Neuschwanstein &mdash; July and August at absolute peak</strong> The castle receives 1.5 million visitors annually, with July&ndash;August accounting for a disproportionate share. Interior tour slots in these months sell out 3&ndash;5 weeks in advance. The bus from Hohenschwangau village to the castle runs every 20 minutes but queues at peak times reach 45 minutes. The 35-minute walk from the Ticket Centre is often faster. Arrive at the first morning slot (09:00) or last afternoon slot (17:00) for the shortest queues.</div>
+      </div>
+      <div class="ok-row">
+        <div class="ok-badge" style="background:var(--bad-pale);color:var(--bad)">!</div>
+        <div class="ok-text"><strong>Oktoberfest, Munich &mdash; 19 September to 4 October 2026</strong> Munich&rsquo;s Oktoberfest is the world&rsquo;s largest folk festival. During the 16-day period, all Munich accommodation is 3&ndash;5&times; the normal price and is booked out a year ahead. If your dates overlap unintentionally: book accommodation by February at the latest or base in Augsburg (30 min by RE), Nuremberg (1h by ICE), or Salzburg (1h 30m) and commute in. The festival itself is free to enter &mdash; the tents charge for beer only (&euro;14.50&ndash;15 per Maß in 2026). Tent reservations for peak weekend afternoons require a deposit and are effectively non-existent to obtain without a year-ahead booking.</div>
+      </div>
+      <div class="ok-row">
+        <div class="ok-badge" style="background:var(--bad-pale);color:var(--bad)">!</div>
+        <div class="ok-text"><strong>German Christmas markets &mdash; late November to 24 December</strong> Germany&rsquo;s Christmas markets (Nuremberg, Cologne, Dresden Striezelmarkt, Stuttgart, Hamburg) are genuine and atmospheric &mdash; but weekend visits in December are extremely crowded. Markets open typically 26 November to 24 December. <strong>Weekday visits before 15:00 are a materially different experience</strong> than Saturday evenings in December. Nuremberg market ends at noon on Christmas Eve. Most German businesses and many restaurants close 25&ndash;26 December.</div>
+      </div>
+      <div class="ok-row">
+        <div class="ok-badge" style="background:var(--bad-pale);color:var(--bad)">!</div>
+        <div class="ok-text"><strong>Rhine Valley &mdash; summer Rhine in Flammen (Rhine in Flames)</strong> The Rhine in Flames festival series (multiple dates May&ndash;September, different sections of the river) involves fireworks, illuminated ships, and large crowds along the riverbank. Hotel prices in Bacharach, Rüdesheim, Koblenz, and Boppard increase significantly on these weekends. If your Rhine Valley visit overlaps with a Rhine in Flames event: book accommodation 3+ months ahead or visit on adjacent non-event nights. Check rhein-in-flammen.com for 2026 dates.</div>
+      </div>
+      <div class="ok-row">
+        <div class="ok-badge" style="background:var(--ok-pale);color:var(--ok)">&#10003;</div>
+        <div class="ok-text"><strong>Best windows &mdash; May to mid-June and September</strong> Germany in late spring (May&ndash;June) is at its most beautiful: Rhine Valley vineyards in fresh leaf, Bavaria still uncrowded, Berlin parks and lakes usable, temperatures 16&ndash;22&deg;C. September sees Oktoberfest (Munich) but also the quietest post-summer period for almost everywhere else &mdash; Rhine Valley golden autumn light, uncrowded Romantic Road towns, and the last warm weeks before the onset of grey autumn. These are the months the guide was written for.</div>
+      </div>
+      <div class="ok-row">
+        <div class="ok-badge" style="background:var(--ok-pale);color:var(--ok)">&#10003;</div>
+        <div class="ok-text"><strong>German public holidays &mdash; regional variation matters</strong> Germany&rsquo;s 16 federal states have different public holidays beyond the national ones. Bavaria has more public holidays than most states (Corpus Christi, Assumption, All Saints&rsquo; Day), affecting museum opening days and local transport. Berlin has its own holiday (3 October, German Unity Day) with city-wide closures. Check feiertage-deutschland.de for your specific destination and travel dates.</div>
+      </div>
+    </div>
+    <div class="changelog" style="margin-top:1.5rem">
+      <div class="cl-head">Annual review schedule &mdash; every March</div>
+      <div class="cl-row">
+        <div class="cl-year">2026</div>
+        <div class="cl-dot cd-active"></div>
+        <div class="cl-text">Full review completed March 2026 &mdash; 18 items verified. DB fares +4.9% Jan 2026. Deutschlandticket &euro;49&rarr;&euro;58. Neuschwanstein &euro;15&rarr;&euro;18, no walk-up confirmed. Museum Island 3-day pass &euro;24&rarr;&euro;29. Deutsches Museum &euro;14&rarr;&euro;15, renovation phase 1 partially complete. Reichstag dome 90-day booking window confirmed. Pergamon Altar still closed until 2027+. ETIAS still pending. <span class="cl-badge">Active</span></div>
+      </div>
+      <div class="cl-row">
+        <div class="cl-year">2027</div>
+        <div class="cl-dot cd-sched"></div>
+        <div class="cl-text sched">Scheduled review &mdash; March 2027. Pergamon Altar reopening to be confirmed. Deutsches Museum renovation phase 2 status. ETIAS implementation to be confirmed.</div>
+      </div>
+    </div>
+  </section>
+</main>
+<footer>
+  <div class="footer-gold">
+    <div>
+      <div class="footer-brand">No-Stress Guides</div>
+      <div class="footer-brand-sub">Germany Travel Guide &mdash; 2026</div>
+    </div>
+  </div>
+  <div class="footer-body">
+    <p class="footer-promise">This page is reviewed every March. No sponsored content. No affiliate links. Every price comes from the official source.</p>
+    <p class="footer-contact">Questions or corrections: <a href="mailto:info@nostressguides.com">info@nostressguides.com</a></p>
+    <p class="footer-legal">&copy; 2026 No-Stress Guides. For personal travel use only.</p>
+  </div>
+</footer>
+<script>
+document.querySelectorAll('.section').forEach(function(s,i){setTimeout(function(){s.classList.add('visible')},100+i*80);});
+var headerEl=document.querySelector('.header');
+document.querySelectorAll('.h-tab').forEach(function(btn){
+  btn.addEventListener('click',function(){
+    var target=this.getAttribute('data-target');
+    document.querySelectorAll('.h-tab').forEach(function(t){t.classList.remove('active')});
+    btn.classList.add('active');
+    var el=document.getElementById(target);
+    if(!el)return;
+    var hh=headerEl?headerEl.offsetHeight:0;
+    window.scrollTo({top:el.getBoundingClientRect().top+window.scrollY-hh-8,behavior:'smooth'});
+  });
+});
+var sIds=['sec-changed','sec-confirmed','sec-new','sec-seasonal'];
+var allTabs=document.querySelectorAll('.h-tab');
+function updateTab(){var hh=headerEl?headerEl.offsetHeight:0;var active=0;sIds.forEach(function(id,i){var el=document.getElementById(id);if(el&&el.getBoundingClientRect().top<=hh+20)active=i;});allTabs.forEach(function(t,i){t.classList.toggle('active',i===active);});}
+window.addEventListener('scroll',updateTab,{passive:true});
+updateTab();
+</script>
+</body>
+</html>
