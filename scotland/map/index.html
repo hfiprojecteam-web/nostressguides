@@ -1,1 +1,319 @@
-
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Scotland No-Stress -- Interactive Map</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Serif+Display&display=swap" rel="stylesheet">
+<style>
+:root{--p:#112244;--r:#c4533a;--a:#e8a838;--l:#f5f1eb;--d:#2c2c2c;--g:#2d6a4f;--bd:#e0d8cc}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'DM Sans',sans-serif;background:var(--l);color:var(--d);overflow:hidden}
+.hdr{position:fixed;top:0;left:0;right:0;height:50px;background:var(--p);color:#fff;display:flex;align-items:center;justify-content:space-between;padding:0 16px;z-index:1001;box-shadow:0 2px 12px rgba(0,0,0,.15)}
+.hdr-logo{display:flex;align-items:baseline;gap:8px}
+.hdr-main{font-family:'DM Serif Display',serif;font-size:1.3rem}
+.hdr-sub{font-size:.65rem;font-weight:500;opacity:.8;text-transform:uppercase;letter-spacing:.1em}
+.hdr-badge{background:var(--r);padding:4px 10px;border-radius:20px;font-size:.7rem;font-weight:600}
+#map{position:fixed;top:50px;left:0;right:0;bottom:0;z-index:1}
+.fab{display:none;position:fixed;bottom:20px;right:20px;width:56px;height:56px;background:var(--r);color:#fff;border:none;border-radius:50%;font-size:1.4rem;cursor:pointer;z-index:1002;box-shadow:0 4px 12px rgba(0,0,0,.3);align-items:center;justify-content:center}
+.panel{position:fixed;top:70px;left:20px;width:360px;background:#fff;border-radius:12px;box-shadow:0 4px 24px rgba(0,0,0,.12);z-index:1000;overflow:hidden;max-height:calc(100vh - 100px);display:flex;flex-direction:column}
+.tabs{display:flex;background:var(--p);flex-shrink:0}
+.tbtn{flex:1;padding:10px 4px;text-align:center;font-size:.65rem;font-weight:600;color:rgba(255,255,255,.6);cursor:pointer;border:none;background:none;transition:all .2s}
+.tbtn.on{color:#fff;background:rgba(255,255,255,.15)}
+.tbtn:hover{color:#fff}
+.px{background:none;border:none;color:#fff;font-size:1.4rem;cursor:pointer;padding:0 12px;display:none}
+.pane{display:none;overflow-y:auto;flex:1;padding:12px}
+.pane.on{display:block}
+.sec-ttl{font-family:'DM Serif Display',serif;font-size:.95rem;color:var(--p);margin-bottom:8px}
+.rt-label{display:block;font-size:.7rem;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:#888;margin-bottom:4px;margin-top:10px}
+.rt-sel{width:100%;padding:8px 10px;border:1.5px solid var(--bd);border-radius:8px;font-size:.82rem;font-family:'DM Sans',sans-serif;background:#fff;color:var(--d)}
+.rt-sel:focus{outline:none;border-color:var(--p)}
+.rt-result{display:none;background:var(--l);border-radius:8px;padding:10px 12px;margin-top:10px}
+.rt-result.on{display:block;animation:fadeIn .2s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+.rt-main{font-size:.92rem;font-weight:700;color:var(--p);margin-bottom:4px}
+.rt-detail{font-size:.78rem;color:#666;margin-bottom:4px}
+.rt-tip{font-size:.74rem;color:#6b5a00;background:#fff8e6;border-left:3px solid var(--a);padding:5px 8px;margin-top:6px;border-radius:0 4px 4px 0}
+.itin-card{background:var(--l);border-radius:10px;padding:12px;margin-bottom:8px;cursor:pointer;border:2px solid transparent;transition:all .2s}
+.itin-card:hover{border-color:var(--p)}
+.itin-card.on{border-color:var(--r);background:#fff}
+.itin-card h3{font-family:'DM Serif Display',serif;font-size:.95rem;color:var(--p);margin-bottom:3px}
+.imeta{font-size:.72rem;color:#666;margin-bottom:4px}
+.idesc{font-size:.76rem;color:#555;line-height:1.4}
+.dtabs{display:none;flex-wrap:wrap;gap:4px;margin-top:10px}
+.dtabs.on{display:flex}
+.dbtn{padding:5px 10px;border-radius:20px;font-size:.64rem;font-weight:600;border:1.5px solid var(--bd);background:#fff;color:var(--p);cursor:pointer;transition:all .15s}
+.dbtn.on{background:var(--r);border-color:var(--r);color:#fff}
+.bld-intro{font-size:.76rem;color:#666;margin-bottom:10px;padding:8px 10px;background:var(--l);border-radius:8px;line-height:1.5}
+.bld-stops{display:flex;flex-direction:column;gap:6px;margin-bottom:8px}
+.bld-stop{display:flex;align-items:center;gap:6px;padding:8px 10px;background:#fff;border:1.5px solid var(--bd);border-radius:8px;transition:all .2s}
+.bld-stop:hover{border-color:var(--p)}
+.bld-handle{cursor:grab;color:#bbb;font-size:.95rem;flex-shrink:0}
+.bld-num{width:20px;height:20px;border-radius:50%;background:var(--r);color:#fff;display:flex;align-items:center;justify-content:center;font-size:.65rem;font-weight:700;flex-shrink:0}
+.bld-sel{flex:1;padding:6px 8px;border:1px solid #ddd;border-radius:6px;font-size:.78rem;background:#fff;font-family:'DM Sans',sans-serif}
+.bld-sel:focus{outline:none;border-color:var(--p)}
+.bld-rm{width:22px;height:22px;border:none;background:#f5f5f5;border-radius:50%;cursor:pointer;color:#999;font-size:1rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;padding:0}
+.bld-rm:hover{background:#ffebee;color:var(--r)}
+.bld-add{width:100%;padding:9px;border:2px dashed #ccc;background:transparent;border-radius:8px;cursor:pointer;font-size:.8rem;color:#666;transition:all .2s;font-family:'DM Sans',sans-serif;margin-bottom:8px}
+.bld-add:hover{border-color:var(--p);color:var(--p)}
+.bld-actions{display:flex;gap:8px;margin-bottom:4px}
+.bld-calc{flex:1;padding:10px;background:var(--r);color:#fff;border:none;border-radius:8px;font-weight:600;cursor:pointer;font-size:.82rem;font-family:'DM Sans',sans-serif;transition:opacity .2s}
+.bld-calc:disabled{opacity:.45;cursor:not-allowed}
+.bld-clear{padding:10px 14px;background:#f5f5f5;color:#666;border:none;border-radius:8px;cursor:pointer;font-size:.78rem;font-family:'DM Sans',sans-serif}
+.bld-results{margin-top:10px}
+.bld-leg{background:#fff;border:1px solid var(--bd);border-radius:8px;padding:10px 12px;margin-bottom:6px}
+.bld-leg-head{font-weight:700;font-size:.82rem;color:var(--p);margin-bottom:3px}
+.bld-leg-detail{font-size:.74rem;color:#555;line-height:1.5}
+.bld-leg-tip{font-size:.69rem;color:#6b5a00;background:#fff8e6;border-left:2px solid var(--a);padding:4px 7px;margin-top:5px;border-radius:0 3px 3px 0}
+.bld-stop.dragging{opacity:.5;border-style:dashed}
+.bld-stop.drag-over{border-color:var(--r);background:#fff5f3}
+.stops{position:fixed;bottom:20px;left:20px;width:360px;background:#fff;border-radius:12px;box-shadow:0 4px 24px rgba(0,0,0,.12);z-index:1000;display:none;overflow:hidden;max-height:44vh}
+.stops.on{display:block;animation:up .25s ease}
+@keyframes up{from{transform:translateY(16px);opacity:0}to{transform:translateY(0);opacity:1}}
+.stops-hd{background:var(--g);color:#fff;padding:11px 14px;display:flex;align-items:center;justify-content:space-between}
+.stops-hd h3{font-family:'DM Serif Display',serif;font-size:.95rem;font-weight:400}
+.sx{background:none;border:none;color:#fff;font-size:1.3rem;cursor:pointer;line-height:1}
+.stops-bd{overflow-y:auto;max-height:calc(44vh - 46px)}
+.srow{padding:11px 14px;border-bottom:1px solid #eee}
+.srow:last-child{border-bottom:none}
+.snum{display:inline-flex;align-items:center;justify-content:center;width:21px;height:21px;border-radius:50%;background:var(--r);color:#fff;font-size:.7rem;font-weight:700;margin-right:7px;vertical-align:middle;flex-shrink:0}
+.sname{font-weight:600;font-size:.88rem;vertical-align:middle}
+.stime{font-size:.7rem;color:var(--p);margin-left:6px;font-weight:600}
+.stip{font-size:.73rem;color:#666;margin-top:3px;padding-left:28px}
+.legend{position:fixed;bottom:20px;right:20px;background:#fff;padding:12px 15px;border-radius:10px;box-shadow:0 4px 16px rgba(0,0,0,.1);z-index:1000}
+.legend h4{font-size:.66rem;font-weight:700;text-transform:uppercase;color:#888;margin-bottom:7px;letter-spacing:.04em}
+.legr{display:flex;align-items:center;gap:7px;margin-bottom:5px;font-size:.75rem;color:#555}
+.legr:last-child{margin-bottom:0}
+.legdot{width:12px;height:12px;border-radius:50%;flex-shrink:0}
+.dtable{width:100%;border-collapse:collapse;font-size:.76rem;margin-top:6px}
+.dtable th{background:var(--p);color:#fff;padding:5px 8px;text-align:left;font-size:.62rem;letter-spacing:.05em;text-transform:uppercase;font-weight:500}
+.dtable td{padding:5px 8px;border-bottom:1px solid var(--bd);color:#555}
+.dtable tr:last-child td{border-bottom:none}
+.pu{padding:12px 14px;min-width:185px}
+.pu-name{font-family:'DM Serif Display',serif;font-size:.98rem;color:var(--p);margin-bottom:2px}
+.pu-type{font-size:.6rem;text-transform:uppercase;letter-spacing:.08em;color:#999;margin-bottom:6px}
+.pu-row{font-size:.74rem;color:#555;margin-bottom:3px;line-height:1.4}
+.pu-row b{color:var(--d)}
+.pu-tip{background:var(--l);border-radius:4px;padding:5px 7px;font-size:.7rem;color:#6b5a00;margin-top:5px}
+@media(max-width:768px){
+  .panel{position:fixed;top:auto;bottom:0;left:0;right:0;width:100%;border-radius:16px 16px 0 0;transform:translateY(100%);max-height:75vh;transition:transform .3s ease}
+  .panel.open{transform:translateY(0)}
+  .px{display:block}
+  .stops{bottom:0;left:0;right:0;width:100%;border-radius:16px 16px 0 0;max-height:50vh}
+  .legend{display:none}
+  .fab{display:flex}
+}
+</style>
+</head>
+<body>
+<header class="hdr">
+  <div class="hdr-logo">
+    <span class="hdr-main">Scotland</span>
+    <span class="hdr-sub">No-Stress Travel Guide</span>
+  </div>
+  <span class="hdr-badge">Interactive Map</span>
+</header>
+<div id="map"></div>
+<button class="fab" id="fab">&#9776;</button>
+<div class="panel" id="panel">
+  <div class="tabs">
+    <button class="tbtn on" onclick="showPane('itin',this)">&#128197; Itineraries</button>
+    <button class="tbtn"    onclick="showPane('routes',this)">&#128674; ScotRail &amp; Ferry</button>
+    <button class="tbtn"    onclick="showPane('byt',this)">&#128466; Build Your Trip</button>
+    <button class="px" id="px">&#215;</button>
+  </div>
+  <div class="pane on" id="pane-itin"><div id="itinList"></div></div>
+  <div class="pane" id="pane-routes">
+    <div style="margin-bottom:16px">
+      <div class="sec-ttl">ScotRail &amp; CalMac Journey Calculator</div>
+      <p style="font-size:.74rem;color:#666;margin-bottom:10px;line-height:1.5">Select two destinations to see journey time, service type, and booking tip. Book ScotRail tickets at scotrail.co.uk and CalMac ferries at calmac.co.uk in advance for best fares.</p>
+      <label class="rt-label">From</label>
+      <select class="rt-sel" id="selFrom"><option value="">Select origin...</option></select>
+      <label class="rt-label">To</label>
+      <select class="rt-sel" id="selTo"><option value="">Select destination...</option></select>
+      <div class="rt-result" id="rtResult">
+        <div class="rt-main" id="rtMain"></div>
+        <div class="rt-detail" id="rtDetail"></div>
+        <div class="rt-tip" id="rtTip"></div>
+      </div>
+    </div>
+    <div>
+      <div class="sec-ttl">Key journey times from Edinburgh</div>
+      <table class="dtable">
+        <thead><tr><th>Destination</th><th>Time</th><th>Service</th></tr></thead>
+        <tbody>
+          <tr><td>Glasgow</td><td>50 min</td><td>ScotRail</td></tr>
+          <tr><td>Stirling</td><td>50 min</td><td>ScotRail</td></tr>
+          <tr><td>St Andrews (Leuchars)</td><td>1h</td><td>ScotRail + bus</td></tr>
+          <tr><td>Pitlochry</td><td>1h 45m</td><td>ScotRail</td></tr>
+          <tr><td>Aviemore</td><td>2h 30m</td><td>ScotRail</td></tr>
+          <tr><td>Inverness</td><td>3h 15m</td><td>ScotRail</td></tr>
+          <tr><td>Fort William</td><td>5h via Glasgow</td><td>ScotRail</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="pane" id="pane-byt">
+    <div class="bld-intro">Build your custom Scotland itinerary. Add destinations in order, then calculate to see ScotRail and CalMac journey times and insider tips for each leg.</div>
+    <div class="bld-stops" id="bldStops">
+      <div class="bld-stop" data-index="0">
+        <span class="bld-handle">&#9776;</span>
+        <span class="bld-num">1</span>
+        <select class="bld-sel" data-index="0"><option value="">Add first stop...</option></select>
+        <button class="bld-rm" data-index="0">&#215;</button>
+      </div>
+    </div>
+    <button class="bld-add" id="bldAdd">+ Add Stop</button>
+    <div class="bld-actions">
+      <button class="bld-calc" id="bldCalc" disabled>Calculate Route</button>
+      <button class="bld-clear" id="bldClear">Clear</button>
+    </div>
+    <div class="bld-results" id="bldResults"></div>
+  </div>
+</div>
+<div class="stops" id="stops">
+  <div class="stops-hd">
+    <h3 id="stopsTitle">Itinerary</h3>
+    <button class="sx" onclick="document.getElementById('stops').classList.remove('on')">&#215;</button>
+  </div>
+  <div class="stops-bd" id="stopsBd"></div>
+</div>
+<div class="legend">
+  <h4>Legend</h4>
+  <div class="legr"><div class="legdot" style="background:#1a3a5c"></div>Major city / Hub</div>
+  <div class="legr"><div class="legdot" style="background:#8a5a10"></div>Historic destination</div>
+  <div class="legr"><div class="legdot" style="background:#2d6a4f"></div>Scenic destination</div>
+  <div class="legr"><div class="legdot" style="background:#1a5c6a"></div>Coastal / Islands</div>
+  <div class="legr"><div class="legdot" style="background:#6a3a1a"></div>Whisky region</div>
+  <div class="legr" style="margin-top:6px"><div style="width:22px;height:0;border-top:3px dashed #2d6a4f"></div>Itinerary route</div>
+  <div class="legr"><div style="width:22px;height:3px;background:#c4533a;border-radius:2px"></div>Active route</div>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script>
+var nsMap,markersLayer,activeRouteObjs=[];
+var DESTS=[
+  {id:'edinburgh',n:'Edinburgh',lat:55.953,lng:-3.188,type:'hub',tag:'Capital city — castle, Old Town, Royal Mile',best:'May–Sep. Fringe Festival in August.',days:'2–3 days',eat:'The Kitchin (Leith, book ahead), Timberyard (sustainable), Miros (South Indian, great value), Vittoria (Italian, George IV Bridge).',tip:'Edinburgh Castle (£21) is best visited early — book online. The Royal Mile is atmospheric at 8am before crowds. Arthur\'s Seat free volcano hike (45 min from Holyrood). Tourist tax £2–7/night. Trams from airport to Princes Street £9.'},
+  {id:'glasgow',n:'Glasgow',lat:55.864,lng:-4.252,type:'hub',tag:'Scotland\'s largest city — culture, food, Mackintosh',best:'Year-round.',days:'2 days',eat:'Ox and Finch (sharing plates, book), Cail Bruich (Michelin star), The Gannet (Scottish seasonal), Paesano (best pizza in Scotland).',tip:'Glasgow is cheaper than Edinburgh. Kelvingrove Art Gallery (free) houses Dali, Rembrandt, Scottish Colourists. The Burrell Collection (free, Pollok Park) is extraordinary. CityMapper for all Glasgow transport.'},
+  {id:'inverness',n:'Inverness',lat:57.477,lng:-4.224,type:'hub',tag:'Highlands capital — Culloden, Loch Ness, NC500 gateway',best:'May–Sep.',days:'1–2 days',eat:'Cafe 1 (contemporary Scottish), The Mustard Seed (riverside), Number 27 (excellent lunch).',tip:'Inverness is the gateway for Loch Ness (20 min drive), Culloden (5 miles east), and the NC500 road trip. The Victorian Market is a genuine working Victorian arcade. Loch Ness bus tours leave from Inverness Bus Station daily.'},
+  {id:'fortWilliam',n:'Fort William',lat:56.820,lng:-5.105,type:'hub',tag:'Ben Nevis base & West Highland gateway',best:'May–Sep.',days:'1–2 days',eat:'The Garrison (local game), Lime Tree (art gallery restaurant), Crofter\'s Kitchen (breakfast).',tip:'Ben Nevis (1,345m, UK highest) takes 7–9 hours return — start no later than 8am. The Jacobite steam train to Mallaig (Harry Potter viaduct) runs May–Oct — book months ahead at west-coast-motors.co.uk. Glen Coe is 30 min south.'},
+  {id:'aviemore',n:'Aviemore',lat:57.196,lng:-3.827,type:'hub',tag:'Cairngorms gateway — skiing, walking, wildlife',best:'Dec–Mar (ski), Jun–Sep (walking).',days:'1–2 days',eat:'The Old Bridge Inn (traditional, winter fire), Mountain Cafe (breakfast), Cairngorm Hotel bar.',tip:'Cairngorm Mountain funicular (£19) to 1,085m with guaranteed ptarmigan in winter. Red squirrel walks in Rothiemurchus Forest (free). Speyside whisky distilleries 45 min east. Osprey viewing at Loch Garten May–Aug.'},
+  {id:'stirling',n:'Stirling',lat:56.119,lng:-3.937,type:'historic',tag:'Stirling Castle, Wallace Monument & Bannockburn',best:'Apr–Oct.',days:'1 day',eat:'Hermann\'s (Austrian-Scottish, book), Birds & Bees (country pub), Settle Inn (oldest pub in Stirling).',tip:'Stirling Castle (£17) — Mary Queen of Scots was crowned here. Bannockburn visitor centre (£14) uses immersive VR. Wallace Monument (£13) panoramic views. 50 min from Edinburgh by ScotRail.'},
+  {id:'pitlochry',n:'Pitlochry',lat:56.704,lng:-3.732,type:'historic',tag:'Perthshire gateway — whisky, dam, Highland scenery',best:'May–Oct.',days:'1 day',eat:'Moulin Hotel (classic inn, whisky bar), Port-na-Craig (riverside lunch), Killiecrankie House Hotel.',tip:'Blair Athol Distillery (free to visit, £10 tour) is historically significant and in town. Pitlochry Fish Ladder (free) — watch Atlantic salmon migrating May–Oct. 1h 45m from Edinburgh — excellent Highland base.'},
+  {id:'culloden',n:'Culloden',lat:57.479,lng:-4.096,type:'historic',tag:'Culloden Battlefield — last pitched battle on British soil (1746)',best:'Year-round (most atmospheric in low mist).',days:'Half day',eat:'NTS visitor centre cafe. Inverness (5 miles) for restaurants.',tip:'NTS visitor centre (£14) is one of Europe\'s best battlefield interpretation centres — allow 2.5 hours. Battlefield walk free after 6pm. Bus 5/5A from Inverness Bus Station. The gravestones are collective clan memorials, not individual graves.'},
+  {id:'stAndrews',n:'St Andrews',lat:56.340,lng:-2.795,type:'historic',tag:'Golf, cathedral ruins & Scotland\'s oldest university',best:'May–Sep.',days:'1 day',eat:'The Adamson (contemporary Scottish), Vine Leaf (long-established), Playfair\'s (cathedral view).',tip:'The Old Course (birthplace of golf) can be walked freely — the 18th fairway and Swilcan Bridge are accessible to pedestrians. Cathedral ruins and castle (£8). Nearest station: Leuchars (5 miles, bus to town). 1h from Edinburgh.'},
+  {id:'newLanark',n:'New Lanark',lat:55.668,lng:-3.815,type:'historic',tag:'UNESCO World Heritage mill village — Robert Owen\'s utopian community',best:'Apr–Oct.',days:'Half day',eat:'New Lanark Mill Hotel restaurant. Lanark town (1.5 miles) for more.',tip:'New Lanark (UNESCO, £14) — perfectly preserved 18th-century cotton mill where Robert Owen built social housing and infant education 150 years before welfare states. Falls of Clyde (free, 20-min walk) spectacular in winter. 45 min by train to Lanark from Glasgow.'},
+  {id:'glenCoe',n:'Glen Coe',lat:56.673,lng:-4.963,type:'scenic',tag:'Scotland\'s most dramatic glen — volcanic landscape & dark history',best:'May–Oct (accessible year-round).',days:'Half–1 day',eat:'Clachaig Inn (famous hillwalking pub, real ales), Glencoe Village Inn (pub food), Kingshouse Hotel (remote, book ahead).',tip:'Three Sisters viewpoint (free) on the A82 is one of Scotland\'s iconic photographs. Glencoe Village NTS museum (£8) — 1692 massacre history. Lost Valley hike (4 miles return) — no guide needed. Citylink 916/915 from Glasgow and Inverness stops at Glen Coe.'},
+  {id:'lochNess',n:'Loch Ness',lat:57.323,lng:-4.424,type:'scenic',tag:'World-famous loch — Urquhart Castle & legendary monster',best:'May–Sep.',days:'Half day',eat:'Loch Ness Lodge (upscale), Clansman Hotel (lochside bar meals), Drumnadrochit village shops.',tip:'Urquhart Castle (£12) has the best views over Loch Ness — don\'t just drive past. Loch Ness Exhibition Centre in Drumnadrochit (£10). Take the quiet B862 south shore road instead of the busy A82. 20 min from Inverness by car or Bus 17.'},
+  {id:'kyle',n:'Kyle of Lochalsh',lat:57.274,lng:-5.714,type:'scenic',tag:'Gateway to Skye & the spectacular Kyle Line railway',best:'May–Sep.',days:'Half day',eat:'The Gathering (local seafood), Cafe Cluanie (Glenmoriston, before Kyle).',tip:'The Inverness–Kyle railway (2h30m) is one of Europe\'s most scenic rail journeys — sit right side heading west. Eilean Donan Castle (£14, 8 miles east) is Scotland\'s most photographed. Cross to Skye by road over the bridge (free since 2004).'},
+  {id:'oban',n:'Oban',lat:56.416,lng:-5.473,type:'coastal',tag:'Seafood capital & CalMac ferry hub — gateway to Hebrides',best:'May–Sep.',days:'1 day',eat:'EE-USK (seafood, seafront, book), Cuan Mor (local catch), Oban Seafood Hut (Market Pier — cheapest and best).',tip:'Oban Seafood Hut at the pier sells langoustines, scallops, lobster at catch prices. McCaig\'s Tower above town (free, 10-min walk) — panoramic bay views. CalMac ferries to Mull (45 min), Lismore, Colonsay — book at calmac.co.uk. 3h from Glasgow by ScotRail.'},
+  {id:'portree',n:'Portree (Skye)',lat:57.413,lng:-6.196,type:'coastal',tag:'Isle of Skye capital — Old Man of Storr, Quiraing, Fairy Pools',best:'May–Sep. Midges Apr–Oct.',days:'2–3 days',eat:'Scorrybreac (Michelin-recommended, book weeks ahead), Sea Breezes (harbour, excellent), Cafe Arriba (breakfast).',tip:'Skye needs a car — public transport is very limited. Old Man of Storr (45-min hike, free) and Quiraing (4.5-mile circular) are unmissable. Talisker Distillery (£15 tour, book). Midges are vicious June–August — carry Smidge repellent. Fairy Pools 30 min from Portree.'},
+  {id:'tobermory',n:'Tobermory (Mull)',lat:56.621,lng:-6.062,type:'coastal',tag:'Colourful harbour village — white-tailed eagles & Iona ferry',best:'May–Sep.',days:'1–2 days',eat:'Cafe Fish (seriously good seafood, book), Mishnish Hotel (harbour pub, live music), An Roth (traditional).',tip:'Tobermory\'s painted harbour is one of Scotland\'s iconic images. CalMac Oban–Craignure (45 min) then bus to Tobermory (35 min). White-tailed sea eagle walks (RSPB, £10) most reliable in Scotland. Iona ferry connection from Fionnphort for the ancient monastery.'},
+  {id:'mallaig',n:'Mallaig',lat:57.005,lng:-5.830,type:'coastal',tag:'Glenfinnan Viaduct & Jacobite steam train terminus',best:'May–Oct.',days:'Half day',eat:'The Cornerstone (fresh catch), Steam Inn (pub food).',tip:'The Jacobite steam train (west-coast-motors.co.uk, May–Oct) crosses Glenfinnan Viaduct — the Harry Potter bridge — book months ahead. Glenfinnan Monument (NTS, £8) marks where Bonnie Prince Charlie raised his standard in 1745. CalMac ferries to Armadale (Skye, 30 min) and the Small Isles.'},
+  {id:'stornoway',n:'Stornoway (Lewis)',lat:58.209,lng:-6.387,type:'coastal',tag:'Outer Hebrides capital — Callanish Stones, Harris Tweed, beaches',best:'Jun–Aug.',days:'2–3 days',eat:'An Lanntair (arts centre cafe, best in Stornoway), Thai Cafe (unexpectedly excellent), The Woodlands Centre.',tip:'Callanish Standing Stones (free) — 5,000-year-old Neolithic megaliths more atmospheric than Stonehenge. Harris Tweed is still handwoven by individual weavers — visit a weaver directly. CalMac ferry from Ullapool (2h35m) — book car crossings weeks ahead in summer.'},
+  {id:'ullapool',n:'Ullapool',lat:57.892,lng:-5.159,type:'coastal',tag:'NC500 staging post & CalMac gateway to Outer Hebrides',best:'May–Sep.',days:'1 day',eat:'The Ceilidh Place (hotel, bar, bookshop, live music — a genuine Scottish institution), Arch Inn (pub meals).',tip:'Ullapool is the CalMac departure point for Stornoway. The Ceilidh Place is one of Scotland\'s most characterful hotels — have a drink even if not staying. Corrieshalloch Gorge (NTS, free, 12 miles south) — 60m-deep box canyon with suspension bridge. NC500 Day 2 staging post.'},
+  {id:'dufftown',n:'Dufftown (Speyside)',lat:57.441,lng:-3.132,type:'whisky',tag:'Malt whisky capital — Glenfiddich, Balvenie, Mortlach',best:'Year-round.',days:'1 day',eat:'A Taste of Speyside (traditional Scottish, whisky pairings), Dufftown Clock Tower cafe.',tip:'More distilleries per capita than anywhere on earth. Glenfiddich (free self-guided, paid experiences from £30) is the world\'s best-selling single malt. Balvenie tour (£30, must book) shows coopering — one of last places making its own casks. Mortlach church: Scotland\'s oldest Christian worship site.'},
+  {id:'aberlour',n:'Aberlour (Speyside)',lat:57.466,lng:-3.228,type:'whisky',tag:'Speyside village — Macallan, Aberlour, cooperage & river walks',best:'Year-round.',days:'Half–1 day',eat:'Mash Tun (whisky bar, 120+ malts, excellent food — book ahead), Speyside Cooperage cafe.',tip:'Macallan Distillery (easter-elchies.com, £30+) — Scotland\'s most architecturally striking distillery, grass-roofed above the Spey. Speyside Cooperage (£4.50) — only working cooperage open to public in Scotland. Famous shortbread bakery in the village. River Spey 10-min walk from the square.'}
+];
+var ROUTES={
+  'edinburgh-glasgow':{t:'50 min',d:'47 miles',m:'ScotRail',tip:'Up to 6 trains per hour at peak. Anytime return £25–32. No rail pass needed — walk-up tickets are reasonably priced on this corridor. Trains run all day until after midnight.'},
+  'edinburgh-stirling':{t:'50 min',d:'36 miles',m:'ScotRail',tip:'Frequent service. Advance single from £6. Stirling also served directly from Glasgow (30 min). Buy at the machine — no booking needed.'},
+  'edinburgh-stAndrews':{t:'1h',d:'51 miles',m:'ScotRail to Leuchars + bus',tip:'Train to Leuchars (1h), then Stagecoach bus X59/99 (15 min, every 10 min). Leuchars is the correct station — there is no through-train to St Andrews. Advance return from £12.'},
+  'edinburgh-pitlochry':{t:'1h 45m',d:'71 miles',m:'ScotRail',tip:'Direct on the Inverness line via Perth. Advance single from £10. Superb scenery north of Dunkeld from a train window. Good base for Cairngorms hiking.'},
+  'edinburgh-inverness':{t:'3h 15m',d:'156 miles',m:'ScotRail',tip:'Scotland\'s main cross-country service. Advance single from £15. Spectacular scenery through Pitlochry and Drumochter Pass (460m). Book a right-hand seat for Forth Bridge views from Edinburgh.'},
+  'edinburgh-aviemore':{t:'2h 30m',d:'126 miles',m:'ScotRail',tip:'Frequent service via Perth and Kingussie. Advance single from £12. Aviemore is well connected — most Cairngorms hiking bases 5–10 min by local taxi from the station.'},
+  'glasgow-oban':{t:'3h',d:'96 miles',m:'ScotRail West Highland Line',tip:'One of Scotland\'s great scenic rail journeys — passes Loch Lomond, Crianlarich, and Tyndrum. Runs 3x daily. Advance single from £12. Reserve a seat in summer — gets packed with hillwalkers.'},
+  'glasgow-fortWilliam':{t:'3h 30m',d:'104 miles',m:'ScotRail West Highland Line',tip:'The West Highland Line crosses Rannoch Moor — one of Europe\'s last great wilderness areas. Runs twice daily. Advance single from £12. Book early as trains are small and popular, especially in summer.'},
+  'glasgow-mallaig':{t:'5h',d:'164 miles',m:'ScotRail via Fort William',tip:'The full West Highland Line to Mallaig — one of the world\'s most spectacular railway journeys. Takes the Jacobite route including Glenfinnan Viaduct (Harry Potter bridge). Book the Jacobite steam train at west-coast-motors.co.uk for certain departures May–Oct.'},
+  'glasgow-inverness':{t:'3h 20m',d:'168 miles',m:'ScotRail',tip:'Frequent service via Stirling and Pitlochry. Advance single from £15. Quicker than driving via the A9. Most departures are direct — check scotrail.co.uk for the fastest connection.'},
+  'glasgow-stirling':{t:'30 min',d:'26 miles',m:'ScotRail',tip:'Very frequent — departs every 15 min at peak. Advance single from £5. Easiest and fastest way to reach Stirling. No booking needed — buy at station.'},
+  'inverness-aviemore':{t:'40 min',d:'29 miles',m:'ScotRail',tip:'Frequent trains on the Edinburgh–Inverness main line. Single from £7. Aviemore is the correct station for Cairngorm Mountain and the Strathspey steam railway.'},
+  'inverness-kyle':{t:'2h 30m',d:'82 miles',m:'ScotRail Kyle Line (scenic)',tip:'The Kyle of Lochalsh line is one of Britain\'s great scenic railway journeys — crosses Dingwall, climbs through Achnasheen, and descends to the sea at Kyle. 3 trains daily. Advance single from £12. Sit on the left heading west.'},
+  'fortWilliam-mallaig':{t:'1h 25m',d:'42 miles',m:'ScotRail / Jacobite steam',tip:'Crosses Glenfinnan Viaduct — Harry Potter\'s route. ScotRail service 3x daily from £8. The Jacobite steam train (May–Oct, book months ahead at west-coast-motors.co.uk) covers the same route in period rolling stock. Both cross the viaduct.'},
+  'oban-tobermory':{t:'1h 15m',d:'CalMac + bus',m:'CalMac (Oban to Craignure) + Stagecoach bus',tip:'CalMac ferry Oban–Craignure (45 min, several daily, from £5 foot passenger). Bus from Craignure to Tobermory (35 min). Book ferry at calmac.co.uk — car spaces fill quickly in summer; foot passengers can often turn up.'},
+  'mallaig-portree':{t:'1h 30m',d:'CalMac + bus',m:'CalMac Mallaig–Armadale + bus',tip:'CalMac ferry Mallaig–Armadale (Skye south, 30 min, seasonal). Bus from Armadale to Portree (1h). Car crossing from £20 each way. Alternatively use the Skye Bridge from Kyle of Lochalsh (free since 2004).'},
+  'ullapool-stornoway':{t:'2h 35m',d:'CalMac ferry',m:'CalMac',tip:'Runs twice daily (morning and evening in summer). Book months ahead for car crossings — one of the busiest CalMac routes. Foot passengers are rarely turned away. From £10 passenger fare. Comfortable crossing with cafe and outdoor deck.'},
+  'inverness-dufftown':{t:'1h 30m',d:'35 miles',m:'ScotRail to Keith + bus',tip:'Train Inverness–Keith (1h), then bus to Dufftown (30 min). Alternatively hire a car — Dufftown is 35 miles via Grantown-on-Spey. Having a car allows multiple distillery visits in one day.'},
+  'edinburgh-newLanark':{t:'1h 15m',d:'ScotRail to Lanark + bus',m:'ScotRail + bus',tip:'Train Edinburgh–Lanark (1h) then bus or taxi 1.5 miles to New Lanark. New Lanark Trust bus runs from Lanark station in summer. Advance return from £12.'},
+  'edinburgh-culloden':{t:'3h 30m',d:'ScotRail to Inverness + bus',m:'ScotRail + bus 5/5A',tip:'Train to Inverness (3h15m), then bus 5 or 5A from Inverness Bus Station to Culloden (25 min). Most Loch Ness bus tours from Inverness include Culloden — check local operators for combination packages.'}
+};
+function getRoute(from,to){return ROUTES[from+'-'+to]||ROUTES[to+'-'+from]||null;}
+var ITINS=[
+  {id:'firstimer',n:'Scotland First-Timer',days:'7 days',transport:'ScotRail throughout',
+   desc:'Edinburgh, Stirling, Highland battlefields, Inverness and Loch Ness, Glen Coe, and Glasgow — the essential Scottish journey.',
+   dl:[
+     {lbl:'Days 1–2 — Edinburgh',stops:[{loc:'edinburgh',n:'Edinburgh — capital and castle',time:'2 days',tip:'Edinburgh Castle early (book online). Royal Mile at 8am before crowds. Arthur\'s Seat free hike (45 min). Greyfriars Kirkyard. Real Mary King\'s Close underground city (£20, book).'}],routes:[]},
+     {lbl:'Day 3 — Stirling',stops:[{loc:'edinburgh',n:'Edinburgh to Stirling',time:'ScotRail, 50 min',tip:'Trains every 30 min. No booking needed. Advance single from £6.'},{loc:'stirling',n:'Stirling — castle and Wallace Monument',time:'Day trip or overnight',tip:'Stirling Castle (£17), Bannockburn VR centre (£14), Wallace Monument (£13). Return to Edinburgh evening or overnight Stirling.'}],routes:[{f:'edinburgh',t:'stirling'}]},
+     {lbl:'Day 4 — Pitlochry',stops:[{loc:'edinburgh',n:'Edinburgh to Pitlochry',time:'ScotRail, 1h 45m',tip:'Direct on the Inverness line. Advance single from £10.'},{loc:'pitlochry',n:'Pitlochry — fish ladder and whisky',time:'Overnight',tip:'Blair Athol Distillery (free visit, £10 tour), Pitlochry Fish Ladder (free, May–Oct), Moulin Hotel pub for dinner.'}],routes:[{f:'edinburgh',t:'pitlochry'}]},
+     {lbl:'Day 5 — Inverness and Culloden',stops:[{loc:'pitlochry',n:'Pitlochry to Inverness',time:'ScotRail, 1h 30m',tip:'Continue north — superb Drumochter Pass scenery.'},{loc:'culloden',n:'Culloden Battlefield',time:'Afternoon (5 miles from Inverness)',tip:'NTS visitor centre (£14). Bus 5/5A from Inverness Bus Station. Allow 2.5 hours.'},{loc:'inverness',n:'Inverness — Highland capital',time:'Overnight',tip:'Loch Ness cruise from Inverness Pier (2h, from £15). Victorian Market. Cafe 1 for dinner.'}],routes:[{f:'pitlochry',t:'inverness'}]},
+     {lbl:'Day 6 — Loch Ness and Glen Coe',stops:[{loc:'lochNess',n:'Loch Ness — Urquhart Castle',time:'Morning (bus 17 or tour from Inverness)',tip:'Urquhart Castle (£12). B862 south shore for the quiet, scenic drive.'},{loc:'glenCoe',n:'Glen Coe — Three Sisters',time:'Afternoon (Citylink 916 from Inverness)',tip:'Citylink 916 Inverness–Glasgow stops at Glen Coe. Three Sisters viewpoint free. Clachaig Inn for dinner.'}],routes:[{f:'inverness',t:'lochNess'},{f:'lochNess',t:'glenCoe'}]},
+     {lbl:'Day 7 — Fort William and Glasgow',stops:[{loc:'fortWilliam',n:'Fort William — morning stop',time:'Morning (Citylink from Glen Coe, 1h)',tip:'Optional Glen Nevis gorge walk (free, 2h). Then ScotRail to Glasgow (3h30m).'},{loc:'glasgow',n:'Glasgow — Kelvingrove and city',time:'Evening',tip:'Kelvingrove Art Gallery (free, open until 5pm). Buchanan Street for evening. Overnight or departure city.'}],routes:[{f:'glenCoe',t:'fortWilliam'},{f:'fortWilliam',t:'glasgow'}]}
+   ]},
+  {id:'grandtour',n:'Classic Grand Tour',days:'10 days',transport:'ScotRail + CalMac ferries',
+   desc:'Edinburgh, Fife, the Highlands, Ullapool, Skye, Mull, and Oban — the full Scottish sweep.',
+   dl:[
+     {lbl:'Days 1–2 — Edinburgh',stops:[{loc:'edinburgh',n:'Edinburgh — 2 nights',time:'Days 1–2',tip:'Castle, Old Town, Holyrood, National Museum of Scotland (free). Arthur\'s Seat morning hike on Day 2.'}],routes:[]},
+     {lbl:'Day 3 — St Andrews',stops:[{loc:'edinburgh',n:'Edinburgh to St Andrews via Leuchars',time:'ScotRail + bus, 1h 15m',tip:'Train to Leuchars, bus X59 to St Andrews. Old Course walk free. Cathedral ruins (£8).'},{loc:'stAndrews',n:'St Andrews — golf, ruins, coast',time:'Day trip',tip:'Old Course walk, cathedral and castle (£8). Return to Edinburgh evening.'}],routes:[{f:'edinburgh',t:'stAndrews'}]},
+     {lbl:'Day 4 — Aviemore',stops:[{loc:'edinburgh',n:'Edinburgh to Aviemore',time:'ScotRail, 2h 30m',tip:'Window seat right side for Forth Bridge views from Edinburgh.'},{loc:'aviemore',n:'Aviemore — Cairngorms',time:'Overnight',tip:'Cairngorm Mountain funicular (£19), Rothiemurchus Forest walks (free). Old Bridge Inn for dinner.'}],routes:[{f:'edinburgh',t:'aviemore'}]},
+     {lbl:'Day 5 — Inverness and Culloden',stops:[{loc:'aviemore',n:'Aviemore to Inverness',time:'ScotRail, 40 min',tip:'Very short hop north.'},{loc:'culloden',n:'Culloden Battlefield',time:'Afternoon',tip:'Bus 5/5A from Inverness. NTS visitor centre (£14). 2.5 hours minimum.'},{loc:'inverness',n:'Inverness — overnight',time:'Evening',tip:'Victorian Market, river walk, Cafe 1 for dinner.'}],routes:[{f:'aviemore',t:'inverness'}]},
+     {lbl:'Day 6 — Ullapool',stops:[{loc:'inverness',n:'Inverness to Ullapool',time:'Bus 1h 30m (Stagecoach X94)',tip:'Runs 3 times daily. Book online. Alternatively hire a car — NC500 is best explored by car.'},{loc:'ullapool',n:'Ullapool — CalMac gateway',time:'Overnight',tip:'The Ceilidh Place for dinner (and impromptu music). Corrieshalloch Gorge (12 miles south, free) if arriving early.'}],routes:[{f:'inverness',t:'ullapool'}]},
+     {lbl:'Day 7 — Kyle of Lochalsh',stops:[{loc:'ullapool',n:'Return to Inverness then Kyle Line',time:'Bus + ScotRail Kyle Line, 4h total',tip:'Bus back to Inverness, then the spectacular Kyle Line train (2h30m) — one of Britain\'s great rail journeys.'},{loc:'kyle',n:'Kyle of Lochalsh — Eilean Donan',time:'Overnight',tip:'Eilean Donan Castle (£14, 8 miles east). Skye Bridge visible from Kyle pier.'}],routes:[{f:'ullapool',t:'kyle'}]},
+     {lbl:'Day 8 — Isle of Skye',stops:[{loc:'kyle',n:'Kyle to Portree via Skye Bridge',time:'Bus 1h over Skye Bridge',tip:'Stagecoach 917 from Kyle to Portree. Or hire a car for full island freedom.'},{loc:'portree',n:'Portree — Old Man of Storr and Quiraing',time:'Overnight',tip:'Old Man of Storr (45-min hike, free). Fairy Pools (30 min south). Talisker Distillery (£15, book ahead). Scorrybreac for dinner.'}],routes:[{f:'kyle',t:'portree'}]},
+     {lbl:'Day 9 — Mallaig and Oban',stops:[{loc:'portree',n:'Portree to Armadale then Mallaig',time:'Bus + CalMac ferry, 1h 30m total',tip:'Bus from Portree to Armadale, CalMac to Mallaig (30 min). Glenfinnan Monument nearby (NTS, £8).'},{loc:'mallaig',n:'Mallaig — Glenfinnan',time:'Mid-morning',tip:'ScotRail from Mallaig crosses Glenfinnan Viaduct to Fort William then Oban connection via Crianlarich.'},{loc:'oban',n:'Oban — seafood capital',time:'Evening',tip:'Oban Seafood Hut at the pier (catch prices). EE-USK for dinner (book). CalMac connections to Mull.'}],routes:[{f:'portree',t:'mallaig'},{f:'mallaig',t:'oban'}]},
+     {lbl:'Day 10 — Mull and Glasgow',stops:[{loc:'tobermory',n:'Tobermory, Mull (morning)',time:'CalMac to Craignure + bus 35 min',tip:'Early ferry Oban–Craignure (45 min). Bus to Tobermory. Cafe Fish for lunch. Return ferry to Oban afternoon.'},{loc:'glasgow',n:'Glasgow — departure city',time:'ScotRail 3h from Oban',tip:'West Highland Line return — equally magnificent both directions. Glasgow arrival evening.'}],routes:[{f:'oban',t:'tobermory'},{f:'oban',t:'glasgow'}]}
+   ]},
+  {id:'whisky',n:'Speyside Whisky Trail',days:'5 days',transport:'ScotRail + car/bus',
+   desc:'Edinburgh, St Andrews, Speyside distilleries at Dufftown and Aberlour, and Inverness — Scotland\'s malt whisky heartland.',
+   dl:[
+     {lbl:'Days 1–2 — Edinburgh',stops:[{loc:'edinburgh',n:'Edinburgh — arrival',time:'Days 1–2',tip:'Scotch Whisky Experience on the Royal Mile (£20, excellent intro). Cadenhead\'s whisky shop (Canongate). The Bow Bar for independent malts.'}],routes:[]},
+     {lbl:'Day 3 — St Andrews',stops:[{loc:'edinburgh',n:'Edinburgh to St Andrews',time:'ScotRail + bus, 1h 15m',tip:'Train to Leuchars, bus to St Andrews. Great coastal Fife scenery.'},{loc:'stAndrews',n:'St Andrews — coast and history',time:'Day trip or overnight',tip:'Old Course walk free. Cathedral ruins (£8). East Neuk fishing villages nearby — Anstruther famous for fish and chips.'}],routes:[{f:'edinburgh',t:'stAndrews'}]},
+     {lbl:'Day 4 — Speyside: Dufftown and Aberlour',stops:[{loc:'edinburgh',n:'Edinburgh to Dufftown via Keith',time:'ScotRail to Keith, 2h 30m, + bus',tip:'Train via Aberdeen to Keith, then bus to Dufftown. Alternatively hire a car from Aberdeen or Inverness for distillery flexibility.'},{loc:'dufftown',n:'Dufftown — Glenfiddich and Balvenie',time:'Overnight',tip:'Glenfiddich (free self-guided, paid experiences from £30). Balvenie (£30, must book) shows coopering. A Taste of Speyside for dinner.'},{loc:'aberlour',n:'Aberlour — Macallan and Mash Tun',time:'Afternoon (5 miles from Dufftown)',tip:'Macallan Distillery (£30+, book at easter-elchies.com). Mash Tun whisky bar (120+ malts). Speyside Cooperage (£4.50).'}],routes:[{f:'edinburgh',t:'dufftown'},{f:'dufftown',t:'aberlour'}]},
+     {lbl:'Day 5 — Inverness',stops:[{loc:'aberlour',n:'Aberlour to Inverness',time:'Bus + ScotRail, 1h 30m',tip:'Bus to Keith or Elgin, ScotRail to Inverness. Check Traveline Scotland for connections.'},{loc:'inverness',n:'Inverness — Highland capital',time:'Day',tip:'Culloden Battlefield (bus 5/5A, NTS, £14). Victorian Market. Loch Ness cruise option (from £15). Departure city.'}],routes:[{f:'aberlour',t:'inverness'}]}
+   ]},
+  {id:'outlander',n:'Outlander and History Trail',days:'5 days',transport:'ScotRail + bus',
+   desc:'Edinburgh, Stirling, Pitlochry, Culloden, and Glen Coe — Scotland\'s dramatic history, clan stories, and Outlander landscapes.',
+   dl:[
+     {lbl:'Day 1 — Edinburgh',stops:[{loc:'edinburgh',n:'Edinburgh — Holyrood and Old Town',time:'1 day',tip:'Palace of Holyroodhouse (Mary Queen of Scots rooms, £18). Edinburgh Castle (£21). Real Mary King\'s Close (underground city, £20, book). Canongate Kirkyard at dusk.'}],routes:[]},
+     {lbl:'Day 2 — Stirling',stops:[{loc:'edinburgh',n:'Edinburgh to Stirling',time:'ScotRail, 50 min',tip:'Trains every 30 min.'},{loc:'stirling',n:'Stirling — Bannockburn and Doune Castle',time:'Overnight',tip:'Stirling Castle (£17 — Mary Queen of Scots crowned here). Bannockburn VR (£14). Doune Castle (£8 HES) — Outlander and Game of Thrones filming exterior.'}],routes:[{f:'edinburgh',t:'stirling'}]},
+     {lbl:'Day 3 — Pitlochry and Blair Castle',stops:[{loc:'stirling',n:'Stirling to Pitlochry',time:'ScotRail 1h 15m via Perth',tip:'Change at Perth if required.'},{loc:'pitlochry',n:'Pitlochry — Blair Castle and Killiecrankie',time:'Overnight',tip:'Blair Castle (£12, 7 miles north — the last private army in Europe, Atholl Highlanders). Battle of Killiecrankie visitor centre (NTS, free grounds). Moulin Inn for dinner.'}],routes:[{f:'stirling',t:'pitlochry'}]},
+     {lbl:'Day 4 — Culloden',stops:[{loc:'pitlochry',n:'Pitlochry to Inverness',time:'ScotRail 1h 30m',tip:'Continue north. Cairngorms scenery through Drumochter.'},{loc:'culloden',n:'Culloden Battlefield — 1746',time:'Afternoon',tip:'NTS visitor centre (£14). Bus 5/5A from Inverness. Jacobite rising ended here — central to Outlander storyline. Allow 3 hours.'},{loc:'inverness',n:'Inverness — overnight',time:'Evening',tip:'Inverness Castle views. Dinner at Cafe 1 or The Mustard Seed.'}],routes:[{f:'pitlochry',t:'inverness'}]},
+     {lbl:'Day 5 — Glen Coe and Glasgow',stops:[{loc:'inverness',n:'Inverness to Glen Coe',time:'Citylink 919, 2h via Fort William',tip:'Scenic A82 route via Loch Ness.'},{loc:'glenCoe',n:'Glen Coe — massacre site and Three Sisters',time:'Afternoon',tip:'Glencoe Village NTS museum (£8) — 1692 massacre history. Three Sisters viewpoint free. Clachaig Inn for lunch or dinner.'},{loc:'glasgow',n:'Glasgow — departure city',time:'Evening',tip:'Citylink 916/915 from Glen Coe to Glasgow (2h). Glasgow evening for departure.'}],routes:[{f:'inverness',t:'glenCoe'},{f:'glenCoe',t:'glasgow'}]}
+   ]}
+];
+var _activeItinId=null,_globalStops=[];
+function buildGlobalStops(it){var res=[],n=1;it.dl.forEach(function(day,di){var prev=null;day.stops.forEach(function(s){var d=getDestById(s.loc);var xy=d?[d.lat,d.lng]:null;if(!xy)return;if(s.loc===prev){if(res.length>0&&res[res.length-1].dayIdx===di)res[res.length-1].label+=' + '+s.n;return;}prev=s.loc;res.push({locId:s.loc,coords:xy,label:s.n,num:n++,dayIdx:di});});});return res;}
+function activateItinerary(it){_activeItinId=it.id;_globalStops=buildGlobalStops(it);}
+function mkIcon(type){var conf={hub:{col:'#1a3a5c'},scenic:{col:'#2d6a4f'},historic:{col:'#8a5a10'},coastal:{col:'#1a5c6a'},whisky:{col:'#6a3a1a'}};var c=(conf[type]||conf.hub).col;var letter={'hub':'H','scenic':'S','historic':'H','coastal':'C','whisky':'W'}[type]||'H';return L.divIcon({html:'<div style="width:30px;height:30px;border-radius:50%;background:'+c+';border:2.5px solid white;box-shadow:0 2px 8px rgba(0,0,0,.4);display:flex;align-items:center;justify-content:center;color:white;font-size:11px;font-weight:700;">'+letter+'</div>',iconSize:[30,30],iconAnchor:[15,15],popupAnchor:[0,-18],className:''});}
+function getDestById(id){for(var i=0;i<DESTS.length;i++)if(DESTS[i].id===id)return DESTS[i];return null;}
+window.onload=function(){
+  nsMap=L.map('map',{zoomControl:true}).setView([57.00,-4.50],6);
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',{attribution:'&copy; OpenStreetMap &copy; CARTO',subdomains:'abcd',maxZoom:19}).addTo(nsMap);
+  markersLayer=L.layerGroup().addTo(nsMap);
+  placeLandmarkMarkers();buildItinList();fillSelects();
+  fillBldSelect(document.querySelector('.bld-sel[data-index="0"]'));
+  document.querySelector('.bld-rm[data-index="0"]').addEventListener('click',function(){removeBldStop(0);});
+  setupBldDrag();updateBldState();
+  document.getElementById('bldAdd').addEventListener('click',addBldStop);
+  document.getElementById('bldCalc').addEventListener('click',calcBldRoute);
+  document.getElementById('bldClear').addEventListener('click',clearBld);
+  document.getElementById('px').addEventListener('click',function(){document.getElementById('panel').classList.remove('open');});
+  document.getElementById('fab').addEventListener('click',function(){document.getElementById('panel').classList.toggle('open');});
+};
+function placeLandmarkMarkers(){markersLayer.clearLayers();DESTS.forEach(function(d){var html='<div class="pu"><div class="pu-name">'+d.n+'</div><div class="pu-type">'+d.tag+'</div><div class="pu-row"><b>Best time:</b> '+d.best+'</div><div class="pu-row"><b>Stay:</b> '+d.days+'</div><div class="pu-tip">'+d.tip+'</div></div>';L.marker([d.lat,d.lng],{icon:mkIcon(d.type)}).bindPopup(html,{maxWidth:260}).addTo(markersLayer);});}
+function buildItinList(){var cont=document.getElementById('itinList');ITINS.forEach(function(it){var card=document.createElement('div');card.className='itin-card';var btns=it.dl.map(function(d,i){return '<button class="dbtn'+(i===0?' on':'')+'" data-itin="'+it.id+'" data-idx="'+i+'">'+d.lbl+'</button>';}).join('');card.innerHTML='<h3>'+it.n+'</h3><div class="imeta">'+it.days+'&nbsp;&nbsp;'+it.transport+'</div><div class="idesc">'+it.desc+'</div><div class="dtabs" id="dtabs-'+it.id+'">'+btns+'</div>';card.addEventListener('click',function(e){if(e.target.closest&&e.target.closest('.dbtn'))return;var isOn=card.classList.contains('on');document.querySelectorAll('.itin-card').forEach(function(c){c.classList.remove('on');});document.querySelectorAll('.dtabs').forEach(function(t){t.classList.remove('on');});clearRoutes();if(!isOn){card.classList.add('on');document.getElementById('dtabs-'+it.id).classList.add('on');activateItinerary(it);drawDay(it,0);document.querySelectorAll('#dtabs-'+it.id+' .dbtn').forEach(function(b,i){b.classList.toggle('on',i===0);});}});cont.appendChild(card);});cont.addEventListener('click',function(e){var btn=e.target.closest('[data-itin]');if(!btn)return;e.stopPropagation();var itId=btn.getAttribute('data-itin'),idx=parseInt(btn.getAttribute('data-idx'));var it2=null;for(var i=0;i<ITINS.length;i++){if(ITINS[i].id===itId){it2=ITINS[i];break;}}if(!it2)return;if(_activeItinId!==itId)activateItinerary(it2);document.querySelectorAll('#dtabs-'+itId+' .dbtn').forEach(function(b){b.classList.remove('on');});btn.classList.add('on');drawDay(it2,idx);});}
+function clearRoutes(){activeRouteObjs.forEach(function(o){nsMap.removeLayer(o);});activeRouteObjs=[];document.getElementById('stops').classList.remove('on');}
+function drawDay(it,dayIdx){clearRoutes();var day=it.dl[dayIdx];if(!day)return;DESTS.forEach(function(d){activeRouteObjs.push(L.circleMarker([d.lat,d.lng],{radius:4,color:'#fff',fillColor:'#b0bccc',fillOpacity:.35,weight:1,interactive:false}).addTo(nsMap));});var dayStops=_globalStops.filter(function(s){return s.dayIdx===dayIdx;});var prevLast=null;if(dayIdx>0){var prev=_globalStops.filter(function(s){return s.dayIdx===dayIdx-1;});if(prev.length)prevLast=prev[prev.length-1];}if(prevLast&&dayStops.length>0&&prevLast.locId!==dayStops[0].locId){activeRouteObjs.push(L.polyline([prevLast.coords,dayStops[0].coords],{color:'#e8a838',weight:3,opacity:.75,dashArray:'8,5',lineCap:'round'}).addTo(nsMap));activeRouteObjs.push(L.marker(prevLast.coords,{icon:L.divIcon({className:'',html:'<div style="width:22px;height:22px;border-radius:50%;background:#99a8bb;border:2px solid white;box-shadow:0 1px 5px rgba(0,0,0,.2);display:flex;align-items:center;justify-content:center;color:white;font-size:10px;font-weight:600;">'+prevLast.num+'</div>',iconSize:[22,22],iconAnchor:[11,11],zIndexOffset:350}),zIndexOffset:350}).addTo(nsMap));}for(var j=0;j<dayStops.length-1;j++){if(dayStops[j].locId===dayStops[j+1].locId)continue;activeRouteObjs.push(L.polyline([dayStops[j].coords,dayStops[j+1].coords],{color:'#2d6a4f',weight:5,opacity:1,dashArray:'10,6',lineCap:'round',lineJoin:'round'}).addTo(nsMap));}var bCoords=[];dayStops.forEach(function(s){bCoords.push(s.coords);var lbl=s.label.length>24?s.label.substring(0,22)+'...':s.label;var icon=L.divIcon({className:'',html:'<div style="text-align:center;width:130px;"><div style="width:30px;height:30px;border-radius:50%;background:#c4533a;border:3px solid white;box-shadow:0 2px 10px rgba(0,0,0,.4);display:flex;align-items:center;justify-content:center;color:white;font-size:12px;font-weight:700;margin:0 auto;">'+s.num+'</div><div style="margin-top:3px;font-size:10px;font-weight:700;color:#112244;background:rgba(255,255,255,.92);border-radius:3px;padding:1px 4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:130px;display:inline-block;">'+lbl+'</div></div>',iconSize:[130,46],iconAnchor:[65,15],zIndexOffset:700});activeRouteObjs.push(L.marker(s.coords,{icon:icon,zIndexOffset:700}).addTo(nsMap));});if(prevLast&&prevLast.locId!==dayStops[0].locId)bCoords.push(prevLast.coords);var seen={},uniq=[];bCoords.forEach(function(xy){var k=xy[0].toFixed(2)+','+xy[1].toFixed(2);if(!seen[k]){seen[k]=true;uniq.push(xy);}});if(uniq.length>1)nsMap.fitBounds(L.latLngBounds(uniq),{paddingTopLeft:[380,70],paddingBottomRight:[80,90],animate:true,maxZoom:11});else if(uniq.length===1)nsMap.setView(uniq[0],11,{animate:true});document.getElementById('stopsTitle').textContent=it.n+' — '+day.lbl;document.getElementById('stopsBd').innerHTML=day.stops.map(function(s,i){return '<div class="srow"><span class="snum">'+(i+1)+'</span><span class="sname">'+s.n+'</span>'+(s.time?'<span class="stime">'+s.time+'</span>':'')+(s.tip?'<div class="stip">'+s.tip+'</div>':'')+'</div>';}).join('');document.getElementById('stops').classList.add('on');if(window.innerWidth<=768)document.getElementById('panel').classList.remove('open');}
+function fillSelects(){['selFrom','selTo'].forEach(function(sid){var sel=document.getElementById(sid);if(!sel)return;DESTS.forEach(function(d){var opt=document.createElement('option');opt.value=d.id;opt.textContent=d.n;sel.appendChild(opt);});sel.addEventListener('change',liveRoute);});}
+function liveRoute(){var from=document.getElementById('selFrom').value;var to=document.getElementById('selTo').value;var res=document.getElementById('rtResult');if(!from||!to||from===to){res.classList.remove('on');clearRoutes();placeLandmarkMarkers();return;}var A=getDestById(from),B=getDestById(to);if(!A||!B)return;var r=getRoute(from,to);clearRoutes();placeLandmarkMarkers();var line=L.polyline([[A.lat,A.lng],[B.lat,B.lng]],{color:'#c4533a',weight:5,opacity:.95,dashArray:'9,6',lineCap:'round'}).addTo(nsMap);activeRouteObjs.push(line);[{d:A,lbl:'A'},{d:B,lbl:'B'}].forEach(function(pt){var icon=L.divIcon({className:'',html:'<div style="text-align:center;width:100px;"><div style="width:28px;height:28px;border-radius:50%;background:#c4533a;border:3px solid white;box-shadow:0 2px 10px rgba(0,0,0,.35);display:flex;align-items:center;justify-content:center;color:white;font-size:11px;font-weight:700;margin:0 auto;">'+pt.lbl+'</div><div style="margin-top:3px;font-size:10px;font-weight:700;color:#112244;background:rgba(255,255,255,.9);border-radius:3px;padding:1px 4px;white-space:nowrap;max-width:100px;overflow:hidden;text-overflow:ellipsis;display:inline-block;">'+pt.d.n+'</div></div>',iconSize:[100,40],iconAnchor:[50,14],zIndexOffset:600});activeRouteObjs.push(L.marker([pt.d.lat,pt.d.lng],{icon:icon,zIndexOffset:600}).addTo(nsMap));});nsMap.fitBounds(L.latLngBounds([[A.lat,A.lng],[B.lat,B.lng]]),{paddingTopLeft:[380,60],paddingBottomRight:[80,60],animate:true,maxZoom:11});if(r){document.getElementById('rtMain').textContent=A.n+' → '+B.n+' — '+r.t;document.getElementById('rtDetail').textContent='Distance: '+r.d+' · Service: '+r.m;document.getElementById('rtTip').textContent=r.tip;}else{document.getElementById('rtMain').textContent=A.n+' → '+B.n;document.getElementById('rtDetail').textContent='Indicative straight-line. Check scotrail.co.uk or calmac.co.uk for exact connections.';document.getElementById('rtTip').textContent='Most Scottish cities connect by ScotRail with zero or one change. Island connections use CalMac ferries — book car spaces months ahead in summer at calmac.co.uk. Foot passengers can often turn up on the day. The ScotRail Railcard (35% off) is worthwhile for trips over 3 days.';}res.classList.add('on');}
+function fillBldSelect(sel){if(!sel)return;DESTS.forEach(function(d){var opt=document.createElement('option');opt.value=d.id;opt.textContent=d.n;sel.appendChild(opt);});sel.addEventListener('change',updateBldState);}
+function addBldStop(){var container=document.getElementById('bldStops');var idx=container.querySelectorAll('.bld-stop').length;var div=document.createElement('div');div.className='bld-stop';div.setAttribute('data-index',idx);div.innerHTML='<span class="bld-handle">&#9776;</span><span class="bld-num">'+(idx+1)+'</span><select class="bld-sel" data-index="'+idx+'"><option value="">Select destination...</option></select><button class="bld-rm" data-index="'+idx+'">&#215;</button>';container.appendChild(div);fillBldSelect(div.querySelector('.bld-sel'));div.querySelector('.bld-rm').addEventListener('click',function(){removeBldStop(parseInt(this.getAttribute('data-index')));});setupBldDrag();updateBldState();}
+function removeBldStop(idx){var container=document.getElementById('bldStops');if(container.querySelectorAll('.bld-stop').length<=1)return;var el=container.querySelector('.bld-stop[data-index="'+idx+'"]');if(el)el.remove();renumberBld();updateBldState();}
+function renumberBld(){document.querySelectorAll('.bld-stop').forEach(function(s,i){s.setAttribute('data-index',i);s.querySelector('.bld-num').textContent=i+1;var sel=s.querySelector('.bld-sel');if(sel)sel.setAttribute('data-index',i);var rm=s.querySelector('.bld-rm');if(rm)rm.setAttribute('data-index',i);});}
+function updateBldState(){var vals=Array.from(document.querySelectorAll('.bld-sel')).map(function(s){return s.value;}).filter(Boolean);document.getElementById('bldCalc').disabled=vals.length<2;}
+function setupBldDrag(){document.querySelectorAll('.bld-stop').forEach(function(s){s.setAttribute('draggable','true');s.ondragstart=function(e){this.classList.add('dragging');e.dataTransfer.setData('text/plain',this.getAttribute('data-index'));};s.ondragend=function(){this.classList.remove('dragging');document.querySelectorAll('.bld-stop').forEach(function(x){x.classList.remove('drag-over');});};s.ondragover=function(e){e.preventDefault();this.classList.add('drag-over');};s.ondragleave=function(){this.classList.remove('drag-over');};s.ondrop=function(e){e.preventDefault();this.classList.remove('drag-over');var fromIdx=parseInt(e.dataTransfer.getData('text/plain'));var toIdx=parseInt(this.getAttribute('data-index'));if(fromIdx===toIdx)return;var container=document.getElementById('bldStops');var all=Array.from(container.querySelectorAll('.bld-stop'));var moved=all.splice(fromIdx,1)[0];all.splice(toIdx,0,moved);all.forEach(function(x){container.appendChild(x);});renumberBld();updateBldState();};});}
+function clearBld(){var container=document.getElementById('bldStops');container.innerHTML='<div class="bld-stop" data-index="0"><span class="bld-handle">&#9776;</span><span class="bld-num">1</span><select class="bld-sel" data-index="0"><option value="">Add first stop...</option></select><button class="bld-rm" data-index="0">&#215;</button></div>';fillBldSelect(container.querySelector('.bld-sel'));container.querySelector('.bld-rm').addEventListener('click',function(){removeBldStop(0);});setupBldDrag();document.getElementById('bldResults').innerHTML='';document.getElementById('bldCalc').disabled=true;clearRoutes();placeLandmarkMarkers();}
+function calcBldRoute(){var stops=Array.from(document.querySelectorAll('.bld-sel')).map(function(s){return s.value;}).filter(Boolean);if(stops.length<2)return;clearRoutes();placeLandmarkMarkers();var legs=[],coords=[];for(var i=0;i<stops.length-1;i++){var A=getDestById(stops[i]),B=getDestById(stops[i+1]);if(!A||!B)continue;var r=getRoute(stops[i],stops[i+1]);legs.push({A:A,B:B,r:r});activeRouteObjs.push(L.polyline([[A.lat,A.lng],[B.lat,B.lng]],{color:'#c4533a',weight:4,opacity:.9,dashArray:'7,5',lineCap:'round'}).addTo(nsMap));coords.push([A.lat,A.lng]);}var last=getDestById(stops[stops.length-1]);if(last)coords.push([last.lat,last.lng]);stops.forEach(function(id,i){var d=getDestById(id);if(!d)return;var icon=L.divIcon({className:'',html:'<div style="text-align:center;width:110px;"><div style="width:30px;height:30px;border-radius:50%;background:#c4533a;border:3px solid white;box-shadow:0 2px 10px rgba(0,0,0,.4);display:flex;align-items:center;justify-content:center;color:white;font-size:12px;font-weight:700;margin:0 auto;">'+(i+1)+'</div><div style="margin-top:3px;font-size:10px;font-weight:700;color:#112244;background:rgba(255,255,255,.9);border-radius:3px;padding:1px 4px;white-space:nowrap;max-width:110px;overflow:hidden;text-overflow:ellipsis;display:inline-block;">'+d.n+'</div></div>',iconSize:[120,38],iconAnchor:[60,11]});activeRouteObjs.push(L.marker([d.lat,d.lng],{icon:icon,zIndexOffset:500}).addTo(nsMap));});if(coords.length>1)nsMap.fitBounds(L.latLngBounds(coords),{padding:[80,80],animate:true});var html='';legs.forEach(function(leg){html+='<div class="bld-leg"><div class="bld-leg-head">'+leg.A.n+' &rarr; '+leg.B.n+(leg.r?' &mdash; '+leg.r.t:'')+'</div>';if(leg.r)html+='<div class="bld-leg-detail"><b>Distance:</b> '+leg.r.d+' &middot; <b>Service:</b> '+leg.r.m+'</div><div class="bld-leg-tip">'+leg.r.tip+'</div>';else html+='<div class="bld-leg-detail">Check scotrail.co.uk or calmac.co.uk for connections and fares.</div>';html+='</div>';});document.getElementById('bldResults').innerHTML=html;}
+function showPane(id,btn){clearRoutes();document.querySelectorAll('.itin-card').forEach(function(c){c.classList.remove('on');});document.querySelectorAll('.dtabs').forEach(function(t){t.classList.remove('on');});var rtr=document.getElementById('rtResult');if(rtr)rtr.classList.remove('on');document.querySelectorAll('.tbtn').forEach(function(b){b.classList.remove('on');});document.querySelectorAll('.pane').forEach(function(p){p.classList.remove('on');});btn.classList.add('on');document.getElementById('pane-'+id).classList.add('on');placeLandmarkMarkers();}
+</script>
+</body>
+</html>
