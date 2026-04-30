@@ -1,1 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>2026 Updates &mdash; The No-Stress Scotland Travel Guide</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@300;400;500;600;700&family=Lato:ital,wght@0,300;0,400;0,700;1,300&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#112244;--navy-mid:#1B3566;--navy-light:#254580;
+  --gold:#F5C842;--gold-dark:#C89A10;--gold-pale:#FDF6DC;
+  --bg:#F0F4FB;--white:#FFFFFF;
+  --text:#1A2340;--text-mid:#3A4A6A;--text-muted:#6A7A9A;
+  --bad:#8C2020;--bad-pale:#FBF0F0;
+  --warn:#B36A10;--warn-pale:#FDF3E3;
+  --ok:#1A5C30;--ok-pale:#E4F5EB;
+  --new:#1A4A80;--new-pale:#E4EEF8;
+  --border:#C8D6EE;--border-lt:#E2EAF8;
+  --radius:10px;--shadow:0 2px 12px rgba(17,34,68,0.08);
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html{font-size:16px;-webkit-text-size-adjust:100%;scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:'Lato',sans-serif;font-weight:300;line-height:1.65;min-height:100vh;-webkit-font-smoothing:antialiased}
+.header{background:var(--navy);background-image:radial-gradient(ellipse at 80% 0%,rgba(37,69,128,0.8) 0%,transparent 60%);padding:2rem 1.5rem 0;position:sticky;top:0;z-index:100;overflow:hidden}
+.header::before{content:'';position:absolute;inset:0;background-image:radial-gradient(rgba(255,255,255,0.06) 1px,transparent 1px);background-size:20px 20px;pointer-events:none}
+.stamp{position:relative;z-index:1;margin-bottom:1.5rem}
+.stamp-inner{border:2.5px solid var(--gold);border-radius:4px;padding:1.1rem 1.3rem 1rem;background:rgba(17,34,68,0.55);backdrop-filter:blur(4px);position:relative}
+.stamp-inner::before{content:'';position:absolute;top:-9px;left:8px;right:8px;height:8px;background:repeating-linear-gradient(90deg,transparent,transparent 5px,var(--bg) 5px,var(--bg) 10px);opacity:.6}
+.stamp-inner::after{content:'';position:absolute;bottom:-9px;left:8px;right:8px;height:8px;background:repeating-linear-gradient(90deg,transparent,transparent 5px,var(--bg) 5px,var(--bg) 10px);opacity:.6}
+.stamp-label{font-family:'Oswald',sans-serif;font-size:.55rem;font-weight:400;letter-spacing:.28em;text-transform:uppercase;color:var(--gold);opacity:.8;margin-bottom:.35rem}
+.stamp-title{font-family:'Oswald',sans-serif;font-size:2rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:#fff;line-height:1.05;margin-bottom:.55rem}
+.stamp-dest{font-family:'Oswald',sans-serif;font-size:.75rem;font-weight:300;letter-spacing:.22em;text-transform:uppercase;color:rgba(255,255,255,.7)}
+.year-badge{display:inline-block;background:var(--gold);color:var(--navy);font-family:'Oswald',sans-serif;font-size:.7rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;padding:.18rem .65rem;border-radius:3px;margin-bottom:.55rem}
+.header-tabs{position:relative;z-index:1;display:flex;gap:0;margin-top:auto}
+.h-tab{flex:1;padding:.55rem .4rem;text-align:center;font-family:'Oswald',sans-serif;font-size:.58rem;font-weight:400;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.55);border-bottom:3px solid transparent;cursor:pointer;transition:all .2s;border-radius:3px 3px 0 0;background:none;border-top:none;border-left:none;border-right:none}
+.h-tab:hover{color:rgba(255,255,255,.8)}
+.h-tab.active{color:var(--gold);border-bottom-color:var(--gold);background:rgba(245,200,66,.06)}
+.transparency{background:var(--gold-pale);border:1px solid rgba(200,154,16,.3);border-radius:var(--radius);padding:.9rem 1rem;margin-bottom:1.2rem}
+.t-head{font-family:'Oswald',sans-serif;font-size:.6rem;font-weight:500;letter-spacing:.18em;text-transform:uppercase;color:var(--gold-dark);margin-bottom:.35rem}
+.t-text{font-size:.78rem;color:var(--text-mid);line-height:1.5}
+.content{max-width:640px;margin:0 auto;padding:1.2rem 1.1rem 2rem}
+.section{margin-bottom:3rem;opacity:0;transform:translateY(14px);transition:opacity .45s ease,transform .45s ease}
+.section.visible{opacity:1;transform:translateY(0)}
+.section-head{position:sticky;top:0;z-index:10;background:var(--bg);display:flex;align-items:center;justify-content:space-between;padding:.6rem 0 .55rem;margin-bottom:.9rem;border-bottom:2.5px solid var(--navy);box-shadow:0 4px 12px rgba(240,244,251,.95)}
+.sh-left{display:flex;align-items:center;gap:.55rem}
+.sh-pip{width:10px;height:10px;border-radius:2px;flex-shrink:0}
+.sp-bad{background:var(--bad)}.sp-warn{background:var(--warn)}.sp-ok{background:var(--ok)}.sp-new{background:var(--new)}
+.sh-title{font-family:'Oswald',sans-serif;font-size:1rem;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--navy)}
+.sh-date{font-size:.6rem;color:var(--text-muted);letter-spacing:.04em;white-space:nowrap}
+.zone{display:flex;align-items:center;gap:.55rem;margin:1.1rem 0 .6rem}
+.zone-label{font-family:'Oswald',sans-serif;font-size:.6rem;font-weight:500;letter-spacing:.22em;text-transform:uppercase;color:var(--gold-dark);white-space:nowrap}
+.zone-line{flex:1;height:1px;background:var(--border)}
+.card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:.55rem;overflow:hidden;position:relative;box-shadow:var(--shadow)}
+.card-bar{position:absolute;left:0;top:0;bottom:0;width:4px}
+.cb-bad{background:var(--bad)}.cb-warn{background:var(--warn)}.cb-new{background:var(--new)}.cb-ok{background:var(--ok)}
+.card-body{padding:.88rem 1rem .88rem 1.3rem}
+.card-place{font-family:'Oswald',sans-serif;font-size:.58rem;font-weight:300;letter-spacing:.18em;text-transform:uppercase;color:var(--text-muted);margin-bottom:.18rem}
+.card-text{font-size:.85rem;color:var(--text-mid);line-height:1.58}
+.card-text strong{color:var(--text);font-weight:700}
+.card-text em{font-style:italic;color:var(--text-muted)}
+.price-row{display:flex;align-items:center;gap:.45rem;margin-top:.6rem;padding-top:.5rem;border-top:1px solid var(--border-lt);flex-wrap:wrap}
+.pr-old{font-size:.76rem;color:var(--text-muted);text-decoration:line-through}
+.pr-arrow{font-size:.6rem;color:var(--text-muted)}
+.pr-new{font-size:.86rem;font-weight:700;color:var(--bad)}
+.pr-ok{font-size:.86rem;font-weight:700;color:var(--ok)}
+.pr-src{font-size:.65rem;color:var(--text-muted);margin-left:auto}
+.alert-block{border-radius:var(--radius);padding:.85rem 1rem;margin-bottom:.55rem;border:1px solid}
+.ab-bad{background:var(--bad-pale);border-color:rgba(140,32,32,.2)}
+.ab-warn{background:var(--warn-pale);border-color:rgba(179,106,16,.2)}
+.alert-head{font-family:'Oswald',sans-serif;font-size:.62rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;margin-bottom:.25rem}
+.ah-bad{color:var(--bad)}.ah-warn{color:var(--warn)}
+.alert-text{font-size:.8rem;color:var(--text-mid);line-height:1.5}
+.ok-list{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow)}
+.ok-row{display:flex;gap:.7rem;align-items:flex-start;padding:.75rem 1rem;border-bottom:1px solid var(--border-lt)}
+.ok-row:last-child{border-bottom:none}
+.ok-badge{width:20px;height:20px;border-radius:50%;background:var(--ok-pale);color:var(--ok);font-size:.65rem;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:.08rem}
+.ok-text{font-size:.83rem;color:var(--text-mid);line-height:1.48}
+.ok-text strong{color:var(--text);font-weight:700;display:block;font-size:.77rem;margin-bottom:.08rem}
+.changelog{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow)}
+.cl-head{background:var(--navy);padding:.65rem 1rem;font-family:'Oswald',sans-serif;font-size:.62rem;font-weight:400;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,.8)}
+.cl-row{display:flex;gap:.8rem;align-items:flex-start;padding:.7rem 1rem;border-bottom:1px solid var(--border-lt)}
+.cl-row:last-child{border-bottom:none}
+.cl-year{font-family:'Oswald',sans-serif;font-size:.72rem;font-weight:600;color:var(--navy);min-width:38px;flex-shrink:0;padding-top:.05rem}
+.cl-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:.28rem}
+.cd-active{background:var(--ok)}.cd-sched{background:var(--border)}
+.cl-text{font-size:.78rem;color:var(--text-mid);line-height:1.45}
+.cl-text.sched{color:var(--text-muted);font-style:italic}
+.cl-badge{display:inline-block;background:var(--ok-pale);color:var(--ok);font-family:'Oswald',sans-serif;font-size:.55rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;padding:.1rem .45rem;border-radius:3px;margin-left:.4rem;vertical-align:middle}
+footer{background:var(--navy)}
+.footer-gold{background:var(--gold);padding:1.1rem 1.5rem;display:flex;align-items:center;justify-content:center}
+.footer-brand{font-family:'Oswald',sans-serif;font-size:1rem;font-weight:700;color:var(--navy);letter-spacing:.14em;text-transform:uppercase}
+.footer-brand-sub{font-family:'Oswald',sans-serif;font-size:.58rem;font-weight:300;letter-spacing:.16em;text-transform:uppercase;color:var(--navy);opacity:.6;margin-top:.15rem}
+.footer-body{padding:1.5rem 1.5rem 2rem;color:rgba(255,255,255,.75)}
+.footer-promise{font-size:.8rem;line-height:1.6;margin-bottom:1rem;color:rgba(255,255,255,.85)}
+.footer-contact{font-size:.75rem;color:rgba(255,255,255,.55);margin-bottom:1rem}
+.footer-contact a{color:var(--gold);text-decoration:none}
+.footer-legal{font-size:.68rem;color:rgba(255,255,255,.35);line-height:1.55}
+@media(min-width:600px){.stamp-title{font-size:2.5rem}.content{padding:1.5rem 1.5rem 3rem}}
+</style>
+</head>
+<body>
+<header class="header">
+  <div class="stamp">
+    <div class="stamp-inner">
+      <div class="stamp-label">No-Stress Guides &mdash; Digital Companion</div>
+      <div class="year-badge">2026 Edition</div>
+      <div class="stamp-title">Scotland</div>
+      <div class="stamp-dest">Yearly Updates</div>
+    </div>
+  </div>
+  <div class="header-tabs">
+    <button class="h-tab active" data-target="sec-changed">What Changed</button>
+    <button class="h-tab" data-target="sec-confirmed">Confirmed</button>
+    <button class="h-tab" data-target="sec-new">New Tips</button>
+    <button class="h-tab" data-target="sec-seasonal">Seasonal Alerts</button>
+  </div>
+</header>
+<main class="content">
+  <div class="transparency">
+    <div class="t-head">How this page works</div>
+    <div class="t-text">Every item verified for 2026 against official sources: ScotRail (scotrail.co.uk), CalMac Ferries (calmac.co.uk), Historic Environment Scotland (hes.scot), National Trust for Scotland (nts.org.uk), VisitScotland (visitscotland.com), and direct attraction websites. Check 3&ndash;5 days before departure for last-minute changes. Email us if something has shifted.</div>
+  </div>
 
+  <!-- WHAT CHANGED -->
+  <section class="section" id="sec-changed">
+    <div class="section-head">
+      <div class="sh-left"><span class="sh-pip sp-bad"></span><span class="sh-title">What Changed</span></div>
+      <span class="sh-date">Verified March 2026</span>
+    </div>
+
+    <div class="zone"><span class="zone-label">ScotRail &mdash; fares and services</span><span class="zone-line"></span></div>
+
+    <div class="card">
+      <div class="card-bar cb-warn"></div>
+      <div class="card-body">
+        <div class="card-place">ScotRail &mdash; fares increased January 2026</div>
+        <div class="card-text">ScotRail increased its walk-up fares by approximately <strong>4.6%</strong> on 2 January 2026, in line with the UK rail fare formula (RPI + 1%). Advance purchase tickets (booked at least 7 days ahead) remain the most effective way to keep costs down. <strong>Key change: ScotRail Anytime Day Return tickets on the Edinburgh&ndash;Glasgow corridor are now £29.80</strong> (up from £28.50). Advance singles on the same route start from £6.90. ScotRail Railcards (26&ndash;30 Card, Disabled Persons, Senior, Two Together) continue to give 34% off and break even after 2&ndash;3 journeys at advance prices.</div>
+        <div class="price-row">
+          <span class="pr-old">Edinburgh&ndash;Glasgow Anytime Return from £28.50</span>
+          <span class="pr-arrow">&rarr;</span>
+          <span class="pr-new">£29.80 (2026)</span>
+          <span class="pr-src">scotrail.co.uk</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-bar cb-bad"></div>
+      <div class="card-body">
+        <div class="card-place">ScotRail &mdash; reduced Sunday services (West Highland Line)</div>
+        <div class="card-text">The West Highland Line (Glasgow&ndash;Fort William&ndash;Mallaig) now operates <strong>reduced Sunday services</strong> on certain sections year-round, with only 2 trains per day in each direction on Sundays between Glasgow and Mallaig. <strong>This is a significant operational change</strong> affecting island-hopping itineraries: visitors connecting from Oban or Fort William to an afternoon CalMac ferry on Sundays must plan with care. Check the Sunday timetable at scotrail.co.uk before booking CalMac crossings. Weekday and Saturday services remain at full frequency.</div>
+      </div>
+    </div>
+
+    <div class="zone"><span class="zone-label">CalMac ferries &mdash; fares and booking</span><span class="zone-line"></span></div>
+
+    <div class="alert-block ab-bad">
+      <div class="alert-head ah-bad">CalMac car ferry bookings now essential for peak season — some routes 100% full weeks ahead</div>
+      <div class="alert-text">CalMac Ferries implemented a <strong>mandatory advance booking system for all car crossings</strong> on the busiest routes (Ullapool&ndash;Stornoway, Oban&ndash;Mull, Mallaig&ndash;Armadale) following severe summer 2024 overcrowding. Car spaces on peak Friday evenings and Sunday afternoons sell out 4&ndash;6 weeks ahead in July and August. <strong>Book at calmac.co.uk as soon as your dates are confirmed.</strong> Foot passengers can almost always travel without a booking, but car drivers arriving without a reservation on peak days will be turned away. Off-peak crossings (Monday–Thursday, most October&ndash;April sailings) remain bookable on the day.</div>
+    </div>
+
+    <div class="card">
+      <div class="card-bar cb-warn"></div>
+      <div class="card-body">
+        <div class="card-place">CalMac &mdash; passenger fare increases 2026</div>
+        <div class="card-text">CalMac passenger fares increased by <strong>5.1%</strong> on 1 April 2026 across all routes. The Ullapool&ndash;Stornoway foot passenger fare is now <strong>£12.60 each way</strong>. The Oban&ndash;Craignure (Mull) foot passenger fare is £5.90 each way. Car crossings increased proportionally. The <strong>Island Hopscotch tickets</strong> (pre-purchased multi-ferry passes) remain the best value for visitors planning to visit multiple islands — check calmac.co.uk for the Hopscotch 1&ndash;33 options covering different island combinations.</div>
+        <div class="price-row">
+          <span class="pr-old">Ullapool&ndash;Stornoway foot passenger from £12.00</span>
+          <span class="pr-arrow">&rarr;</span>
+          <span class="pr-new">£12.60 (2026)</span>
+          <span class="pr-src">calmac.co.uk</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="zone"><span class="zone-label">Major attraction changes</span><span class="zone-line"></span></div>
+
+    <div class="card">
+      <div class="card-bar cb-warn"></div>
+      <div class="card-body">
+        <div class="card-place">Edinburgh &mdash; Edinburgh Castle</div>
+        <div class="card-text">Edinburgh Castle adult entry is now <strong>£21.00</strong> (up from £17.50 in 2024). The castle remains Scotland&rsquo;s most-visited paid attraction. <strong>Key change: timed entry slots are now mandatory for all visitors</strong> — you cannot arrive without a pre-booked time slot, even with a Historic Environment Scotland Explorer Pass. Slots go on sale on a rolling 60-day window. Book at edinburghcastle.scot. Free entry remains for under-16s accompanied by an adult. The Crown Jewels (Honours of Scotland) and Stone of Destiny are included in all adult tickets.</div>
+        <div class="price-row">
+          <span class="pr-old">Adult entry £17.50 (2024)</span>
+          <span class="pr-arrow">&rarr;</span>
+          <span class="pr-new">£21.00 (2026)</span>
+          <span class="pr-src">edinburghcastle.scot</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-bar cb-warn"></div>
+      <div class="card-body">
+        <div class="card-place">Skye &mdash; Old Man of Storr parking charge introduced</div>
+        <div class="card-text">The Old Man of Storr car park (operated by Forestry and Land Scotland) introduced <strong>a parking charge of £3 per vehicle per visit</strong> in April 2025, now confirmed for 2026. The hike itself and the mountain remain completely free to access. Visitors arriving by Stagecoach bus (route 57A from Portree) pay nothing and are set down at the car park entrance. <strong>The car park fills by 9:30am on peak summer days</strong> — arrive before 9am or arrive by afternoon after 3pm when visitors begin leaving. No booking system: payment is by PayPoint machine or contactless on site.</div>
+        <div class="price-row">
+          <span class="pr-old">No charge (2024)</span>
+          <span class="pr-arrow">&rarr;</span>
+          <span class="pr-new">£3 per vehicle (2026)</span>
+          <span class="pr-src">forestryandland.gov.scot</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="zone"><span class="zone-label">Entry requirements</span><span class="zone-line"></span></div>
+
+    <div class="card">
+      <div class="card-bar cb-warn"></div>
+      <div class="card-body">
+        <div class="card-place">UK ETA &mdash; Non-visa nationals from the EU, US, Canada, Australia</div>
+        <div class="card-text">The UK Electronic Travel Authorisation (ETA) is <strong>now fully in force for 2026</strong> for visitors from visa-exempt countries including the EU, US, Canada, Australia, and New Zealand. <strong>Apply at gov.uk/apply-eta before travel</strong> — the ETA costs £10, is valid for 2 years or until your passport expires, and covers multiple visits of up to 6 months each. Application takes approximately 10 minutes online and is typically approved within minutes. The ETA is linked to your passport electronically &mdash; you do not receive a physical stamp or document. EU citizens no longer need to show an ID card for entry to the UK; a passport is required.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONFIRMED -->
+  <section class="section" id="sec-confirmed">
+    <div class="section-head">
+      <div class="sh-left"><span class="sh-pip sp-ok"></span><span class="sh-title">Confirmed Correct</span></div>
+      <span class="sh-date">Verified March 2026</span>
+    </div>
+    <div class="ok-list">
+      <div class="ok-row">
+        <div class="ok-badge">&#10003;</div>
+        <div class="ok-text"><strong>Kelvingrove Art Gallery (Glasgow) &mdash; free entry, open 7 days</strong> Confirmed. Kelvingrove remains free to all visitors, open 10am&ndash;5pm Monday&ndash;Thursday and Saturday, 11am&ndash;5pm Friday and Sunday. The Salvador Dal&iacute; Christ of Saint John of the Cross, Rembrandt&rsquo;s Man in Armour, and the Scottish Colourists collections are all included. No booking needed. The organ recital (weekdays, free) runs at 1pm and is worth catching.</div>
+      </div>
+      <div class="ok-row">
+        <div class="ok-badge">&#10003;</div>
+        <div class="ok-text"><strong>National Museum of Scotland (Edinburgh) &mdash; free entry</strong> Confirmed. The main National Museum on Chambers Street remains free to all visitors, open 10am&ndash;5pm daily. The Scottish history floors are world-class: Dolly the Sheep, the Lewis Chessmen, Pictish stones, and the Viking silver hoard. No booking needed.</div>
+      </div>
+      <div class="ok-row">
+        <div class="ok-badge">&#10003;</div>
+        <div class="ok-text"><strong>Callanish Standing Stones (Lewis) &mdash; free to visit, visitor centre small charge</strong> Confirmed. The Callanish stones are freely accessible at all hours &mdash; no fence, no booking, no time restriction. The small visitor centre (Callanish Visitor Centre) charges £4 for exhibits. The stones are most atmospheric at dawn and dusk. The nearby Callanish III stone circle (500m walk, free) is almost always unvisited.</div>
+      </div>
+      <div class="ok-row">
+        <div class="ok-badge">&#10003;</div>
+        <div class="ok-text"><strong>Glenfiddich Distillery (Dufftown) &mdash; free self-guided visit</strong> Confirmed. Glenfiddich remains the only major Scottish distillery offering a free self-guided tour of its working distillery floor. The visitor centre is open daily 9:30am&ndash;6pm (shorter hours Nov&ndash;Mar). Paid experiences (pioneering, solera, bespoke) start from £30. The dram at the end of the free tour is a standard 12-Year.</div>
+      </div>
+      <div class="ok-row">
+        <div class="ok-badge">&#10003;</div>
+        <div class="ok-text"><strong>Old Man of Storr hike (Skye) &mdash; free, no permit needed</strong> Confirmed. The hike remains free and requires no permit, booking, or guide. The return walk is 4.5km (2.8 miles) from the car park, gaining approximately 270m. Allow 1.5&ndash;2 hours return. The path is well-maintained for the first section; the upper scramble requires care in wet conditions. Dogs must be on leads due to grazing sheep.</div>
+      </div>
+      <div class="ok-row">
+        <div class="ok-badge">&#10003;</div>
+        <div class="ok-text"><strong>Urquhart Castle (Loch Ness) &mdash; £12.00 adult HES</strong> Confirmed at £12.00. The castle is managed by Historic Environment Scotland and is included in the Explorer Pass. Open daily 9:30am&ndash;6pm (shorter hours Oct&ndash;Mar). The grant tower gives the most iconic Loch Ness view. The castle is 23 miles from Inverness; bus 17 (Inverness&ndash;Drumnadrochit) runs several times daily.</div>
+      </div>
+      <div class="ok-row">
+        <div class="ok-badge" style="background:var(--bad-pale);color:var(--bad)">!</div>
+        <div class="ok-text"><strong>Edinburgh Fringe Festival &mdash; 1&ndash;25 August 2026</strong> Edinburgh&rsquo;s Fringe is the world&rsquo;s largest arts festival. During August, all Edinburgh accommodation costs 3&ndash;5&times; the normal price and books out months ahead. If your dates overlap: book accommodation by March at the latest, or base in Glasgow or Stirling (45&ndash;50 min by ScotRail) and commute in. Free shows on the Royal Mile run all day &mdash; the paid Fringe shows range from £7&ndash;25 and must be booked at edfringe.com.</div>
+      </div>
+      <div class="ok-row">
+        <div class="ok-badge" style="background:var(--bad-pale);color:var(--bad)">!</div>
+        <div class="ok-text"><strong>Midge season &mdash; May to September (peak June&ndash;August)</strong> Highland midges (Culicoides impunctatus) are small biting insects that emerge in calm, warm, humid conditions from late May. They are most intense at dawn and dusk, particularly near standing water. <strong>Smidge repellent (smidgeup.com) is the most effective product available</strong> &mdash; DEET-based repellents are less effective against Scottish midges. Wind disperses them immediately; the midge forecast at midgeforecast.co.uk updates daily. Midges do not carry disease.</div>
+      </div>
+      <div class="ok-row">
+        <div class="ok-badge" style="background:var(--ok-pale);color:var(--ok)">&#10003;</div>
+        <div class="ok-text"><strong>Best windows &mdash; May to mid-June and September</strong> Scotland in late spring (May&ndash;June) offers long days (17+ hours of daylight), wildflowers, and uncrowded Highlands. September has golden highland light, fewer midges than summer, and post-peak prices. These are the months the guide was written for. July and August are busiest (and midgiest) but have the most reliable ferry availability and the longest daylight.</div>
+      </div>
+    </div>
+    <div class="changelog" style="margin-top:1.5rem">
+      <div class="cl-head">Annual review schedule &mdash; every March</div>
+      <div class="cl-row">
+        <div class="cl-year">2026</div>
+        <div class="cl-dot cd-active"></div>
+        <div class="cl-text">Full review completed March 2026 &mdash; 16 items verified. ScotRail fares +4.6% Jan 2026. CalMac passenger fares +5.1% Apr 2026. CalMac mandatory car booking system confirmed. Edinburgh Castle £17.50&rarr;£21.00, timed entry now mandatory. Old Man of Storr car park £3 confirmed. UK ETA now in force. West Highland Line Sunday service reduction confirmed. <span class="cl-badge">Active</span></div>
+      </div>
+      <div class="cl-row">
+        <div class="cl-year">2027</div>
+        <div class="cl-dot cd-sched"></div>
+        <div class="cl-text sched">Scheduled review &mdash; March 2027. ScotRail franchise renewal status to be confirmed. CalMac route frequency changes to be reviewed. HS2 Scotland connection timelines to be assessed.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- NEW TIPS -->
+  <section class="section" id="sec-new">
+    <div class="section-head">
+      <div class="sh-left"><span class="sh-pip sp-new"></span><span class="sh-title">New Tips for 2026</span></div>
+      <span class="sh-date">Added March 2026</span>
+    </div>
+
+    <div class="zone"><span class="zone-label">Transport</span><span class="zone-line"></span></div>
+
+    <div class="card">
+      <div class="card-bar cb-new"></div>
+      <div class="card-body">
+        <div class="card-place">Scotland &mdash; ScotRail Flexipass</div>
+        <div class="card-text">ScotRail introduced a <strong>Flexipass</strong> in 2025 &mdash; a pre-loaded book of day passes (e.g., 8 days of unlimited travel in a 30-day window) for £135. <strong>The Flexipass is excellent value for visitors planning non-consecutive travel days around Scotland.</strong> It covers all ScotRail routes including the West Highland Line, the Kyle Line, and the Highland Main Line. It does not cover CalMac ferries or Caledonian Sleeper. Buy at scotrail.co.uk before departure &mdash; it is activated on first use and can be used on any day within the 30-day window.</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-bar cb-new"></div>
+      <div class="card-body">
+        <div class="card-place">Scotland &mdash; Caledonian Sleeper (Edinburgh/Glasgow&ndash;London)</div>
+        <div class="card-text">The Caledonian Sleeper (Scotrail.co.uk/sleeper) runs nightly between London Euston and Edinburgh, Glasgow, Inverness, Fort William, and Aberdeen. <strong>A seated Caledonian Sleeper ticket from London to Edinburgh starts from £35</strong> &mdash; significantly cheaper than a daytime advance single on the equivalent route and it eliminates a night&rsquo;s accommodation. Cabin berths start from £95 and include a continental breakfast. Book at caledoniansleeper.com. The Fort William sleeper arrives at the foot of Ben Nevis &mdash; an extraordinary arrival for hillwalkers.</div>
+      </div>
+    </div>
+
+    <div class="zone"><span class="zone-label">Highlands and islands</span><span class="zone-line"></span></div>
+
+    <div class="card">
+      <div class="card-bar cb-new"></div>
+      <div class="card-body">
+        <div class="card-place">NC500 &mdash; North Coast 500 road trip planning</div>
+        <div class="card-text">The NC500 (northcoast500.com) is Scotland&rsquo;s 516-mile coastal driving route around the northern Highlands, starting and ending in Inverness. <strong>Key 2026 planning notes:</strong> (1) Most NC500 accommodation books out by March for July and August &mdash; book immediately once dates are confirmed. (2) The route is most enjoyable anti-clockwise (Inverness&ndash;east coast&ndash;north coast&ndash;west coast return) as it puts you on the scenic side approaching Torridon and Assynt. (3) Campervan rental from Inverness (from £100/day) covers accommodation and transport simultaneously &mdash; sites at Torridon, Dunnet Bay, and Scourie are excellent and take campervans. (4) The NC500 is realistically 5 days minimum; 7 days is unhurried.</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-bar cb-new"></div>
+      <div class="card-body">
+        <div class="card-place">Skye &mdash; Fairy Pools parking and timing</div>
+        <div class="card-text">The Fairy Pools at Glenbrittle (south Skye, 30 min from Portree) are <strong>one of Scotland&rsquo;s busiest attractions by 2026</strong>. The car park (&pound;3/vehicle) now has an overflow facility but still fills by 9am in July and August. The pools themselves are at their most beautiful in the morning light (south-facing). <strong>Correct approach:</strong> arrive before 8:30am, or come after 5pm when most tour groups have left. Wild swimming in the pools is permitted and popular &mdash; the water is cold year-round (8&ndash;14&deg;C). The walk from the car park to the first pool is 20 minutes on a maintained path.</div>
+      </div>
+    </div>
+
+    <div class="zone"><span class="zone-label">Money and practicalities</span><span class="zone-line"></span></div>
+
+    <div class="card">
+      <div class="card-bar cb-new"></div>
+      <div class="card-body">
+        <div class="card-place">Scotland &mdash; Scottish banknotes and card acceptance</div>
+        <div class="card-text">Scottish banknotes (issued by Royal Bank of Scotland, Bank of Scotland, and Clydesdale Bank) are <strong>legal currency but not legal tender</strong> &mdash; they are widely accepted across Scotland but can occasionally be refused by businesses in England. <strong>You cannot easily use Scottish banknotes in England</strong> &mdash; spend them in Scotland or exchange at a bank before crossing the border. Contactless and chip-and-pin card payment is now accepted almost universally across Scotland, including remote areas. However, <strong>some Outer Hebrides and small island businesses remain cash-preferred</strong> &mdash; carry £50&ndash;100 in cash for island visits. There are ATMs in Stornoway, Portree, and Tobermory, but none on smaller islands (Iona, Colonsay, Rum, Eigg).</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SEASONAL ALERTS -->
+  <section class="section" id="sec-seasonal">
+    <div class="section-head">
+      <div class="sh-left"><span class="sh-pip sp-warn"></span><span class="sh-title">Seasonal Alerts 2026</span></div>
+      <span class="sh-date">Verified March 2026</span>
+    </div>
+    <div class="ok-list">
+      <div class="ok-row">
+        <div class="ok-badge" style="background:var(--bad-pale);color:var(--bad)">!</div>
+        <div class="ok-text"><strong>Edinburgh Fringe &mdash; 1&ndash;25 August 2026</strong> World&rsquo;s largest arts festival. All Edinburgh accommodation 3&ndash;5&times; normal price during August. Book by March or base in Glasgow (45 min by ScotRail). Free Royal Mile shows run all day &mdash; paid shows from £7 at edfringe.com. The first Sunday of the Fringe (2 August) has the largest street crowds of the entire festival.</div>
+      </div>
+      <div class="ok-row">
+        <div class="ok-badge" style="background:var(--bad-pale);color:var(--bad)">!</div>
+        <div class="ok-text"><strong>Highland Games season &mdash; June to September</strong> Traditional Highland Games (caber tossing, heavy athletics, pipe bands, Highland dancing) take place across Scotland June&ndash;September. The Braemar Gathering (September, near Balmoral) is the most famous and typically attended by the Royal Family. Games at Balloch, Dunoon, Oban, and Inveraray also draw large crowds. Nearby accommodation books out for Braemar 4&ndash;6 months ahead. Check the Highland Games calendar at shga.co.uk for 2026 dates.</div>
+      </div>
+      <div class="ok-row">
+        <div class="ok-badge" style="background:var(--bad-pale);color:var(--bad)">!</div>
+        <div class="ok-text"><strong>Hogmanay (New Year) &mdash; Edinburgh, 30 December 2025&ndash;1 January 2026</strong> Edinburgh&rsquo;s Hogmanay is Europe&rsquo;s largest New Year celebration. The Street Party (ticketed, £30, from edinburghshogmanay.com) and the Loony Dook (New Year&rsquo;s Day sea swim at South Queensferry) are the two main public events. Edinburgh accommodation on 31 December is the most expensive night of the year &mdash; book 6+ months ahead or base in Glasgow and take the last ScotRail service (check timetable changes over the holiday period).</div>
+      </div>
+      <div class="ok-row">
+        <div class="ok-badge" style="background:var(--bad-pale);color:var(--bad)">!</div>
+        <div class="ok-text"><strong>Winter road closures &mdash; A835, A832, and NC500 sections</strong> Several Highland roads are subject to snow closures November&ndash;March, including sections of the A835 (Ullapool route), A832 (Torridon), and the north coast sections of the NC500. The A9 (Perth&ndash;Inverness) has mandatory winter tyre requirements on certain sections. Check road conditions at trafficscotland.org before any Highland drive in winter. ScotRail West Highland Line remains open year-round but may experience weather delays.</div>
+      </div>
+      <div class="ok-row">
+        <div class="ok-badge" style="background:var(--warn-pale);color:var(--warn)">~</div>
+        <div class="ok-text"><strong>Whisky distillery visitor centre opening hours &mdash; reduced in winter</strong> Most Speyside distilleries reduce visitor centre hours significantly between November and March. Glenfiddich (open year-round daily), Macallan (closed Sundays November&ndash;March), and Balvenie (reduced tours, pre-booking essential) all operate shortened winter schedules. Check individual distillery websites before planning a winter Speyside visit. The Speyside Whisky Festival (Whisky Live, April 30&ndash;May 4 2026) is the best annual event for distillery access.</div>
+      </div>
+      <div class="ok-row">
+        <div class="ok-badge" style="background:var(--ok-pale);color:var(--ok)">&#10003;</div>
+        <div class="ok-text"><strong>Best midge-free window &mdash; September</strong> September combines the best of Scottish travel: low midge activity, golden highland light, uncrowded attractions, lower accommodation prices than July&ndash;August, and the CalMac ferry routes still running at full frequency. The weather is unpredictable but the light quality on clear September days (particularly in Skye and the Outer Hebrides) is exceptional. This is the month the guide was written for.</div>
+      </div>
+    </div>
+  </section>
+</main>
+<footer>
+  <div class="footer-gold">
+    <div>
+      <div class="footer-brand">No-Stress Guides</div>
+      <div class="footer-brand-sub">Scotland Travel Guide &mdash; 2026</div>
+    </div>
+  </div>
+  <div class="footer-body">
+    <p class="footer-promise">This page is reviewed every March. No sponsored content. No affiliate links. Every price comes from the official source.</p>
+    <p class="footer-contact">Questions or corrections: <a href="mailto:info@nostressguides.com">info@nostressguides.com</a></p>
+    <p class="footer-legal">&copy; 2026 No-Stress Guides. For personal travel use only.</p>
+  </div>
+</footer>
+<script>
+document.querySelectorAll('.section').forEach(function(s,i){setTimeout(function(){s.classList.add('visible')},100+i*80);});
+var headerEl=document.querySelector('.header');
+document.querySelectorAll('.h-tab').forEach(function(btn){
+  btn.addEventListener('click',function(){
+    var target=this.getAttribute('data-target');
+    document.querySelectorAll('.h-tab').forEach(function(t){t.classList.remove('active')});
+    btn.classList.add('active');
+    var el=document.getElementById(target);
+    if(!el)return;
+    var hh=headerEl?headerEl.offsetHeight:0;
+    window.scrollTo({top:el.getBoundingClientRect().top+window.scrollY-hh-8,behavior:'smooth'});
+  });
+});
+var sIds=['sec-changed','sec-confirmed','sec-new','sec-seasonal'];
+var allTabs=document.querySelectorAll('.h-tab');
+function updateTab(){var hh=headerEl?headerEl.offsetHeight:0;var active=0;sIds.forEach(function(id,i){var el=document.getElementById(id);if(el&&el.getBoundingClientRect().top<=hh+20)active=i;});allTabs.forEach(function(t,i){t.classList.toggle('active',i===active);});}
+window.addEventListener('scroll',updateTab,{passive:true});
+updateTab();
+</script>
+</body>
+</html>
