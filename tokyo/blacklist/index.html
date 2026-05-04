@@ -1,1 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>The Black List — The No-Stress Tokyo Travel Guide</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@300;400;500;600;700&family=Lato:ital,wght@0,300;0,400;0,700;1,300&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#112244;--navy-mid:#1B3566;
+  --gold:#F5C842;--gold-dark:#C89A10;
+  --bg:#F0F4FB;--white:#FFFFFF;
+  --text:#1A2340;--text-mid:#3A4A6A;--text-muted:#6A7A9A;
+  --bad:#8C2020;--bad-pale:#FBF0F0;
+  --warn:#B36A10;--warn-pale:#FDF3E3;
+  --trap:#1A6B5A;--trap-pale:#E3F5EE;
+  --tour:#8A5A10;--tour-pale:#FDF0DC;
+  --mistake:#5A3A8A;--mistake-pale:#EEEAF8;
+  --border:#C8D6EE;--border-lt:#E2EAF8;
+  --radius:10px;--shadow:0 2px 12px rgba(17,34,68,0.08);
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html{font-size:16px;-webkit-text-size-adjust:100%;scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:'Lato',sans-serif;font-weight:300;line-height:1.65;min-height:100vh;-webkit-font-smoothing:antialiased}
+.header{background:var(--navy);background-image:radial-gradient(ellipse at 80% 0%,rgba(37,69,128,0.8) 0%,transparent 60%),radial-gradient(ellipse at 20% 100%,rgba(17,34,68,0.9) 0%,transparent 50%);padding:2rem 1.5rem 0;position:relative;overflow:hidden}
+.header::before{content:'';position:absolute;inset:0;background-image:radial-gradient(rgba(255,255,255,0.06) 1px,transparent 1px);background-size:20px 20px;pointer-events:none}
+.stamp{position:relative;z-index:1;margin-bottom:1.5rem}
+.stamp-inner{border:2.5px solid var(--gold);border-radius:4px;padding:1.1rem 1.3rem 1rem;background:rgba(17,34,68,0.55);backdrop-filter:blur(4px);position:relative}
+.stamp-inner::before{content:'';position:absolute;top:-9px;left:8px;right:8px;height:8px;background:repeating-linear-gradient(90deg,transparent 0px,transparent 3px,var(--gold) 3px,var(--gold) 7px,transparent 7px,transparent 10px);opacity:.5}
+.stamp-inner::after{content:'';position:absolute;bottom:-9px;left:8px;right:8px;height:8px;background:repeating-linear-gradient(90deg,transparent 0px,transparent 3px,var(--gold) 3px,var(--gold) 7px,transparent 7px,transparent 10px);opacity:.5}
+.stamp-eyebrow{font-family:'Oswald',sans-serif;font-size:.56rem;font-weight:300;letter-spacing:.24em;text-transform:uppercase;color:rgba(245,200,66,.7);margin-bottom:.5rem}
+.stamp-the{font-family:'Oswald',sans-serif;font-size:.78rem;font-weight:300;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,.6);line-height:1}
+.stamp-city{font-family:'Oswald',sans-serif;font-size:3.4rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--white);line-height:.85}
+.stamp-guide{font-family:'Oswald',sans-serif;font-size:.82rem;font-weight:300;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,.6);margin-top:.15rem}
+.stamp-blacklist{font-family:'Oswald',sans-serif;font-size:2rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--gold);line-height:1;margin-top:.4rem}
+.stamp-rule{height:1px;background:linear-gradient(90deg,rgba(245,200,66,.5),transparent);margin:.85rem 0 .7rem}
+.stamp-footer{display:flex;align-items:center;justify-content:space-between}
+.stamp-footer-tag{font-family:'Oswald',sans-serif;font-size:.58rem;font-weight:400;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);opacity:.85}
+.stamp-year{font-family:'Oswald',sans-serif;font-size:1.2rem;font-weight:700;color:var(--gold);letter-spacing:.06em}
+.header-sub{position:relative;z-index:1;display:flex;align-items:center;gap:.75rem;padding-bottom:1.3rem;flex-wrap:wrap}
+.bl-badge{display:inline-flex;align-items:center;gap:.38rem;background:rgba(140,32,32,.18);border:1px solid rgba(140,32,32,.35);border-radius:2rem;padding:.3rem .8rem;font-family:'Oswald',sans-serif;font-size:.62rem;font-weight:400;letter-spacing:.12em;text-transform:uppercase;color:#E07A7A;min-height:44px}
+.header-note{font-size:.67rem;color:rgba(255,255,255,.28);letter-spacing:.02em}
+.intro-bar{background:var(--bad);color:#fff;padding:.85rem 1.4rem;display:flex;gap:.65rem;align-items:flex-start;font-size:.8rem;font-weight:400;line-height:1.55}
+.intro-bar svg{flex-shrink:0;margin-top:.12rem;opacity:.85}
+.disclaimer{background:var(--white);border-left:4px solid var(--navy-mid);padding:.9rem 1.4rem;font-size:.78rem;color:var(--text-mid);line-height:1.6}
+.disclaimer-label{font-family:'Oswald',sans-serif;font-size:.6rem;font-weight:500;letter-spacing:.18em;text-transform:uppercase;color:var(--navy-mid);display:block;margin-bottom:.35rem}
+main{padding:1.6rem 1.25rem 6rem;max-width:560px;margin:0 auto}
+.legend{display:flex;gap:.4rem;flex-wrap:wrap;margin-bottom:1.8rem}
+.leg{display:inline-flex;align-items:center;gap:.32rem;background:var(--white);border:1px solid var(--border);border-radius:2rem;padding:.3rem .7rem;font-family:'Oswald',sans-serif;font-size:.62rem;font-weight:400;letter-spacing:.1em;text-transform:uppercase;color:var(--text-mid);min-height:44px}
+.leg-pip{width:7px;height:7px;border-radius:2px;flex-shrink:0}
+.lp-scam{background:var(--bad)}.lp-trap{background:var(--trap)}.lp-warn{background:var(--warn)}.lp-mistake{background:var(--mistake)}
+.section{margin-bottom:3rem;opacity:0;transform:translateY(14px);transition:opacity .45s ease,transform .45s ease}
+.section.visible{opacity:1;transform:translateY(0)}
+.section-head{position:sticky;top:0;z-index:10;background:var(--bg);display:flex;align-items:center;justify-content:space-between;padding:.6rem 0 .55rem;margin-bottom:.9rem;border-bottom:2.5px solid var(--navy);box-shadow:0 4px 12px rgba(240,244,251,.95)}
+.sh-left{display:flex;align-items:center;gap:.55rem}
+.sh-pip{width:10px;height:10px;border-radius:2px;flex-shrink:0}
+.sp-scam{background:var(--bad)}.sp-trap{background:var(--trap)}.sp-warn{background:var(--warn)}.sp-mistake{background:var(--mistake)}
+.sh-title{font-family:'Oswald',sans-serif;font-size:1rem;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--navy)}
+.sh-count{font-size:.6rem;color:var(--text-muted);letter-spacing:.04em;white-space:nowrap}
+.zone{display:flex;align-items:center;gap:.55rem;margin:1.1rem 0 .6rem}
+.zone-label{font-family:'Oswald',sans-serif;font-size:.6rem;font-weight:500;letter-spacing:.22em;text-transform:uppercase;color:var(--gold-dark);white-space:nowrap}
+.zone-line{flex:1;height:1px;background:var(--border)}
+.card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:.55rem;overflow:hidden;position:relative;box-shadow:var(--shadow)}
+.card-bar{position:absolute;left:0;top:0;bottom:0;width:4px}
+.cb-scam{background:var(--bad)}.cb-trap{background:var(--trap)}.cb-warn{background:var(--warn)}.cb-mistake{background:var(--mistake)}
+.card-body{padding:.88rem 1rem .88rem 1.3rem}
+.card-place{font-family:'Oswald',sans-serif;font-size:.58rem;font-weight:300;letter-spacing:.18em;text-transform:uppercase;color:var(--text-muted);margin-bottom:.18rem}
+.card-title{font-family:'Oswald',sans-serif;font-size:.92rem;font-weight:600;color:var(--text);letter-spacing:.02em;margin-bottom:.3rem;line-height:1.2}
+.card-text{font-size:.85rem;color:var(--text-mid);line-height:1.58}
+.card-text strong{color:var(--text);font-weight:700}
+.card-text em{font-style:italic;color:var(--text-muted)}
+.signal{margin-top:.65rem;padding:.55rem .75rem;border-radius:6px;font-size:.77rem;line-height:1.55}
+.signal-label{font-family:'Oswald',sans-serif;font-size:.58rem;font-weight:500;letter-spacing:.16em;text-transform:uppercase;display:block;margin-bottom:.22rem;opacity:.8}
+.sig-trap{background:var(--trap-pale);color:var(--trap)}.sig-scam{background:var(--bad-pale);color:var(--bad)}.sig-warn{background:var(--warn-pale);color:var(--warn)}.sig-mistake{background:var(--mistake-pale);color:var(--mistake)}
+footer{background:var(--navy)}
+.footer-gold{background:var(--gold);padding:1.1rem 1.5rem;display:flex;align-items:center;justify-content:center;gap:.55rem}
+.footer-brand{font-family:'Oswald',sans-serif;font-size:1.4rem;font-weight:700;color:var(--navy);letter-spacing:.14em;text-transform:uppercase;line-height:1}
+.footer-brand-sub{font-family:'Oswald',sans-serif;font-size:.9rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--navy);opacity:.85;margin-top:.25rem;text-align:center}
+.footer-body{padding:2rem 1.5rem 3rem;text-align:center}
+.footer-promise{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:8px;padding:1.2rem 1.5rem;margin-bottom:1.5rem;text-align:left}
+.footer-promise-title{font-family:'Oswald',sans-serif;font-size:.65rem;font-weight:500;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);margin-bottom:.55rem}
+.footer-promise-text{font-size:.8rem;color:rgba(255,255,255,.55);line-height:1.6}
+.footer-copy{font-size:.68rem;color:rgba(255,255,255,.25);letter-spacing:.04em}
+</style>
+</head>
+<body>
+<header class="header">
+  <div class="stamp">
+    <div class="stamp-inner">
+      <div class="stamp-eyebrow">No-Stress Travel Guides</div>
+      <div class="stamp-the">The</div>
+      <div class="stamp-city">Tokyo</div>
+      <div class="stamp-guide">Travel Guide</div>
+      <div class="stamp-blacklist">The Black List</div>
+      <div class="stamp-rule"></div>
+      <div class="stamp-footer">
+        <span class="stamp-footer-tag">Scams · Tourist Traps · Honest Mistakes</span>
+        <span class="stamp-year">2026</span>
+      </div>
+    </div>
+  </div>
+  <div class="header-sub">
+    <span class="bl-badge">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+      18 traps identified
+    </span>
+    <span class="header-note">Verified January–March 2026</span>
+  </div>
+</header>
+<div class="intro-bar">
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+  Tokyo is extraordinarily safe and honest — but that makes the handful of real traps more dangerous. Most tourists never encounter them. This list covers the ones that cost real money, ruin real plans, and target visitors who haven't been warned.
+</div>
+<div class="disclaimer">
+  <span class="disclaimer-label">How to use this list</span>
+  Every entry here was independently verified. Nothing is sponsored. No tourism board or business paid to be included or excluded. We flag patterns — not isolated incidents — that have been consistently reported by travellers.
+</div>
+<main>
+  <div class="legend">
+    <span class="leg"><span class="leg-pip lp-scam"></span>Active Scam</span>
+    <span class="leg"><span class="leg-pip lp-trap"></span>Tourist Trap</span>
+    <span class="leg"><span class="leg-pip lp-warn"></span>Honest Warning</span>
+    <span class="leg"><span class="leg-pip lp-mistake"></span>Common Mistake</span>
+  </div>
 
+  <!-- SECTION 1: SAFETY -->
+  <div class="section">
+    <div class="section-head">
+      <div class="sh-left">
+        <span class="sh-pip sp-scam"></span>
+        <span class="sh-title">Safety &amp; Transport Scams</span>
+      </div>
+      <span class="sh-count">3 entries</span>
+    </div>
+    <div class="zone"><span class="zone-label">Transportation</span><span class="zone-line"></span></div>
+    <div class="card">
+      <div class="card-bar cb-scam"></div>
+      <div class="card-body">
+        <div class="card-place">Airports / Late Night / Shinjuku Station</div>
+        <div class="card-title">Unlicensed Taxi Touts</div>
+        <div class="card-text">Men approach at airports and late-night stations offering "cheap taxi" or "fast ride." <strong>Do not get in.</strong> These are unlicensed vehicles. In extreme cases this has led to robbery or assault (the "express kidnapping" pattern: take your card, force ATM withdrawals). Licensed Tokyo taxis are green, yellow, or black with illuminated signs — always find them at official ranks.
+        <div class="signal sig-scam"><span class="signal-label">The rule</span>Never accept a ride offer from someone who approaches you. Walk to the taxi rank. The extra 5 minutes is not negotiable.</div>
+        </div>
+      </div>
+    </div>
+    <div class="zone"><span class="zone-label">Nightlife</span><span class="zone-line"></span></div>
+    <div class="card">
+      <div class="card-bar cb-scam"></div>
+      <div class="card-body">
+        <div class="card-place">Kabukicho / Roppongi</div>
+        <div class="card-title">Bar Touts Leading to Inflated Bills</div>
+        <div class="card-text">Men approach outside Kabukicho or Roppongi bars and invite tourists "for a free drink." Once inside: minimum charges, mandatory food orders, or multiple drinks billed at ¥5,000–15,000 each. Bills for 2 people reaching ¥100,000+ have been reported. <strong>Nothing is free.</strong>
+        <div class="signal sig-scam"><span class="signal-label">The rule</span>Never enter a bar with someone who approached you on the street. Walk in independently, ask for the menu and price list before ordering, and verify cover charges.</div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-bar cb-warn"></div>
+      <div class="card-body">
+        <div class="card-place">All Stations — After 00:30</div>
+        <div class="card-title">The Last Train Trap</div>
+        <div class="card-text">Tokyo trains stop around <strong>00:00–01:00</strong> depending on the line and direction. This is not a guideline — it is absolute. Miss the last train and your options are: wait until 05:00, take a taxi (¥3,000–8,000 depending on distance), or find a manga cafe. Many travellers lose significant money because they assumed "there would be another train."
+        <div class="signal sig-warn"><span class="signal-label">Check in advance</span>Use the Navitime or HyperDia app to verify last train times for your exact route. Last train times vary by station and day.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 2: TOURIST TRAPS -->
+  <div class="section">
+    <div class="section-head">
+      <div class="sh-left">
+        <span class="sh-pip sp-trap"></span>
+        <span class="sh-title">Tourist Traps</span>
+      </div>
+      <span class="sh-count">5 entries</span>
+    </div>
+    <div class="zone"><span class="zone-label">Third-Party Tickets</span><span class="zone-line"></span></div>
+    <div class="card">
+      <div class="card-bar cb-trap"></div>
+      <div class="card-body">
+        <div class="card-place">Ghibli Museum — Mitaka</div>
+        <div class="card-title">Third-Party Resellers at 3–5× the Official Price</div>
+        <div class="card-text">Ghibli Museum tickets sell exclusively through the official Lawson ticket system (lawsonticket.com) on the 10th of each month for the following month. They sell out in minutes. Third-party sites sell them at ¥5,000–12,000 (face value: ¥1,000–2,000). <strong>These resold tickets may be refused at the door.</strong>
+        <div class="signal sig-trap"><span class="signal-label">The only way</span>Set a calendar reminder for the 10th of the month at 10:00 Japan time. Use the official Lawson system. No shortcuts exist.</div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-bar cb-trap"></div>
+      <div class="card-body">
+        <div class="card-place">teamLab Borderless / Planets</div>
+        <div class="card-title">Reseller Tickets for teamLab</div>
+        <div class="card-text">teamLab sells out weeks ahead. Third-party tickets are sold at 2–4× the official price. The official site (teamlab.art) is the only legitimate source. Resold tickets have no refund or exchange — if refused at the door, the loss is total.
+        <div class="signal sig-trap"><span class="signal-label">Book official</span>teamlab.art only. Book as soon as your travel dates are confirmed. No walk-in availability on busy days.</div>
+        </div>
+      </div>
+    </div>
+    <div class="zone"><span class="zone-label">JR Pass</span><span class="zone-line"></span></div>
+    <div class="card">
+      <div class="card-bar cb-trap"></div>
+      <div class="card-body">
+        <div class="card-place">Everywhere — Pre-Departure Purchase</div>
+        <div class="card-title">The JR Pass Math Problem</div>
+        <div class="card-text">The 7-day JR Pass (¥50,000) is only worth it if you take multiple Shinkansen trips. For Tokyo-only trips: it is <strong>never</strong> worth it. Even Tokyo + one Kyoto round trip (¥28,000) doesn't cover the pass cost. Calculate your actual routes before buying. Many travellers buy it out of anxiety and spend ¥50,000 on a pass they use for ¥18,000 of travel.
+        <div class="signal sig-trap"><span class="signal-label">Do the math</span>List every train you plan to take. Calculate individual fares at hyperdia.com. Only buy the pass if the total exceeds its price.</div>
+        </div>
+      </div>
+    </div>
+    <div class="zone"><span class="zone-label">Food and Restaurants</span><span class="zone-line"></span></div>
+    <div class="card">
+      <div class="card-bar cb-trap"></div>
+      <div class="card-body">
+        <div class="card-place">Senso-ji / Shibuya / Shinjuku Tourist Zones</div>
+        <div class="card-title">Tourist-Facing Restaurants in Prime Locations</div>
+        <div class="card-text">Any restaurant with photos on the menu, staff standing outside calling you in, or a prime view of Senso-ji / the Crossing is charging a location premium. A ramen bowl that costs ¥800 everywhere else costs ¥1,400–1,800 here. The quality difference is also real — these restaurants serve volume, not craft.
+        <div class="signal sig-warn"><span class="signal-label">Two streets back</span>Walk two streets behind any major attraction. The price drops, the quality rises, and the staff stop smiling at you to come in.</div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-bar cb-trap"></div>
+      <div class="card-body">
+        <div class="card-place">Tsukiji Outer Market</div>
+        <div class="card-title">Premium "Tuna Auction" Tour Claims</div>
+        <div class="card-text">The Tsukiji inner market moved to Toyosu in 2018. The tuna auction at Toyosu requires an official lottery application months in advance (free). Third-party "tuna auction tour" sellers charge ¥8,000–20,000 for viewings that may be of the outer market only, fish displays in restaurants, or simply a guided walk of publicly accessible areas.
+        <div class="signal sig-trap"><span class="signal-label">The outer market is free</span>The Tsukiji Outer Market is completely free to visit. Just walk in. Any paid "tour" of the outer market is overpriced.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 3: MONEY MISTAKES -->
+  <div class="section">
+    <div class="section-head">
+      <div class="sh-left">
+        <span class="sh-pip sp-mistake"></span>
+        <span class="sh-title">Money &amp; Payment Mistakes</span>
+      </div>
+      <span class="sh-count">4 entries</span>
+    </div>
+    <div class="zone"><span class="zone-label">Cash &amp; Cards</span><span class="zone-line"></span></div>
+    <div class="card">
+      <div class="card-bar cb-mistake"></div>
+      <div class="card-body">
+        <div class="card-place">Everywhere — Cash Usage</div>
+        <div class="card-title">Assuming Tokyo is Cashless Like Home</div>
+        <div class="card-text">Japan is cash-forward, not cashless. Many small restaurants, shrines, some taxis, local shops, and traditional markets are <strong>cash only</strong>. Arriving without yen and depending on card acceptance is a common failure. 7-Eleven ATMs accept foreign cards reliably. Japan Post ATMs too. Carry ¥5,000–10,000 at all times.
+        <div class="signal sig-mistake"><span class="signal-label">Withdraw at 7-Eleven</span>7-Eleven bank ATMs work with nearly all foreign cards. Available 24/7. The most reliable option in Japan.</div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-bar cb-warn"></div>
+      <div class="card-body">
+        <div class="card-place">Currency Exchange Counters</div>
+        <div class="card-title">Airport Exchange at Narita / Haneda</div>
+        <div class="card-text">Airport exchange counters offer rates 8–12% below mid-market. For ¥100,000 worth of exchange, that's ¥8,000–12,000 lost immediately on arrival. Use the 7-Eleven ATM inside the airport or in the city instead. Your home bank card with low foreign transaction fees will give a better rate.
+        <div class="signal sig-warn"><span class="signal-label">ATM first</span>Don't exchange cash at the airport counter. Withdraw from the 7-Eleven ATM in the arrival hall instead.</div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-bar cb-mistake"></div>
+      <div class="card-body">
+        <div class="card-place">IC Card (Suica/Pasmo)</div>
+        <div class="card-title">Not Loading the IC Card Before Exploring</div>
+        <div class="card-text">Suica and Pasmo IC cards work on every train, Metro, bus, and most convenience stores. Not having one means paying cash for every trip, queueing for tickets each time, and being unable to tap through gates. Load ¥3,000–5,000 immediately on arrival at any station machine. <strong>2026 note:</strong> some Suica top-ups via Apple/Google Wallet are now available depending on your bank — check before travel.
+        <div class="signal sig-mistake"><span class="signal-label">First thing at the station</span>Buy and load IC card before leaving the airport station. It eliminates all transit friction for the entire trip.</div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-bar cb-warn"></div>
+      <div class="card-body">
+        <div class="card-place">All Restaurants</div>
+        <div class="card-title">Tipping — It Can Cause Offence</div>
+        <div class="card-text">Tipping is not customary in Japan. In many settings it can cause genuine confusion or be politely refused. Service charges are not added to bills. The price you see is what you pay. Attempting to tip enthusiastically in a traditional restaurant can create an awkward interaction for everyone involved.
+        <div class="signal sig-warn"><span class="signal-label">No tipping anywhere</span>Not at restaurants, not at hotels, not in taxis. If exceptional service deserves acknowledgement, a sincere verbal thank-you (arigatou gozaimasu) is the correct response.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 4: PLANNING MISTAKES -->
+  <div class="section">
+    <div class="section-head">
+      <div class="sh-left">
+        <span class="sh-pip sp-mistake"></span>
+        <span class="sh-title">Planning &amp; Booking Mistakes</span>
+      </div>
+      <span class="sh-count">6 entries</span>
+    </div>
+    <div class="zone"><span class="zone-label">Advance Bookings</span><span class="zone-line"></span></div>
+    <div class="card">
+      <div class="card-bar cb-mistake"></div>
+      <div class="card-body">
+        <div class="card-place">Shibuya Sky / Tokyo Skytree / teamLab</div>
+        <div class="card-title">Arriving Without Pre-Booked Tickets</div>
+        <div class="card-text">Shibuya Sky, teamLab, and the Ghibli Museum sell out advance slots, especially on weekends and during cherry blossom / golden week / autumn. Walk-in availability is not guaranteed. Travellers who arrive expecting to buy on the day often find nothing available — or pay resellers 2–3× the face value in desperation.
+        <div class="signal sig-mistake"><span class="signal-label">Book before you board</span>Shibuya Sky and teamLab: book at least 2 weeks ahead for weekends. Ghibli Museum: book the month before you travel via the Lawson system.</div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-bar cb-mistake"></div>
+      <div class="card-body">
+        <div class="card-place">Tokyo Skytree</div>
+        <div class="card-title">Climbing Tokyo Skytree Without Weighing the Alternatives</div>
+        <div class="card-text">Skytree tickets cost ¥2,100–3,100 and require 90+ minutes including queuing and elevator time. The Tokyo Metropolitan Government Building observation deck (45th floor) is <strong>free</strong>, has no queue to speak of, stays open until 23:00 (North Tower), and provides views that rival paid alternatives. Unless Skytree is specifically important to you, the Government Building is the rational choice.
+        <div class="signal sig-trap"><span class="signal-label">Free alternative exists</span>Metropolitan Government Building deck: free, 45th floor, North Tower until 23:00. Same category of view at zero cost.</div>
+        </div>
+      </div>
+    </div>
+    <div class="zone"><span class="zone-label">Logistics</span><span class="zone-line"></span></div>
+    <div class="card">
+      <div class="card-bar cb-mistake"></div>
+      <div class="card-body">
+        <div class="card-place">All Itineraries</div>
+        <div class="card-title">Overloading Each Day</div>
+        <div class="card-text">Tokyo visitors commonly plan 8–10 sights per day. A realistic Tokyo day accommodates 3–4 areas at depth. The distances look small on a map — 25 minutes from Asakusa to Shibuya, 20 minutes from Shibuya to Roppongi — but door-to-door including navigation, wayfinding, platform changes, and walking exits adds real time. Over-scheduled days consistently disappoint.
+        <div class="signal sig-mistake"><span class="signal-label">The sustainable number</span>Plan 3 areas per day maximum. Add one optional if you arrive early. Finish with energy for the evening.</div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-bar cb-mistake"></div>
+      <div class="card-body">
+        <div class="card-place">Imperial Palace East Gardens / Many Museums</div>
+        <div class="card-title">Monday Closures — The Recurring Problem</div>
+        <div class="card-text">Many of Tokyo's most important institutions close on Mondays: Imperial Palace East Gardens (also closed Fridays), most major museums (Tokyo National, Mori Art, National Museum of Western Art), some specialty sites. Arriving on a Monday without checking closure schedules is a frequently repeated mistake — especially for travellers who have one free day in the city.
+        <div class="signal sig-mistake"><span class="signal-label">Check before planning</span>Verify closure days for every attraction before building your itinerary. The guide notes closure days throughout — use them.</div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-bar cb-warn"></div>
+      <div class="card-body">
+        <div class="card-place">Airport Transfer Planning</div>
+        <div class="card-title">Underestimating Narita Transfer Time</div>
+        <div class="card-text">Narita Airport (NRT) is 60–90 minutes from central Tokyo by train — depending on which service and which area you're travelling to. Many travellers budget "an hour" and find themselves cutting flight margins fine. Allow <strong>2.5–3 hours</strong> before international departure from Narita. Haneda (HND) is easier: 45–60 minutes to most central stations.
+        <div class="signal sig-warn"><span class="signal-label">Narita buffer</span>Narita: depart Tokyo 3–4 hours before flight. Never less. Haneda: 2–2.5 hours is adequate for most routes.</div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-bar cb-mistake"></div>
+      <div class="card-body">
+        <div class="card-place">Japan Visa / ETA</div>
+        <div class="card-title">Japan ETA — New Requirement for Some Nationalities</div>
+        <div class="card-text">Japan introduced an Electronic Travel Authorization requirement for certain passport holders in 2026 (check Japan Tourism Agency for your nationality). The ETA is inexpensive and applied for online — but travellers who discover it at check-in face boarding denial. This is not the airline's problem. It is yours.
+        <div class="signal sig-warn"><span class="signal-label">Check before booking flights</span>Verify ETA requirements for your passport at japan.travel/en/plan/eta. Apply at least 72 hours before departure. Processing is usually fast.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+<footer>
+  <div class="footer-gold">
+    <div>
+      <div class="footer-brand">No-Stress Guides</div>
+      <div class="footer-brand-sub">Tokyo Travel Guide</div>
+    </div>
+  </div>
+  <div class="footer-body">
+    <div class="footer-promise">
+      <div class="footer-promise-title">Our Promise</div>
+      <div class="footer-promise-text">No hotel, tour operator, or attraction paid to be included in this guide or excluded from this list. Every entry was independently verified between January and March 2026. We name patterns — not isolated incidents — that have been consistently reported by travellers and confirmed by our own research.</div>
+    </div>
+    <div class="footer-copy">&copy; 2026 No-Stress Travel Guides. All rights reserved.</div>
+  </div>
+</footer>
+<script>
+document.querySelectorAll('.section').forEach(function(s,i){
+  setTimeout(function(){ s.classList.add('visible'); }, 100 + i * 80);
+});
+</script>
+</body>
+</html>
