@@ -1,1 +1,572 @@
-
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Tokyo No-Stress — Interactive Map</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
+<link href="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Serif+Display&display=swap" rel="stylesheet">
+<style>
+:root{--p:#1a3a5c;--r:#c4533a;--a:#e8a838;--l:#f5f1eb;--d:#2c2c2c;--g:#4a7c59;--ma:#80B040;--mb:#E05000;--mc:#CC0011;--bd:#e0d8cc}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'DM Sans',sans-serif;background:var(--l);color:var(--d);overflow:hidden}
+.hdr{position:fixed;top:0;left:0;right:0;height:50px;background:var(--p);color:#fff;display:flex;align-items:center;justify-content:space-between;padding:0 16px;z-index:1001;box-shadow:0 2px 12px rgba(0,0,0,.15)}
+.hdr-logo{display:flex;align-items:baseline;gap:8px}
+.hdr-main{font-family:'DM Serif Display',serif;font-size:1.3rem}
+.hdr-sub{font-size:.65rem;font-weight:500;opacity:.8;text-transform:uppercase;letter-spacing:.1em}
+.hdr-badge{background:var(--r);padding:4px 10px;border-radius:20px;font-size:.7rem;font-weight:600}
+#map{position:fixed;top:50px;left:0;right:0;bottom:0;z-index:1}
+.fab{display:none;position:fixed;bottom:20px;right:20px;width:56px;height:56px;background:var(--r);color:#fff;border:none;border-radius:50%;font-size:1.4rem;cursor:pointer;z-index:1002;box-shadow:0 4px 12px rgba(0,0,0,.3);align-items:center;justify-content:center}
+.panel{position:fixed;top:70px;left:20px;width:360px;background:#fff;border-radius:12px;box-shadow:0 4px 24px rgba(0,0,0,.12);z-index:1000;overflow:hidden;max-height:calc(100vh - 100px);display:flex;flex-direction:column}
+.tabs{display:flex;background:var(--p);flex-shrink:0}
+.tbtn{flex:1;padding:11px 4px;text-align:center;font-size:.68rem;font-weight:600;color:rgba(255,255,255,.6);cursor:pointer;border:none;background:none;transition:all .2s}
+.tbtn.on{color:#fff;background:rgba(255,255,255,.15)}
+.tbtn:hover{color:#fff}
+.px{background:none;border:none;color:#fff;font-size:1.4rem;cursor:pointer;padding:0 12px;display:none}
+.pane{display:none;overflow-y:auto;flex:1;padding:12px}
+.pane.on{display:block}
+.nbhd-card{background:var(--l);border-radius:10px;padding:12px;margin-bottom:8px;cursor:pointer;border:2px solid transparent;transition:all .2s}
+.nbhd-card:hover{border-color:var(--p)}
+.nbhd-card.on{border-color:var(--r);background:#fff}
+.nbhd-card h3{font-family:'DM Serif Display',serif;font-size:.95rem;color:var(--p);margin-bottom:2px}
+.ntag{font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--r);margin-bottom:4px}
+.ndesc{font-size:.76rem;color:#555;line-height:1.4}
+.ndet{display:none;margin-top:10px;padding-top:10px;border-top:1px solid var(--bd)}
+.ndet.on{display:block}
+.nrow{font-size:.74rem;color:#555;margin-bottom:5px;display:flex;gap:6px}
+.nrow b{color:var(--p);min-width:55px;flex-shrink:0}
+.ntip{background:#fff8e6;border-left:3px solid var(--a);padding:6px 8px;font-size:.7rem;color:#6b5a00;margin-top:6px;border-radius:0 4px 4px 0}
+.itin-card{background:var(--l);border-radius:10px;padding:12px;margin-bottom:8px;cursor:pointer;border:2px solid transparent;transition:all .2s}
+.itin-card:hover{border-color:var(--p)}
+.itin-card.on{border-color:var(--r);background:#fff}
+.itin-card h3{font-family:'DM Serif Display',serif;font-size:.95rem;color:var(--p);margin-bottom:3px}
+.imeta{font-size:.72rem;color:#666;margin-bottom:4px}
+.idesc{font-size:.76rem;color:#555;line-height:1.4}
+.dtabs{display:none;flex-wrap:wrap;gap:4px;margin-top:10px}
+.dtabs.on{display:flex}
+.dbtn{padding:5px 11px;border-radius:20px;font-size:.67rem;font-weight:600;border:1.5px solid var(--bd);background:#fff;color:var(--p);cursor:pointer;transition:all .15s}
+.dbtn:hover{border-color:var(--p)}
+.dbtn.on{background:var(--r);border-color:var(--r);color:#fff}
+.ga-sec{margin-bottom:14px}
+.ga-ttl{font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#666;margin-bottom:8px;border-bottom:1px solid var(--bd);padding-bottom:4px}
+.ga-row{display:flex;gap:8px;font-size:.77rem;color:#555;margin-bottom:5px;line-height:1.45}
+.ga-row b{color:var(--p);min-width:68px;flex-shrink:0;font-size:.71rem}
+.mpills{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px}
+.mp{padding:4px 10px;border-radius:20px;font-size:.67rem;font-weight:700;color:#fff}
+.mpa{background:var(--ma)}.mpb{background:var(--mb)}.mpc{background:var(--mc)}
+.stops{position:fixed;bottom:20px;left:20px;width:360px;background:#fff;border-radius:12px;box-shadow:0 4px 24px rgba(0,0,0,.12);z-index:1000;display:none;overflow:hidden;max-height:44vh}
+.stops.on{display:block;animation:up .25s ease}
+@keyframes up{from{transform:translateY(16px);opacity:0}to{transform:translateY(0);opacity:1}}
+.stops-hd{background:var(--g);color:#fff;padding:11px 14px;display:flex;align-items:center;justify-content:space-between}
+.stops-hd h3{font-family:'DM Serif Display',serif;font-size:.95rem;font-weight:400}
+.sx{background:none;border:none;color:#fff;font-size:1.3rem;cursor:pointer;line-height:1}
+.stops-bd{overflow-y:auto;max-height:calc(44vh - 46px)}
+.srow{padding:11px 14px;border-bottom:1px solid #eee}
+.srow:last-child{border-bottom:none}
+.snum{display:inline-flex;align-items:center;justify-content:center;width:21px;height:21px;border-radius:50%;background:var(--r);color:#fff;font-size:.7rem;font-weight:700;margin-right:7px;vertical-align:middle;flex-shrink:0}
+.sname{font-weight:600;font-size:.88rem;vertical-align:middle}
+.stime{font-size:.7rem;color:var(--p);margin-left:6px;font-weight:600}
+.stip{font-size:.73rem;color:#666;margin-top:3px;padding-left:28px}
+.legend{position:fixed;bottom:20px;right:20px;background:#fff;padding:12px 15px;border-radius:10px;box-shadow:0 4px 16px rgba(0,0,0,.1);z-index:1000}
+.legend h4{font-size:.66rem;font-weight:700;text-transform:uppercase;color:#888;margin-bottom:7px;letter-spacing:.04em}
+.legr{display:flex;align-items:center;gap:7px;margin-bottom:5px;font-size:.75rem;color:#555}
+.legr:last-child{margin-bottom:0}
+.legdot{width:12px;height:12px;border-radius:50%;flex-shrink:0}
+.legline{width:20px;height:4px;border-radius:2px;flex-shrink:0}
+.pu{padding:12px 14px;min-width:185px}
+.pu-name{font-family:'DM Serif Display',serif;font-size:.98rem;color:var(--p);margin-bottom:2px}
+.pu-type{font-size:.6rem;text-transform:uppercase;letter-spacing:.08em;color:#999;margin-bottom:6px}
+.pu-row{font-size:.74rem;color:#555;margin-bottom:3px;line-height:1.4}
+.pu-row b{color:var(--d)}
+.pu-tip{background:var(--l);border-radius:4px;padding:5px 7px;font-size:.7rem;color:#6b5a00;margin-top:5px}
+@media(max-width:768px){
+  .panel{position:fixed;top:auto;bottom:0;left:0;right:0;width:100%;border-radius:16px 16px 0 0;transform:translateY(100%);max-height:75vh;transition:transform .3s ease}
+  .panel.open{transform:translateY(0)}
+  .fab{display:flex}
+  .px{display:block}
+  .stops{left:0;right:0;width:100%;border-radius:16px 16px 0 0;bottom:0}
+  .legend{display:none}
+}
+.mapboxgl-map{font:inherit}
+</style>
+</head>
+<body>
+<div class="hdr">
+  <div class="hdr-logo">
+    <span class="hdr-main">Tokyo</span>
+    <span class="hdr-sub">No-Stress Guide</span>
+  </div>
+  <div style="display:flex;align-items:center;gap:10px">
+    <span class="hdr-badge">Interactive Map</span>
+    <button class="px" id="px">✕</button>
+  </div>
+</div>
+<div id="map"></div>
+<button class="fab" id="fab">☰</button>
+<div class="panel" id="panel">
+  <div class="tabs">
+    <button class="tbtn on" onclick="showPane('nbhd',this)">Neighbourhoods</button>
+    <button class="tbtn" onclick="showPane('itin',this)">Itineraries</button>
+    <button class="tbtn" onclick="showPane('go',this)">Getting Around</button>
+  </div>
+  <div class="pane on" id="pane-nbhd"></div>
+  <div class="pane" id="pane-itin"></div>
+  <div class="pane" id="pane-go">
+    <div class="ga-sec">
+      <div class="ga-ttl">The Yamanote Line — Learn This First</div>
+      <div class="ga-row"><b>What it is</b>A circular JR loop connecting every major area. Shinjuku, Shibuya, Harajuku, Tokyo Station, Ueno, Akihabara — all on the same loop.</div>
+      <div class="ga-row"><b>Frequency</b>Every 2–4 minutes. No timetable needed. Just go to the platform.</div>
+      <div class="ga-row"><b>Key times</b>Shinjuku ↔ Shibuya: 7 min. Tokyo Station ↔ Ueno: 7 min. Shibuya ↔ Asakusa: 25 min (via Akihabara).</div>
+      <div class="ga-row"><b>Night</b>Last trains around 00:30–01:00. After that: taxi or walk. Never assume the next train is coming.</div>
+    </div>
+    <div class="ga-sec">
+      <div class="ga-ttl">Tokyo Metro Lines</div>
+      <div class="mpills">
+        <span class="mp mpa">Yamanote (JR)</span>
+        <span class="mp mpb">Ginza Metro</span>
+        <span class="mp mpc">Marunouchi Metro</span>
+      </div>
+      <div class="ga-row"><b>Ginza Line</b>Orange. Asakusa → Ueno → Ginza → Shibuya. Direct Asakusa–Ginza: 15 min.</div>
+      <div class="ga-row"><b>Marunouchi</b>Red. Shinjuku → Ginza → Tokyo Station → Ikebukuro loop. 5 min Ginza–Tokyo Station.</div>
+      <div class="ga-row"><b>Hibiya Line</b>Silver. Naka-Meguro → Ginza → Tsukiji → Ueno. Useful for Tsukiji access.</div>
+    </div>
+    <div class="ga-sec">
+      <div class="ga-ttl">IC Cards (Suica / Pasmo)</div>
+      <div class="ga-row"><b>Essential</b>Buy at any station on arrival. Load ¥3,000–5,000. Works on every train, metro, bus, and most convenience stores.</div>
+      <div class="ga-row"><b>2026 note</b>Some foreign Visa/Mastercard can now load Suica via Apple/Google Wallet — check your bank app before arriving.</div>
+      <div class="ga-row"><b>Taxi</b>Start meter ¥500–730. Honest and safe. Use for last trains or luggage days. Never share with strangers.</div>
+    </div>
+    <div class="ga-sec">
+      <div class="ga-ttl">Airport Transfers</div>
+      <div class="ga-row"><b>Narita (NRT)</b>Narita Express (N'EX) to Shinjuku/Shibuya: 80–90 min, ¥3,250. Skyliner to Ueno: 36 min, ¥2,570. Budget 2 hours to central Tokyo.</div>
+      <div class="ga-row"><b>Haneda (HND)</b>Keikyu Line to Shinagawa: 13 min, ¥310. Monorail to Hamamatsucho: 18 min, ¥500. Budget 45–60 min to centre.</div>
+    </div>
+  </div>
+</div>
+<div class="stops" id="stops">
+  <div class="stops-hd">
+    <h3 id="stops-title">Day Stops</h3>
+    <button class="sx" onclick="document.getElementById('stops').classList.remove('on')">✕</button>
+  </div>
+  <div class="stops-bd" id="stops-bd"></div>
+</div>
+<div class="legend">
+  <h4>Map Legend</h4>
+  <div class="legr"><div class="legdot" style="background:#1a3a5c"></div>Temple / Monument</div>
+  <div class="legr"><div class="legdot" style="background:#2d7a4f"></div>Market / Food</div>
+  <div class="legr"><div class="legdot" style="background:#5a3a7c"></div>Viewpoint / Observation</div>
+  <div class="legr"><div class="legdot" style="background:#2d7a4f"></div>Park / Garden</div>
+  <div class="legr"><div class="legline" style="background:#80B040"></div>Yamanote Line (JR)</div>
+  <div class="legr"><div class="legline" style="background:#E05000"></div>Ginza Metro</div>
+  <div class="legr"><div class="legline" style="background:#CC0011"></div>Marunouchi Metro</div>
+</div>
+<script src="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mapbox-gl-leaflet@0.0.16/leaflet-mapbox-gl.js"></script>
+<script>
+var nsMap, markersLayer, metroLayerRef, activeNbhdLayer, activeRouteObjs;
+activeRouteObjs = [];
+activeNbhdLayer = null;
+var ICONS = {
+  monument: { bg:'#1a3a5c', svg:'<rect x="7" y="3" width="8" height="2" fill="white"/><rect x="9" y="5" width="4" height="9" fill="white"/><rect x="5" y="14" width="12" height="2" fill="white"/>' },
+  market:   { bg:'#2d7a4f', svg:'<path d="M5 8h12l-1 8H6z" fill="white"/><path d="M4 8l2-4h10l2 4" fill="none" stroke="white" stroke-width="1.5"/><line x1="11" y1="8" x2="11" y2="16" stroke="#2d7a4f" stroke-width="1"/>' },
+  viewpoint:{ bg:'#5a3a7c', svg:'<circle cx="11" cy="9" r="4" fill="none" stroke="white" stroke-width="2"/><line x1="11" y1="2" x2="11" y2="5" stroke="white" stroke-width="1.5"/><line x1="11" y1="13" x2="11" y2="16" stroke="white" stroke-width="1.5"/><line x1="2" y1="9" x2="5" y2="9" stroke="white" stroke-width="1.5"/><line x1="17" y1="9" x2="20" y2="9" stroke="white" stroke-width="1.5"/>' },
+  park:     { bg:'#2d7a4f', svg:'<path d="M11 2 L5 10h4v2h4v-2h4z" fill="white"/><rect x="9" y="12" width="4" height="4" fill="white"/>' }
+};
+function makeIcon(type) {
+  var ic = ICONS[type] || ICONS.monument;
+  var html = '<div style="width:30px;height:30px;border-radius:50%;background:' + ic.bg + ';border:2.5px solid white;box-shadow:0 2px 8px rgba(0,0,0,.4);">'
+           + '<svg viewBox="0 0 22 22" width="22" height="22" style="display:block;margin:2px auto;">'
+           + ic.svg + '</svg></div>';
+  return L.divIcon({ html:html, iconSize:[30,30], iconAnchor:[15,15], popupAnchor:[0,-18], className:'' });
+}
+function showPane(id, btn) {
+  clearAll();
+  document.querySelectorAll('.tbtn').forEach(function(b){ b.classList.remove('on'); });
+  document.querySelectorAll('.pane').forEach(function(p){ p.classList.remove('on'); });
+  btn.classList.add('on');
+  document.getElementById('pane-' + id).classList.add('on');
+  if (id === 'go') {
+    if (metroLayerRef && !nsMap.hasLayer(metroLayerRef)) metroLayerRef.addTo(nsMap);
+    nsMap.fitBounds([[35.6197,139.6922],[35.7382,139.8107]], {padding:[30,30], animate:true});
+  } else {
+    if (metroLayerRef && nsMap.hasLayer(metroLayerRef)) nsMap.removeLayer(metroLayerRef);
+  }
+}
+function clearAll() {
+  clearRoutes();
+  if (activeNbhdLayer) { nsMap.removeLayer(activeNbhdLayer); activeNbhdLayer = null; }
+  document.querySelectorAll('.nbhd-card').forEach(function(c){ c.classList.remove('on'); });
+  document.querySelectorAll('.ndet').forEach(function(d){ d.classList.remove('on'); });
+  document.querySelectorAll('.itin-card').forEach(function(c){ c.classList.remove('on'); });
+  document.querySelectorAll('.dtabs').forEach(function(t){ t.classList.remove('on'); });
+  document.getElementById('stops').classList.remove('on');
+}
+function clearRoutes() {
+  activeRouteObjs.forEach(function(o){ nsMap.removeLayer(o); });
+  activeRouteObjs = [];
+  document.getElementById('stops').classList.remove('on');
+}
+// ── LANDMARKS DATA ───────────────────────────────────────────
+var LM = {
+  senso_ji:    {n:'Senso-ji Temple',           lat:35.7148,lng:139.7967,t:'monument',price:'Free',hours:'Always open (inner hall 06:00–17:00)',tip:'Arrive before 09:00 for the Kaminarimon photo without crowds. Omikuji fortune slip: ¥100.'},
+  nakamise:    {n:'Nakamise-dori',              lat:35.7136,lng:139.7961,t:'market',  price:'Free to walk',hours:'Shops 10:00–18:00',tip:'Shops open by 10:00 but street is walkable from dawn. Best traditional souvenirs in Tokyo.'},
+  skytree:     {n:'Tokyo Skytree',              lat:35.7101,lng:139.8107,t:'viewpoint',price:'¥2,100–3,100',hours:'08:00–22:00',tip:'Book online. Tembo Deck (350m) is enough — Tembo Galleria (450m) adds cost but limited extra. River views across to Asakusa.'},
+  ueno_park:   {n:'Ueno Park',                  lat:35.7169,lng:139.7720,t:'park',   price:'Free',hours:'Always open',tip:'Cherry blossom season (late March–early April): the most famous hanami spot in Tokyo. Come for Shinobazu Pond any season.'},
+  tokyo_natmus:{n:'Tokyo National Museum',      lat:35.7186,lng:139.7765,t:'monument',price:'¥1,000',hours:'09:30–17:00 (Fri/Sat to 20:00) closed Mon',tip:'Japan\'s most important collection. Main Honkan building alone fills 2–3 hours. Samurai armor, ceramics, screens, textiles.'},
+  ameyoko:     {n:'Ameyoko Market',             lat:35.7083,lng:139.7737,t:'market', price:'Free',hours:'Daily 10:00–20:00',tip:'Market street under the Yamanote tracks between Ueno and Okachimachi. Bargaining works here — unusual for Japan. 30–60 minutes.'},
+  meiji_jingu: {n:'Meiji Jingu Shrine',         lat:35.6761,lng:139.6993,t:'monument',price:'Free (outer); Treasury ¥500',hours:'Sunrise–sunset',tip:'Morning light filters through the forest. Walk the gravel path, pass through the massive torii. Allow 45–60 minutes. Less crowded before 09:00.'},
+  takeshita:   {n:'Takeshita Street / Harajuku',lat:35.6706,lng:139.7028,t:'market', price:'Free',hours:'Shops 11:00–21:00',tip:'400 meters of kawaii culture. Crepes, cotton candy, colorful fashion. 30–45 minutes captures it. Omotesando is the architectural counterpart — perpendicular boulevard.'},
+  shibuya_sky: {n:'Shibuya Sky Observation',    lat:35.6580,lng:139.7004,t:'viewpoint',price:'¥2,000',hours:'10:00–22:30 (last entry 21:30)',tip:'Outdoor terrace at 230 meters atop Shibuya Scramble Square. 360-degree views. Book online — sunset slots sell out. Allow 60–90 minutes.'},
+  shibuya_x:   {n:'Shibuya Crossing',           lat:35.6595,lng:139.7004,t:'viewpoint',price:'Free',hours:'Always',tip:'The famous scramble: up to 3,000 people per light cycle. Exit via Hachiko Exit. View from above: Starbucks second floor Tsutaya building (buy something), Mag\'s Park rooftop (free).'},
+  shinjuku_gyoen:{n:'Shinjuku Gyoen',           lat:35.6851,lng:139.7100,t:'park',  price:'¥500',hours:'09:00–16:30 (Fri/Sat to 19:00) closed Mon',tip:'Three garden styles in 58 hectares. Tokyo\'s finest green space. Cherry blossoms in late March. No alcohol allowed.'},
+  govt_bldg:   {n:'Tokyo Metropolitan Gov. Building',lat:35.6896,lng:139.6922,t:'viewpoint',price:'Free',hours:'09:00–23:00 (North Tower; South Tower closed alt. Tues)',tip:'Free observation deck, 45th floor. Views match paid alternatives. No reservation needed; queues move quickly. Best at sunset or blue hour.'},
+  tsukiji:     {n:'Tsukiji Outer Market',        lat:35.6655,lng:139.7707,t:'market', price:'Free to browse',hours:'Stalls from 05:00; most by 08:00; closes ~13:00',tip:'Sushi at a standing counter. Tamagoyaki on a stick. Arrive by 08:00 for full selection. Many stalls close by 14:00 — morning visits only.'},
+  ginza:       {n:'Ginza / Chuo-dori',           lat:35.6717,lng:139.7640,t:'monument',price:'Free',hours:'Always; Chuo-dori pedestrianized Sat/Sun afternoons',tip:'Wako building clock tower anchors the central intersection. Ginza Six offers a rooftop terrace with Kabuki-za views. Walk — rewards strolling.'},
+  tokyo_sta:   {n:'Tokyo Station',               lat:35.6812,lng:139.7671,t:'monument',price:'Free to enter',hours:'Always open',tip:'1914 red brick Marunouchi facade rewards photography. Inside: restored domes with decorated ceilings. Underground: Character Street (anime merchandise) and Ramen Street.'},
+  imperial_pal:{n:'Imperial Palace East Gardens',lat:35.6852,lng:139.7528,t:'park',  price:'Free',hours:'09:00–16:00 (17:00 summer) closed Mon/Fri',tip:'Former Edo Castle grounds. Stone walls, guard tower remnants, manicured gardens. Allow 90 min to 2 hours. Nijubashi Bridge plaza nearby for the classic photo.'},
+  roppongi:    {n:'Roppongi Hills / Mori Museum',lat:35.6604,lng:139.7292,t:'viewpoint',price:'¥2,000 (includes Tokyo City View)',hours:'10:00–22:00 (Fri/Sat to 23:00)',tip:'Mori Art Museum on the 53rd floor. Contemporary art exhibitions rotate. Admission includes observation deck. National Art Center nearby (free exterior, striking architecture).'},
+  tokyo_tower: {n:'Tokyo Tower',                 lat:35.6586,lng:139.7454,t:'viewpoint',price:'¥1,200 (Main Deck)',hours:'09:00–23:00',tip:'The original observation tower, less crowded than Skytree. Main Deck at 150m. Zojoji Temple sits at the base — photograph the tower framed by temple gates.'},
+  akihabara:   {n:'Akihabara Electric Town',     lat:35.6983,lng:139.7731,t:'market', price:'Free to explore',hours:'Shops 11:00–20:00',tip:'Anime, manga, electronics, gaming. Mandarake for vintage collectibles. Multi-floor arcades for rhythm games. Neon hits full intensity after dark.'},
+  teamlab:     {n:'teamLab Planets',             lat:35.6500,lng:139.7950,t:'monument',price:'¥3,200',hours:'09:00–21:00',tip:'Immersive digital art in Toyosu. Book well in advance — sells out weeks ahead. Allow 90 minutes. The original Borderless has moved to Azabudai Hills (different experience, also book ahead).'},
+  yanaka:      {n:'Yanaka Ginza',                lat:35.7267,lng:139.7672,t:'market', price:'Free',hours:'Shops 10:00–18:00',tip:'170-meter traditional shopping street in a neighbourhood that survived WWII and earthquakes. Menchi-katsu, senbei, taiyaki. Start from Nippori Station.'}
+};
+// ── NEIGHBOURHOOD POLYGONS ──────────────────────────────────
+var NBHD_POLY = {
+  asakusa:   [[35.7200,139.7850],[35.7200,139.8050],[35.7050,139.8050],[35.7050,139.7850]],
+  ueno:      [[35.7200,139.7650],[35.7200,139.7850],[35.7050,139.7850],[35.7050,139.7650]],
+  shinjuku:  [[35.7000,139.6850],[35.7000,139.7150],[35.6780,139.7150],[35.6780,139.6850]],
+  shibuya:   [[35.6780,139.6900],[35.6780,139.7150],[35.6450,139.7150],[35.6450,139.6900]],
+  ginza:     [[35.6800,139.7550],[35.6800,139.7750],[35.6580,139.7750],[35.6580,139.7550]],
+  akihabara: [[35.7050,139.7650],[35.7050,139.7850],[35.6900,139.7850],[35.6900,139.7650]],
+  roppongi:  [[35.6700,139.7200],[35.6700,139.7450],[35.6480,139.7450],[35.6480,139.7200]],
+  yanaka:    [[35.7380,139.7550],[35.7380,139.7800],[35.7180,139.7800],[35.7180,139.7550]]
+};
+// ── NEIGHBOURHOODS DATA ──────────────────────────────────────
+var NBHDS = [
+  {id:'asakusa', col:'#c4533a', lat:35.7148, lng:139.7967, n:'Asakusa & Ueno', tag:'Traditional and Spiritual',
+   desc:'Senso-ji temple, Nakamise shopping street, Sumida River, Tokyo Skytree views. The historical soul of old Edo.',
+   days:'1–2 days', best:'Before 09:00 for temple; afternoon for museums',
+   eat:'Daikokuya for tempura (queue, worth it). Hoppy Street for open-air izakaya. Nakamise snacks.',
+   stay:'Best for atmosphere. Metro Ginza or Toei Asakusa line. Evening return from Shinjuku/Shibuya: 25–35 min.',
+   tip:'Arrive before 09:00 to photograph Kaminarimon without crowds. Window closes by 10:00.'},
+  {id:'shinjuku', col:'#1a3a5c', lat:35.6896, lng:139.7034, n:'Shinjuku', tag:'Hub and Nightlife',
+   desc:'World\'s busiest station. Department stores, Kabukicho entertainment, Golden Gai micro-bars, Shinjuku Gyoen garden.',
+   days:'1 day + evening', best:'Garden: morning. East side: evening after 18:00',
+   eat:'Omoide Yokocho (Memory Lane): yakitori in smoky alleys. Fuunji for exceptional tsukemen. Don Quijote for late snacks.',
+   stay:'Best overall base. Every line stops here. EUR equivalent ¥15,000–25,000/night mid-range.',
+   tip:'Golden Gai comes alive after 20:00. Cover charges ¥500–1,500 per bar. Budget ¥4,000–7,000 for the night.'},
+  {id:'shibuya', col:'#e8a838', lat:35.6595, lng:139.7006, n:'Shibuya & Harajuku', tag:'Youth Culture and Fashion',
+   desc:'The famous crossing, Shibuya Sky observation deck, Takeshita Street kawaii culture, Meiji Jingu shrine forest.',
+   days:'1 full day', best:'Meiji Jingu at 09:00; crossing any time; Sky at sunset',
+   eat:'Maisen for tonkatsu in a converted bathhouse. Harajuku Gyozaro for excellent dumplings. Genki Sushi for conveyor belt.',
+   stay:'Younger energy, equally connected. JR Shibuya. ¥15,000–22,000/night.',
+   tip:'Shibuya Sky sunset slots sell out — book online before arriving. Hachiko statue at the Hachiko Exit.'},
+  {id:'ginza', col:'#4a7c59', lat:35.6717, lng:139.7640, n:'Ginza & Marunouchi', tag:'Elegant and Historic',
+   desc:'Upscale shopping on Chuo-dori, Kabuki-za theater, Tokyo Station 1914 red brick facade, Imperial Palace East Gardens.',
+   days:'Half day to 1 day', best:'Morning for Tsukiji, then Ginza; Imperial Palace closed Mon/Fri',
+   eat:'Depachika at Mitsukoshi or Ginza Six: basement food halls at restaurant quality. Tokyo Station Ramen Street.',
+   stay:'Business district. Near Tokyo Station, Marunouchi, and Hibiya. ¥20,000–35,000/night.',
+   tip:'Chuo-dori pedestrianized on weekend afternoons. Walk it. Ginza Six rooftop has Kabuki-za views — free to access.'},
+  {id:'akihabara', col:'#5a3a7c', lat:35.6983, lng:139.7731, n:'Akihabara', tag:'Anime and Electronics',
+   desc:'The global capital of anime, manga, gaming culture, and electronics. Multi-floor arcades, maid cafes, Mandarake.',
+   days:'Half day to 1 day', best:'Afternoon and evening; neon intensity after dark',
+   eat:'Themed cafes throughout. Animate Cafe for licensed collaborations. Side streets for regular dining.',
+   stay:'Close to Ueno and Tokyo Station. Better to stay in Shinjuku or Shibuya and day-trip.',
+   tip:'JR Akihabara. From Ueno: 4 minutes. From Tokyo Station: 4 minutes. The "Electric Town" exit faces the main strip.'},
+  {id:'roppongi', col:'#7c5a1a', lat:35.6628, lng:139.7316, n:'Roppongi', tag:'Art and Nightlife',
+   desc:'Mori Art Museum (53rd floor), National Art Center, Tokyo Tower views, Tokyo Midtown, international nightlife.',
+   days:'Half day for art; evening for dining or clubs',
+   best:'Museums open until 22:00 Fri/Sat. Tokyo Tower best after dark.',
+   eat:'Restaurants throughout Roppongi Hills. Walk 10 min to Tokyo Midtown for more options.',
+   stay:'Not ideal base. Metro Hibiya or Oedo lines. 20 minutes from Shibuya.',
+   tip:'Tokyo Tower is 15-min walk from Roppongi Hills. Photograph the tower framed by Zojoji Temple gates.'},
+  {id:'yanaka', col:'#2a6b5a', lat:35.7267, lng:139.7672, n:'Yanaka / Local Tokyo', tag:'Old Tokyo and Neighbourhood Life',
+   desc:'Yanaka, Nezu, and Shimokitazawa — Tokyo neighbourhoods that survived war and earthquakes. Traditional shotengai, quiet temples, vintage shops.',
+   days:'Half day each; combine for a full day',
+   best:'Morning for Yanaka; afternoon for Shimokitazawa',
+   eat:'Yanaka Ginza for traditional snacks. Shimokitazawa: independent cafes, City Country City for music and coffee.',
+   stay:'Shimokitazawa: Odakyu line from Shinjuku, 10 min. Yanaka: Nippori on Yamanote, short walk.',
+   tip:'For curious travellers. Not a first-visit priority. But Yanaka Cemetery has cherry trees and wandering cats.'}
+];
+// ── ITINERARIES DATA ─────────────────────────────────────────
+var ITINS = [
+  { id:'oneday', n:'1 Day — Classic Tokyo', days:'1 day', transport:'Metro + Walking',
+    desc:'Asakusa in the morning, Ginza/Tsukiji at midday, Shibuya in the evening. The essential narrative arc.',
+    dl:[
+      { lbl:'Full Day — Classic A',
+        stops:[{loc:'senso_ji',n:'Senso-ji Temple',time:'08:30–10:00',tip:'Arrive early. Kaminarimon photo before crowds.'},
+               {loc:'nakamise',n:'Nakamise Shopping',time:'10:00–10:30',tip:'Traditional souvenirs, taiyaki, ningyo-yaki.'},
+               {loc:'tsukiji',n:'Tsukiji Outer Market',time:'11:30–13:00',tip:'Metro Ginza line Asakusa→Ginza, 15 min. Sushi at standing counter.'},
+               {loc:'ginza',n:'Ginza Stroll',time:'13:00–14:30',tip:'Walk Chuo-dori. Wako building. Ginza Six. Window-shop without pressure.'},
+               {loc:'shibuya_x',n:'Shibuya Crossing',time:'15:00–16:00',tip:'Metro Ginza line Ginza→Shibuya, 15 min. Hachiko statue. Cross the scramble.'},
+               {loc:'shibuya_sky',n:'Shibuya Sky (Optional)',time:'16:00–17:30',tip:'Book online. Sunset slot. 230 meters, 360 views.'}],
+        routes:[{f:'senso_ji',t:'nakamise'},{f:'tsukiji',t:'ginza'},{f:'ginza',t:'shibuya_x'},{f:'shibuya_x',t:'shibuya_sky'}]}
+    ]
+  },
+  { id:'weekend', n:'Weekend Break — 3 Days', days:'3 days', transport:'Yamanote + Metro',
+    desc:'Tokyo\'s greatest hits with breathing room. Traditional east, modern west, elegant centre.',
+    dl:[
+      { lbl:'Day 1 — Traditional East Tokyo',
+        stops:[{loc:'senso_ji',n:'Senso-ji Complex',time:'08:30–10:30',tip:'Arrive before 09:00. Kaminarimon, Nakamise, five-story pagoda, Asakusa Shrine.'},
+               {loc:'ueno_park',n:'Ueno Park & Museums',time:'13:00–16:00',tip:'Metro Ginza line Asakusa→Ueno, 5 min. Pick one museum. Tokyo National Museum: 2–3 hours.'},
+               {loc:'ameyoko',n:'Ameyoko Market',time:'16:00–17:00',tip:'Under the Yamanote tracks. Vendors, fresh produce, chaotic energy.'},
+               {loc:'akihabara',n:'Akihabara (Evening)',time:'18:00–21:00',tip:'JR Ueno→Akihabara 4 min. Neon at full intensity after dark.'}],
+        routes:[{f:'senso_ji',t:'ueno_park'},{f:'ueno_park',t:'ameyoko'},{f:'ameyoko',t:'akihabara'}]},
+      { lbl:'Day 2 — Modern West Tokyo',
+        stops:[{loc:'meiji_jingu',n:'Meiji Jingu',time:'09:00–10:00',tip:'JR Harajuku station. Morning light through the forest. 45–60 min.'},
+               {loc:'takeshita',n:'Harajuku / Omotesando',time:'10:00–12:00',tip:'Takeshita Street: kawaii culture. Omotesando: architectural boulevard.'},
+               {loc:'shibuya_x',n:'Shibuya Crossing',time:'13:00–15:00',tip:'Walk via Cat Street (15 min) or JR 2 min. The crossing experience.'},
+               {loc:'shinjuku_gyoen',n:'Shinjuku Gyoen',time:'16:00–17:30',tip:'JR Shibuya→Shinjuku 7 min. Three garden styles, 58 hectares. ¥500.'},
+               {loc:'govt_bldg',n:'Metropolitan Gov. Building',time:'17:30–19:00',tip:'Free observation deck, 45th floor. Sunset and blue hour.'}],
+        routes:[{f:'meiji_jingu',t:'takeshita'},{f:'takeshita',t:'shibuya_x'},{f:'shibuya_x',t:'shinjuku_gyoen'},{f:'shinjuku_gyoen',t:'govt_bldg'}]},
+      { lbl:'Day 3 — Elegant Central Tokyo',
+        stops:[{loc:'tsukiji',n:'Tsukiji Outer Market',time:'07:30–09:00',tip:'Sushi breakfast. Arrive by 08:00 for full selection. Many stalls close by 14:00.'},
+               {loc:'ginza',n:'Ginza',time:'10:00–12:00',tip:'Walk from Tsukiji (10 min). Chuo-dori, Wako building, Ginza Six rooftop.'},
+               {loc:'tokyo_sta',n:'Tokyo Station',time:'14:00–15:00',tip:'Walk from Ginza (15 min). 1914 red brick facade. Marunouchi domes inside.'},
+               {loc:'imperial_pal',n:'Imperial Palace East Gardens',time:'15:00–16:30',tip:'Walk 10 min from Tokyo Station. Former Edo Castle. Closed Mon/Fri.'}],
+        routes:[{f:'tsukiji',t:'ginza'},{f:'ginza',t:'tokyo_sta'},{f:'tokyo_sta',t:'imperial_pal'}]}
+    ]
+  },
+  { id:'fullvisit', n:'Full Visit — 4–5 Days', days:'4–5 days', transport:'Yamanote + Metro',
+    desc:'All essentials plus Roppongi art, local neighbourhoods, and one slow morning with nothing scheduled.',
+    dl:[
+      { lbl:'Day 1 — Traditional East',
+        stops:[{loc:'senso_ji',n:'Senso-ji + Asakusa',time:'08:30–12:00',tip:'Full complex including Denboin-dori and Sumida River walk.'},
+               {loc:'tokyo_natmus',n:'Tokyo National Museum',time:'13:00–16:00',tip:'Japan\'s most important collection. Honkan building: 2–3 hours.'},
+               {loc:'ameyoko',n:'Ameyoko + Ueno Evening',time:'16:00–17:00',tip:'Market energy under the tracks. 30–60 minutes.'}],
+        routes:[{f:'senso_ji',t:'tokyo_natmus'},{f:'tokyo_natmus',t:'ameyoko'}]},
+      { lbl:'Day 2 — Modern West',
+        stops:[{loc:'meiji_jingu',n:'Meiji Jingu',time:'09:00–10:00',tip:'Forest shrine at JR Harajuku.'},
+               {loc:'takeshita',n:'Harajuku + Omotesando',time:'10:00–12:00',tip:'Takeshita Street then Omotesando boulevard.'},
+               {loc:'shibuya_sky',n:'Shibuya Sky',time:'14:00–15:30',tip:'Book sunset slot online.'},
+               {loc:'shinjuku_gyoen',n:'Shinjuku Gyoen',time:'16:00–17:30',tip:'¥500 garden, three styles.'},
+               {loc:'govt_bldg',n:'Government Building',time:'17:30+',tip:'Free, 45th floor, sunset views.'}],
+        routes:[{f:'meiji_jingu',t:'takeshita'},{f:'takeshita',t:'shibuya_sky'},{f:'shibuya_sky',t:'shinjuku_gyoen'},{f:'shinjuku_gyoen',t:'govt_bldg'}]},
+      { lbl:'Day 3 — Elegant Central',
+        stops:[{loc:'tsukiji',n:'Tsukiji Market',time:'07:30–09:00',tip:'Sushi breakfast. Arrive early.'},
+               {loc:'ginza',n:'Ginza',time:'10:00–12:30',tip:'Stroll Chuo-dori. Kabuki-za exterior.'},
+               {loc:'imperial_pal',n:'Imperial Palace Gardens',time:'14:00–16:00',tip:'Free entry. Closed Mon/Fri.'}],
+        routes:[{f:'tsukiji',t:'ginza'},{f:'ginza',t:'imperial_pal'}]},
+      { lbl:'Day 4 — Art & Local',
+        stops:[{loc:'roppongi',n:'Roppongi Hills / Mori Museum',time:'10:00–13:00',tip:'53rd floor. Contemporary exhibitions include observation deck.'},
+               {loc:'tokyo_tower',n:'Tokyo Tower',time:'16:00–17:30',tip:'15-min walk from Roppongi. Less crowded than Skytree.'},
+               {loc:'yanaka',n:'Yanaka (Alternative)',time:'09:00–12:00',lat:35.7267,lng:139.7672,tip:'From Nippori (JR Yamanote). Old Tokyo atmosphere, wandering cats.'}],
+        routes:[{f:'roppongi',t:'tokyo_tower'}]}
+    ]
+  },
+  { id:'anime', n:'Anime & Pop Culture — 3 Days', days:'3 days', transport:'Yamanote + Metro',
+    desc:'teamLab digital art, Akihabara deep dive, Harajuku kawaii culture, Ghibli Museum (book separately).',
+    dl:[
+      { lbl:'Day 1 — Akihabara & Ueno',
+        stops:[{loc:'akihabara',n:'Akihabara',time:'11:00–18:00',tip:'Full day. Mandarake vintage, Animate merchandise, multi-floor arcades, maid cafe experience.'},
+               {loc:'ueno_park',n:'Ueno Museums',time:'13:00–16:00',tip:'National Museum of Nature and Science: excellent interactive exhibits.'}],
+        routes:[{f:'akihabara',t:'ueno_park'}]},
+      { lbl:'Day 2 — Harajuku & teamLab',
+        stops:[{loc:'meiji_jingu',n:'Meiji Jingu',time:'09:00–10:00',tip:'Peaceful forest shrine before the kawaii chaos.'},
+               {loc:'takeshita',n:'Harajuku / Takeshita Street',time:'10:00–12:00',tip:'Kawaii culture at full intensity. Colorful shops and crepes.'},
+               {loc:'teamlab',n:'teamLab Planets (Toyosu)',time:'14:00–16:00',tip:'Book well in advance — sells out weeks ahead. Metro Hibiya line to Toyosu.'}],
+        routes:[{f:'meiji_jingu',t:'takeshita'},{f:'takeshita',t:'teamlab'}]},
+      { lbl:'Day 3 — Shibuya & Shinjuku',
+        stops:[{loc:'shibuya_x',n:'Shibuya Crossing',time:'09:00–10:00',tip:'Morning light on the crossing. Less crowded than afternoon.'},
+               {loc:'shibuya_sky',n:'Shibuya Sky',time:'10:00–12:00',tip:'Book in advance. Outdoor 230m terrace.'},
+               {loc:'shinjuku_gyoen',n:'Shinjuku Gyoen',time:'14:00–15:30',tip:'¥500. Three garden styles. Perfect reset.'},
+               {loc:'govt_bldg',n:'Government Building Deck',time:'17:30–19:00',tip:'Free. 45th floor. Sunset or blue hour.'}],
+        routes:[{f:'shibuya_x',t:'shibuya_sky'},{f:'shibuya_sky',t:'shinjuku_gyoen'},{f:'shinjuku_gyoen',t:'govt_bldg'}]}
+    ]
+  }
+];
+// ── BUILD UI ─────────────────────────────────────────────────
+function buildNbhdList() {
+  var el = document.getElementById('pane-nbhd');
+  el.innerHTML = '';
+  NBHDS.forEach(function(nb) {
+    var card = document.createElement('div');
+    card.className = 'nbhd-card';
+    card.innerHTML = '<div class="ntag" style="color:' + nb.col + '">' + nb.tag + '</div>'
+      + '<h3>' + nb.n + '</h3>'
+      + '<div class="ndesc">' + nb.desc + '</div>'
+      + '<div class="ndet">'
+      + '<div class="nrow"><b>Time</b>' + nb.days + '</div>'
+      + '<div class="nrow"><b>Best</b>' + nb.best + '</div>'
+      + '<div class="nrow"><b>Eat</b>' + nb.eat + '</div>'
+      + '<div class="nrow"><b>Stay</b>' + nb.stay + '</div>'
+      + '<div class="ntip">' + nb.tip + '</div>'
+      + '</div>';
+    card.addEventListener('click', function() {
+      var det = card.querySelector('.ndet');
+      var isOn = card.classList.contains('on');
+      clearAll();
+      if (!isOn) {
+        card.classList.add('on');
+        det.classList.add('on');
+        if (NBHD_POLY[nb.id]) {
+          activeNbhdLayer = L.polygon(NBHD_POLY[nb.id], {color:nb.col, weight:2, fillColor:nb.col, fillOpacity:.15}).addTo(nsMap);
+          nsMap.fitBounds(activeNbhdLayer.getBounds(), {padding:[60,60], animate:true});
+        } else {
+          nsMap.flyTo([nb.lat, nb.lng], 14, {animate:true, duration:0.8});
+        }
+      }
+    });
+    el.appendChild(card);
+  });
+}
+function buildItinList() {
+  var el = document.getElementById('pane-itin');
+  el.innerHTML = '';
+  ITINS.forEach(function(it) {
+    var card = document.createElement('div');
+    card.className = 'itin-card';
+    var dtabsHtml = '<div class="dtabs">';
+    it.dl.forEach(function(d, i) {
+      dtabsHtml += '<button class="dbtn" onclick="drawDay(event,\'' + it.id + '\',' + i + ')">' + d.lbl.split(' — ')[0] + '</button>';
+    });
+    dtabsHtml += '</div>';
+    card.innerHTML = '<h3>' + it.n + '</h3>'
+      + '<div class="imeta">📅 ' + it.days + ' &nbsp;·&nbsp; 🚇 ' + it.transport + '</div>'
+      + '<div class="idesc">' + it.desc + '</div>'
+      + dtabsHtml;
+    card.addEventListener('click', function(e) {
+      if (e.target.classList.contains('dbtn')) return;
+      var isOn = card.classList.contains('on');
+      clearAll();
+      if (!isOn) {
+        card.classList.add('on');
+        card.querySelector('.dtabs').classList.add('on');
+        nsMap.flyTo([35.6938, 139.7034], 12, {animate:true, duration:0.8});
+      }
+    });
+    el.appendChild(card);
+  });
+}
+function drawDay(e, itinId, dayIdx) {
+  e.stopPropagation();
+  clearRoutes();
+  var it = ITINS.find(function(i){ return i.id === itinId; });
+  var day = it.dl[dayIdx];
+  document.querySelectorAll('.dbtn').forEach(function(b){ b.classList.remove('on'); });
+  e.target.classList.add('on');
+  var stopCoords = [];
+  day.stops.forEach(function(s) {
+    var loc = LM[s.loc] || {lat:s.lat||35.6938, lng:s.lng||139.7034};
+    stopCoords.push([loc.lat, loc.lng]);
+    var num = day.stops.indexOf(s) + 1;
+    var numIcon = L.divIcon({
+      html: '<div style="width:26px;height:26px;border-radius:50%;background:#c4533a;border:2.5px solid white;display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:.75rem;box-shadow:0 2px 8px rgba(0,0,0,.4);">' + num + '</div>',
+      iconSize:[26,26], iconAnchor:[13,13], className:''
+    });
+    var pop = L.popup({maxWidth:220}).setContent('<div class="pu"><div class="pu-name">' + s.n + '</div><div class="pu-type">' + s.time + '</div><div class="pu-tip">' + s.tip + '</div></div>');
+    var m = L.marker([loc.lat, loc.lng], {icon:numIcon}).bindPopup(pop).addTo(nsMap);
+    activeRouteObjs.push(m);
+  });
+  if (day.routes) {
+    day.routes.forEach(function(r) {
+      var from = LM[r.f] || {lat:r.flat||35.6938, lng:r.flng||139.7034};
+      var to   = LM[r.t] || {lat:r.tlat||35.6938, lng:r.tlng||139.7034};
+      var line = L.polyline([[from.lat,from.lng],[to.lat,to.lng]], {color:'#c4533a', weight:2.5, dashArray:'6 4', opacity:.7}).addTo(nsMap);
+      activeRouteObjs.push(line);
+    });
+  }
+  if (stopCoords.length > 1) {
+    nsMap.fitBounds(stopCoords, {padding:[60,60], animate:true});
+  } else if (stopCoords.length === 1) {
+    nsMap.flyTo(stopCoords[0], 14, {animate:true});
+  }
+  var bd = document.getElementById('stops-bd');
+  bd.innerHTML = '';
+  day.stops.forEach(function(s, i) {
+    var row = document.createElement('div');
+    row.className = 'srow';
+    row.innerHTML = '<span class="snum">' + (i+1) + '</span>'
+      + '<span class="sname">' + s.n + '</span>'
+      + '<span class="stime">' + s.time + '</span>'
+      + '<div class="stip">' + s.tip + '</div>';
+    bd.appendChild(row);
+  });
+  document.getElementById('stops-title').textContent = day.lbl;
+  document.getElementById('stops').classList.add('on');
+}
+// ── MAP INIT ──────────────────────────────────────────────────
+window.onload = function() {
+  nsMap = L.map('map', {zoomControl:true}).setView([35.6938, 139.7034], 12);
+  mapboxgl.accessToken = 'pk.eyJ1IjoiY2lwcmlhbm8tOTIiLCJhIjoiY21vcmM0bXJqMXBhMzJzczRzenhkZ2NzeSJ9.F0M6LjvRL8imUkerCEYYFA';
+  var glLayer = L.mapboxGL({
+    accessToken: mapboxgl.accessToken,
+    style: 'mapbox://styles/mapbox/streets-v12'
+  }).addTo(nsMap);
+  // Force all labels to English
+  setTimeout(function() {
+    var mb = glLayer.getMapboxMap();
+    if (!mb) return;
+    function setEnglish() {
+      try {
+        mb.getStyle().layers.forEach(function(l) {
+          if (l.type === 'symbol' && l.layout && l.layout['text-field']) {
+            mb.setLayoutProperty(l.id, 'text-field',
+              ['coalesce', ['get', 'name_en'], ['get', 'name']]);
+          }
+        });
+      } catch(e) {}
+    }
+    if (mb.isStyleLoaded()) { setEnglish(); }
+    else { mb.on('load', setEnglish); }
+  }, 200);
+  markersLayer = L.layerGroup().addTo(nsMap);
+  metroLayerRef = L.layerGroup();
+  // Yamanote Line (JR loop, green)
+  var YAMAN = [[35.6896,139.7006],[35.6830,139.7019],[35.6770,139.7021],[35.6580,139.7015],[35.6470,139.7097],[35.6340,139.7159],[35.6259,139.7234],[35.6197,139.7283],[35.6284,139.7388],[35.6456,139.7476],[35.6556,139.7566],[35.6651,139.7584],[35.6750,139.7620],[35.6812,139.7671],[35.6911,139.7707],[35.6983,139.7731],[35.7073,139.7756],[35.7141,139.7774],[35.7215,139.7797],[35.7280,139.7716],[35.7328,139.7663],[35.7382,139.7609],[35.7367,139.7449],[35.7330,139.7391],[35.7276,139.7282],[35.7296,139.7110],[35.7215,139.7058],[35.7127,139.7041],[35.7009,139.7003],[35.6896,139.7006]];
+  // Ginza Metro (orange, Asakusa→Ueno→Akihabara area→Ginza→Shibuya)
+  var GINZA = [[35.7112,139.7978],[35.7141,139.7774],[35.7073,139.7756],[35.6983,139.7731],[35.6912,139.7700],[35.6717,139.7640],[35.6694,139.7589],[35.6651,139.7584],[35.6595,139.7010]];
+  // Marunouchi Metro (red, Shinjuku→Ginza→Tokyo→Ikebukuro)
+  var MARUNO = [[35.6896,139.7006],[35.6851,139.7100],[35.6780,139.7200],[35.6717,139.7640],[35.6750,139.7620],[35.6812,139.7671],[35.6911,139.7707],[35.7127,139.7041]];
+  L.polyline(YAMAN, {color:'#80B040', weight:4.5, opacity:.9}).addTo(metroLayerRef);
+  L.polyline(GINZA, {color:'#E05000', weight:3.5, opacity:.85}).addTo(metroLayerRef);
+  L.polyline(MARUNO,{color:'#CC0011', weight:3.5, opacity:.85}).addTo(metroLayerRef);
+  // Metro stops
+  var metroStops = [
+    {n:'Shinjuku',lat:35.6896,lng:139.7006,line:'Yamanote+Metro',lc:'#80B040',info:'World\'s busiest station. All major lines. Yamanote, Chuo, Sobu, Oedo, Marunouchi. Central hub for west Tokyo.'},
+    {n:'Shibuya',lat:35.6580,lng:139.7015,line:'Yamanote+Metro',lc:'#80B040',info:'Yamanote, Ginza Metro, Hanzomon, Fukutoshin. The Crossing is exit Hachiko. Shibuya Sky at Scramble Square.'},
+    {n:'Harajuku',lat:35.6770,lng:139.7021,line:'Yamanote',lc:'#80B040',info:'JR Yamanote. Steps from Meiji Jingu entrance. Takeshita Street: 200m from station.'},
+    {n:'Tokyo Station',lat:35.6812,lng:139.7671,line:'Yamanote+Shinkansen',lc:'#80B040',info:'Central hub. Yamanote, Chuo, Sobu, Marunouchi, Keiyo lines. Shinkansen to Kyoto/Osaka. Character Street underground.'},
+    {n:'Ueno',lat:35.7141,lng:139.7774,line:'Yamanote+Metro',lc:'#80B040',info:'Museums: Tokyo National Museum (10 min walk). Ameyoko market between Ueno and Okachimachi. Ginza Metro interchange.'},
+    {n:'Akihabara',lat:35.6983,lng:139.7731,line:'Yamanote+JR',lc:'#80B040',info:'JR Yamanote, Sobu, Hibiya Metro. \'Electric Town\' exit faces main strip. 4 min from Ueno, 4 min from Tokyo Station.'},
+    {n:'Asakusa',lat:35.7112,lng:139.7978,line:'Ginza Metro',lc:'#E05000',info:'Ginza Metro terminus. Toei Asakusa line. Senso-ji: 5-min walk. Ginza Metro to Ginza: 15 min direct.'},
+    {n:'Ginza',lat:35.6717,lng:139.7640,line:'Ginza+Hibiya+Marunouchi',lc:'#E05000',info:'Three Metro lines interchange. Asakusa→Ginza direct 15 min. Tsukiji: 10-min walk or Hibiya line.'},
+    {n:'Ikebukuro',lat:35.7296,lng:139.7110,line:'Yamanote+Metro',lc:'#80B040',info:'Second busiest station. Yamanote, Marunouchi, Yurakucho lines. Department stores, Sunshine City, anime shops.'}
+  ];
+  metroStops.forEach(function(s){
+    var labelIcon = L.divIcon({
+      html: '<div style="display:flex;flex-direction:column;align-items:center;">'
+          + '<div style="width:10px;height:10px;border-radius:50%;background:' + s.lc + ';border:2px solid white;box-shadow:0 1px 4px rgba(0,0,0,.4);"></div>'
+          + '<div style="background:rgba(255,255,255,.92);border:1px solid ' + s.lc + ';border-radius:3px;padding:1px 4px;font-size:9px;font-weight:700;color:#222;margin-top:1px;white-space:nowrap;box-shadow:0 1px 3px rgba(0,0,0,.2);">' + s.n + '</div>'
+          + '</div>',
+      iconSize:[80,30], iconAnchor:[40,8], className:'', popupAnchor:[0,2]
+    });
+    var popupHtml = '<div class="pu"><div class="pu-name">' + s.n + '</div><div class="pu-type">' + s.line + '</div><div class="pu-row">' + s.info + '</div></div>';
+    L.marker([s.lat, s.lng], {icon:labelIcon}).bindPopup(popupHtml, {maxWidth:220}).addTo(metroLayerRef);
+  });
+  placeLandmarkMarkers();
+  buildNbhdList();
+  buildItinList();
+  document.getElementById('px').addEventListener('click', function(){ document.getElementById('panel').classList.remove('open'); });
+  document.getElementById('fab').addEventListener('click', function(){ document.getElementById('panel').classList.toggle('open'); });
+};
+function placeLandmarkMarkers() {
+  markersLayer.clearLayers();
+  Object.keys(LM).forEach(function(id) {
+    var d = LM[id];
+    var m = L.marker([d.lat, d.lng], {icon:makeIcon(d.t)});
+    var html = '<div class="pu">'
+      + '<div class="pu-name">' + d.n + '</div>'
+      + '<div class="pu-type">' + d.t + '</div>'
+      + '<div class="pu-row"><b>Price:</b> ' + d.price + '</div>'
+      + '<div class="pu-row"><b>Hours:</b> ' + d.hours + '</div>'
+      + '<div class="pu-tip">' + d.tip + '</div>'
+      + '</div>';
+    m.bindPopup(html, {maxWidth:230}).addTo(markersLayer);
+  });
+}
+</script>
+</body>
+</html>
