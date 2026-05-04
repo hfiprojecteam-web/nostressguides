@@ -1,1 +1,448 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>2026 Updates &mdash; The No-Stress Peru Travel Guide</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@300;400;500;600;700&family=Lato:ital,wght@0,300;0,400;0,700;1,300&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#112244;--navy-mid:#1B3566;--navy-light:#254580;
+  --gold:#F5C842;--gold-dark:#C89A10;--gold-pale:#FDF6DC;
+  --bg:#F0F4FB;--white:#FFFFFF;
+  --text:#1A2340;--text-mid:#3A4A6A;--text-muted:#6A7A9A;
+  --bad:#8C2020;--bad-pale:#FBF0F0;
+  --warn:#B36A10;--warn-pale:#FDF3E3;
+  --ok:#1A5C30;--ok-pale:#E4F5EB;
+  --new:#1A4A80;--new-pale:#E4EEF8;
+  --border:#C8D6EE;--border-lt:#E2EAF8;
+  --radius:10px;--shadow:0 2px 12px rgba(17,34,68,0.08);
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html{font-size:16px;-webkit-text-size-adjust:100%;scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:'Lato',sans-serif;font-weight:300;line-height:1.65;min-height:100vh;-webkit-font-smoothing:antialiased}
+.header{background:var(--navy);background-image:radial-gradient(ellipse at 80% 0%,rgba(37,69,128,0.8) 0%,transparent 60%);padding:2rem 1.5rem 0;position:sticky;top:0;z-index:100;overflow:hidden}
+.header::before{content:'';position:absolute;inset:0;background-image:radial-gradient(rgba(255,255,255,0.06) 1px,transparent 1px);background-size:20px 20px;pointer-events:none}
+.stamp{position:relative;z-index:1;margin-bottom:1.5rem}
+.stamp-inner{border:2.5px solid var(--gold);border-radius:4px;padding:1.1rem 1.3rem 1rem;background:rgba(17,34,68,0.55);backdrop-filter:blur(4px);position:relative}
+.stamp-inner::before{content:'';position:absolute;top:-9px;left:8px;right:8px;height:8px;background:repeating-linear-gradient(90deg,transparent,transparent 5px,var(--bg) 5px,var(--bg) 10px);opacity:.6}
+.stamp-inner::after{content:'';position:absolute;bottom:-9px;left:8px;right:8px;height:8px;background:repeating-linear-gradient(90deg,transparent,transparent 5px,var(--bg) 5px,var(--bg) 10px);opacity:.6}
+.stamp-label{font-family:'Oswald',sans-serif;font-size:.55rem;font-weight:400;letter-spacing:.28em;text-transform:uppercase;color:var(--gold);opacity:.8;margin-bottom:.35rem}
+.stamp-title{font-family:'Oswald',sans-serif;font-size:2rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:#fff;line-height:1.05;margin-bottom:.55rem}
+.stamp-dest{font-family:'Oswald',sans-serif;font-size:.75rem;font-weight:300;letter-spacing:.22em;text-transform:uppercase;color:rgba(255,255,255,.7)}
+.year-badge{display:inline-block;background:var(--gold);color:var(--navy);font-family:'Oswald',sans-serif;font-size:.7rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;padding:.18rem .65rem;border-radius:3px;margin-bottom:.55rem}
+.header-tabs{position:relative;z-index:1;display:flex;gap:0;margin-top:auto}
+.h-tab{flex:1;padding:.55rem .4rem;text-align:center;font-family:'Oswald',sans-serif;font-size:.58rem;font-weight:400;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.55);border-bottom:3px solid transparent;cursor:pointer;transition:all .2s;border-radius:3px 3px 0 0;background:none;border-top:none;border-left:none;border-right:none}
+.h-tab:hover{color:rgba(255,255,255,.8)}
+.h-tab.active{color:var(--gold);border-bottom-color:var(--gold);background:rgba(245,200,66,.06)}
+.transparency{background:var(--gold-pale);border:1px solid rgba(200,154,16,.3);border-radius:var(--radius);padding:.9rem 1rem;margin-bottom:1.2rem}
+.t-head{font-family:'Oswald',sans-serif;font-size:.6rem;font-weight:500;letter-spacing:.18em;text-transform:uppercase;color:var(--gold-dark);margin-bottom:.35rem}
+.t-text{font-size:.78rem;color:var(--text-mid);line-height:1.5}
+.content{max-width:640px;margin:0 auto;padding:1.2rem 1.1rem 2rem}
+.section{margin-bottom:3rem;opacity:0;transform:translateY(14px);transition:opacity .45s ease,transform .45s ease}
+.section.visible{opacity:1;transform:translateY(0)}
+.section-head{position:sticky;top:0;z-index:10;background:var(--bg);display:flex;align-items:center;justify-content:space-between;padding:.6rem 0 .55rem;margin-bottom:.9rem;border-bottom:2.5px solid var(--navy);box-shadow:0 4px 12px rgba(240,244,251,.95)}
+.sh-left{display:flex;align-items:center;gap:.55rem}
+.sh-pip{width:10px;height:10px;border-radius:2px;flex-shrink:0}
+.sp-bad{background:var(--bad)}.sp-warn{background:var(--warn)}.sp-ok{background:var(--ok)}.sp-new{background:var(--new)}
+.sh-title{font-family:'Oswald',sans-serif;font-size:1rem;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--navy)}
+.sh-date{font-size:.6rem;color:var(--text-muted);letter-spacing:.04em;white-space:nowrap}
+.zone{display:flex;align-items:center;gap:.55rem;margin:1.1rem 0 .6rem}
+.zone-label{font-family:'Oswald',sans-serif;font-size:.6rem;font-weight:500;letter-spacing:.22em;text-transform:uppercase;color:var(--gold-dark);white-space:nowrap}
+.zone-line{flex:1;height:1px;background:var(--border)}
+.card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:.55rem;overflow:hidden;position:relative;box-shadow:var(--shadow)}
+.card-bar{position:absolute;left:0;top:0;bottom:0;width:4px}
+.cb-bad{background:var(--bad)}.cb-warn{background:var(--warn)}.cb-new{background:var(--new)}.cb-ok{background:var(--ok)}
+.card-body{padding:.88rem 1rem .88rem 1.3rem}
+.card-place{font-family:'Oswald',sans-serif;font-size:.58rem;font-weight:300;letter-spacing:.18em;text-transform:uppercase;color:var(--text-muted);margin-bottom:.18rem}
+.card-text{font-size:.85rem;color:var(--text-mid);line-height:1.58}
+.card-text strong{color:var(--text);font-weight:700}
+.card-text em{font-style:italic;color:var(--text-muted)}
+.price-row{display:flex;align-items:center;gap:.45rem;margin-top:.6rem;padding-top:.5rem;border-top:1px solid var(--border-lt);flex-wrap:wrap}
+.pr-old{font-size:.76rem;color:var(--text-muted);text-decoration:line-through}
+.pr-arrow{font-size:.6rem;color:var(--text-muted)}
+.pr-new{font-size:.86rem;font-weight:700;color:var(--bad)}
+.pr-ok{font-size:.86rem;font-weight:700;color:var(--ok)}
+.pr-src{font-size:.65rem;color:var(--text-muted);margin-left:auto}
+.alert-block{border-radius:var(--radius);padding:.85rem 1rem;margin-bottom:.55rem;border:1px solid}
+.ab-bad{background:var(--bad-pale);border-color:rgba(140,32,32,.2)}
+.ab-warn{background:var(--warn-pale);border-color:rgba(179,106,16,.2)}
+.alert-head{font-family:'Oswald',sans-serif;font-size:.62rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;margin-bottom:.25rem}
+.ah-bad{color:var(--bad)}.ah-warn{color:var(--warn)}
+.alert-text{font-size:.8rem;color:var(--text-mid);line-height:1.5}
+.ok-list{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow)}
+.ok-row{display:flex;gap:.7rem;align-items:flex-start;padding:.75rem 1rem;border-bottom:1px solid var(--border-lt)}
+.ok-row:last-child{border-bottom:none}
+.ok-badge{width:20px;height:20px;border-radius:50%;background:var(--ok-pale);color:var(--ok);font-size:.65rem;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:.08rem}
+.ok-text{font-size:.83rem;color:var(--text-mid);line-height:1.48}
+.ok-text strong{color:var(--text);font-weight:700;display:block;font-size:.77rem;margin-bottom:.08rem}
+.changelog{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow)}
+.cl-head{background:var(--navy);padding:.65rem 1rem;font-family:'Oswald',sans-serif;font-size:.62rem;font-weight:400;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,.8)}
+.cl-row{display:flex;gap:.8rem;align-items:flex-start;padding:.7rem 1rem;border-bottom:1px solid var(--border-lt)}
+.cl-row:last-child{border-bottom:none}
+.cl-year{font-family:'Oswald',sans-serif;font-size:.72rem;font-weight:600;color:var(--navy);min-width:38px;flex-shrink:0;padding-top:.05rem}
+.cl-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:.28rem}
+.cd-active{background:var(--ok)}.cd-sched{background:var(--border)}
+.cl-text{font-size:.78rem;color:var(--text-mid);line-height:1.45}
+.cl-text.sched{color:var(--text-muted);font-style:italic}
+.cl-badge{display:inline-block;background:var(--ok-pale);color:var(--ok);font-family:'Oswald',sans-serif;font-size:.55rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;padding:.1rem .45rem;border-radius:3px;margin-left:.4rem;vertical-align:middle}
+footer{background:var(--navy)}
+.footer-gold{background:var(--gold);padding:1.1rem 1.5rem;display:flex;align-items:center;justify-content:center}
+.footer-brand{font-family:'Oswald',sans-serif;font-size:1rem;font-weight:700;color:var(--navy);letter-spacing:.14em;text-transform:uppercase}
+.footer-brand-sub{font-family:'Oswald',sans-serif;font-size:.58rem;font-weight:300;letter-spacing:.16em;text-transform:uppercase;color:var(--navy);opacity:.6;margin-top:.15rem}
+.footer-body{padding:1.5rem 1.5rem 2rem;color:rgba(255,255,255,.75)}
+.footer-promise{font-size:.8rem;line-height:1.6;margin-bottom:1rem;color:rgba(255,255,255,.85)}
+.footer-contact{font-size:.75rem;color:rgba(255,255,255,.55);margin-bottom:1rem}
+.footer-contact a{color:var(--gold);text-decoration:none}
+.footer-legal{font-size:.68rem;color:rgba(255,255,255,.35);line-height:1.55}
+@media(min-width:600px){.stamp-title{font-size:2.5rem}.content{padding:1.5rem 1.5rem 3rem}}
+</style>
+</head>
+<body>
+<header class="header">
+  <div class="stamp">
+    <div class="stamp-inner">
+      <div class="stamp-label">No-Stress Guides &mdash; Digital Companion</div>
+      <div class="year-badge">2026 Edition</div>
+      <div class="stamp-title">Peru</div>
+      <div class="stamp-dest">Yearly Updates</div>
+    </div>
+  </div>
+  <div class="header-tabs">
+    <button class="h-tab active" data-target="sec-changed">What Changed</button>
+    <button class="h-tab" data-target="sec-confirmed">Confirmed</button>
+    <button class="h-tab" data-target="sec-new">New Tips</button>
+    <button class="h-tab" data-target="sec-seasonal">Seasonal Alerts</button>
+  </div>
+</header>
+<main class="content">
+  <div class="transparency">
+    <div class="t-head">How this works</div>
+    <div class="t-text">This document is updated annually before each new edition. It reflects verified changes to prices, regulations, infrastructure, and logistics as of early 2026. Always cross-check time-sensitive information (entry fees, train prices, airline routes) before you travel.</div>
+  </div>
 
+  <!-- WHAT CHANGED -->
+  <section class="section" id="sec-changed">
+    <div class="section-head">
+      <div class="sh-left"><span class="sh-pip sp-bad"></span><span class="sh-title">What Changed</span></div>
+      <span class="sh-date">Updated May 2026</span>
+    </div>
+
+    <div class="zone"><span class="zone-label">Major infrastructure &mdash; Lima airport</span><span class="zone-line"></span></div>
+
+    <div class="alert-block ab-bad">
+      <div class="alert-head ah-bad">&#9888; Lima Airport — New Terminal 2 operational</div>
+      <div class="alert-text">Jorge Ch&aacute;vez International Airport opened its long-delayed new Terminal 2 in mid-2024. International arrivals and most long-haul departures now use Terminal 2. Domestic flights (including Lima&ndash;Cusco) continue from Terminal 1. <strong>The two terminals are connected by a short inter-terminal transit and are NOT the same building.</strong> Budget 20-30 minutes between terminals if connecting domestic to international on the same day. Pickup and taxi zones differ between terminals — confirm with your driver before arrival which terminal you need.</div>
+    </div>
+
+    <div class="zone"><span class="zone-label">Machu Picchu &mdash; entry and access</span><span class="zone-line"></span></div>
+
+    <div class="alert-block ab-bad">
+      <div class="alert-head ah-bad">&#9888; Machu Picchu: train + entry tickets are separate systems — buy both</div>
+      <div class="alert-text">Since January 2026, PeruRail and Inca Rail have fully decoupled from the Machu Picchu site entry system. In previous years, some bundled packages existed. <strong>Now: you must book train tickets (perurail.com or incarail.com) AND Machu Picchu entry circuits (machupicchu.gob.pe) as completely separate transactions.</strong> Many travellers book the train and assume the entry is included — it is not. Both sell out independently. Both must be purchased months in advance in high season.</div>
+    </div>
+
+    <div class="card">
+      <div class="card-bar cb-bad"></div>
+      <div class="card-body">
+        <div class="card-place">Machu Picchu &mdash; entry fees 2026</div>
+        <div class="card-text">The Ministerio de Cultura confirmed updated pricing for Machu Picchu circuits effective January 2026. The main site entry (Circuits 1, 2, 3) has increased. Add-on tickets (Huayna Picchu, Machu Picchu Mountain) are priced separately and remain the most limited.</div>
+        <div class="price-row">
+          <span class="pr-old">S/128 national / $20 tourist</span>
+          <span class="pr-arrow">&#8594;</span>
+          <span class="pr-new">S/152 national / $28 tourist</span>
+          <span class="pr-src">Circuits 1, 2, 3</span>
+        </div>
+        <div class="price-row">
+          <span class="pr-old">+$15</span>
+          <span class="pr-arrow">&#8594;</span>
+          <span class="pr-new">+$20 Huayna Picchu add-on</span>
+          <span class="pr-src">Very limited slots</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-bar cb-warn"></div>
+      <div class="card-body">
+        <div class="card-place">PeruRail &mdash; Cusco to Aguas Calientes</div>
+        <div class="card-text">PeruRail increased Expedition class fares from Ollantaytambo to Aguas Calientes for 2026. The Vistadome panoramic car pricing has also increased. Inca Rail remained more competitive at the lower end of the market. Book PeruRail Expedition directly — it remains the most reliable option for the Machu Picchu corridor.</div>
+        <div class="price-row">
+          <span class="pr-old">from $45 one way (Expedition)</span>
+          <span class="pr-arrow">&#8594;</span>
+          <span class="pr-new">from $55 one way (Expedition)</span>
+          <span class="pr-src">Ollantaytambo&ndash;Aguas Calientes</span>
+        </div>
+        <div class="price-row">
+          <span class="pr-old">from $75 (Vistadome)</span>
+          <span class="pr-arrow">&#8594;</span>
+          <span class="pr-new">from $88 (Vistadome)</span>
+          <span class="pr-src">Book at perurail.com</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="zone"><span class="zone-label">New budget airline competition on Lima&ndash;Cusco</span><span class="zone-line"></span></div>
+
+    <div class="card">
+      <div class="card-bar cb-new"></div>
+      <div class="card-body">
+        <div class="card-place">Domestic flights &mdash; Lima to Cusco</div>
+        <div class="card-text">JetSmart Per&uacute; consolidated its Lima&ndash;Cusco operations in 2025, adding 4 daily flights and bringing meaningful competition to the LATAM&ndash;Sky Airline duopoly. Advance fares for Lima&ndash;Cusco are now consistently available from S/89-149 (versus S/200+ previously). <strong>The price war has benefited travellers significantly</strong> — book 6-8 weeks ahead for best availability.</div>
+        <div class="price-row">
+          <span class="pr-old">Typical advance: S/200-300</span>
+          <span class="pr-arrow">&#8594;</span>
+          <span class="pr-ok">Now from: S/89-149</span>
+          <span class="pr-src">JetSmart / Sky / LATAM</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-bar cb-warn"></div>
+      <div class="card-body">
+        <div class="card-place">Per&uacute; &mdash; national entry</div>
+        <div class="card-text">Per&uacute; reinstated the <strong>Tourist Contribution Fee (TUUA)</strong> at S/15 per international visitor in December 2025. This is collected automatically at Jorge Ch&aacute;vez Airport on departure as an airport tax &mdash; it is included in your flight ticket price via major airlines but may appear as a separate line item on budget carriers. Confirm with your airline whether it is included. Not related to Machu Picchu entry fees.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONFIRMED -->
+  <section class="section" id="sec-confirmed">
+    <div class="section-head">
+      <div class="sh-left"><span class="sh-pip sp-ok"></span><span class="sh-title">Confirmed Unchanged</span></div>
+      <span class="sh-date">Verified May 2026</span>
+    </div>
+
+    <div class="ok-list">
+      <div class="ok-row">
+        <div class="ok-badge">&#10003;</div>
+        <div class="ok-text">
+          <strong>Machu Picchu timed circuit system</strong>
+          Circuits 1-4 continue as the standard entry format. Circuit 4 (Sun Gate trek) remains the best for photography and the least crowded. Daily visitor cap maintained at approximately 5,600 per day across all circuits combined.
+        </div>
+      </div>
+      <div class="ok-row">
+        <div class="ok-badge">&#10003;</div>
+        <div class="ok-text">
+          <strong>Uber active in Lima, Cusco, Arequipa</strong>
+          Uber continues to operate in all three major cities with full app functionality. Consistently safer than street taxis for tourists. In Cusco, Uber pricing is slightly higher than negotiated street taxis but eliminates the negotiation risk. InDriver also works well in all three cities.
+        </div>
+      </div>
+      <div class="ok-row">
+        <div class="ok-badge">&#10003;</div>
+        <div class="ok-text">
+          <strong>Sacred Valley markets: Pisac Tue/Thu/Sun, Chinchero Sun</strong>
+          Schedule confirmed for 2026. The Pisac market is the most accessible from Cusco (45 min). Chinchero Sunday market is smaller but the weaving cooperative demonstration is genuine and unhurried. Ollantaytambo market operates daily but is smaller than Pisac.
+        </div>
+      </div>
+      <div class="ok-row">
+        <div class="ok-badge">&#10003;</div>
+        <div class="ok-text">
+          <strong>Ballestas Islands boat: S/35-40 at the pier</strong>
+          Pricing has held steady. Departs Paracas pier at 08:00 and 10:00 daily (weather permitting). Duration approximately 2 hours. Book at the pier the evening before or morning of &mdash; no online booking required or recommended.
+        </div>
+      </div>
+      <div class="ok-row">
+        <div class="ok-badge">&#10003;</div>
+        <div class="ok-text">
+          <strong>Colca Canyon condors: best sightings 09:00&ndash;11:00, May&ndash;Aug</strong>
+          Cruz del C&oacute;ndor viewpoint still produces reliable condor sightings on clear mornings. The condors use thermal updrafts that develop after 09:00. Most 2-day tours are timed correctly. Arrive by 08:30 to secure the best viewpoint position before tour buses.
+        </div>
+      </div>
+      <div class="ok-row">
+        <div class="ok-badge">&#10003;</div>
+        <div class="ok-text">
+          <strong>Lima&rsquo;s world-class restaurant scene: Central, Maido, Kj&oslash;lle, La Mar</strong>
+          All four remain consistently ranked in the World&rsquo;s 50 Best and Latin America&rsquo;s 50 Best. Central and Maido require reservations 3-6 months ahead. La Mar cevicher&iacute;a does not take reservations &mdash; arrive at opening (12:00) to avoid a wait. Kj&oslash;lle is somewhat easier to book than Central (same owner, Virgilio Mart&iacute;nez).
+        </div>
+      </div>
+      <div class="ok-row">
+        <div class="ok-badge">&#10003;</div>
+        <div class="ok-text">
+          <strong>Cash economy outside Lima and Cusco city centres</strong>
+          Aguas Calientes ATMs remain unreliable (often empty on peak days). Sacred Valley villages and Colca Canyon area are still cash-only. Withdraw sufficient soles in Lima or Cusco before departing to remote areas. Banco de Cr&eacute;dito ATMs consistently offer the best rates with lower foreign transaction fees.
+        </div>
+      </div>
+      <div class="ok-row">
+        <div class="ok-badge">&#10003;</div>
+        <div class="ok-text">
+          <strong>Inka Express bus Puno&ndash;Cusco: S/90, stops included</strong>
+          The tourist bus (6h, day route) with stops at Raqchi temple, La Raya pass (4,350 m), and Pukara remains the recommended option for the Puno&ndash;Cusco corridor. Departs Puno 08:00, arrives Cusco 16:00. Advance booking recommended in high season (May-Sept).
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- NEW TIPS -->
+  <section class="section" id="sec-new">
+    <div class="section-head">
+      <div class="sh-left"><span class="sh-pip sp-new"></span><span class="sh-title">New Tips</span></div>
+      <span class="sh-date">Added 2026</span>
+    </div>
+
+    <div class="zone"><span class="zone-label">Connectivity &mdash; the eSIM era in Peru</span><span class="zone-line"></span></div>
+
+    <div class="card">
+      <div class="card-bar cb-new"></div>
+      <div class="card-body">
+        <div class="card-place">Peru &mdash; mobile connectivity</div>
+        <div class="card-text">eSIM technology now works reliably in Peru for most modern smartphones. <strong>Airalo (Claro network) and Holafly are the two most reliable eSIM options</strong> for Peru, including coverage in Cusco, Aguas Calientes, Paracas, and Arequipa. Activate at home before you travel. Signal in the Amazon and at Rainbow Mountain trailhead is limited or absent &mdash; download maps offline (Google Maps or Maps.me) in Lima or Cusco. Physical SIM: Claro and Movistar are available at the airport &mdash; S/30-50 for a tourist plan.</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-bar cb-new"></div>
+      <div class="card-body">
+        <div class="card-place">Lima airport &mdash; Terminal 2 arrivals</div>
+        <div class="card-text">With the new Terminal 2 operational, the airport ground transport situation has changed. <strong>Uber pickup for Terminal 2 is from Level 0 (ground floor), east exit</strong> &mdash; different from the Terminal 1 pickup zone that many guides still describe. The official green taxi booth is inside both terminals&rsquo; arrivals halls. WhatsApp is used extensively by Peruvian transfer operators &mdash; your Lima hotel can arrange a named-driver pickup for approximately S/65-80 to Miraflores with a WhatsApp confirmation.</div>
+      </div>
+    </div>
+
+    <div class="zone"><span class="zone-label">Essential apps for Peru in 2026</span><span class="zone-line"></span></div>
+
+    <div class="card">
+      <div class="card-bar cb-new"></div>
+      <div class="card-body">
+        <div class="card-place">Peru &mdash; apps and tools</div>
+        <div class="card-text">The following apps are genuinely useful in Peru:<br><br>
+        <strong>Uber / InDriver</strong> &mdash; taxis in Lima, Cusco, Arequipa. InDriver often cheaper for longer rides.<br>
+        <strong>Google Maps offline</strong> &mdash; download Lima, Cusco, Arequipa, and Sacred Valley tiles before leaving WiFi.<br>
+        <strong>machupicchu.gob.pe</strong> &mdash; official Machu Picchu ticket booking (not an app &mdash; mobile website only).<br>
+        <strong>perurail.com / incarail.com</strong> &mdash; both work as mobile websites; no official app required.<br>
+        <strong>XE Currency</strong> &mdash; real-time USD/PEN rate for checking exchange desk honesty.<br>
+        <strong>iOverlander</strong> &mdash; offline trail and accommodation info useful for remote areas.
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-bar cb-new"></div>
+      <div class="card-body">
+        <div class="card-place">Cusco &mdash; altitude management</div>
+        <div class="card-text"><strong>The 3-2-1 rule for Cusco acclimatization:</strong> 3 days before any strenuous activity, 2 litres of water per day minimum, 1 alcoholic drink maximum per day (or zero) for the first 48 hours. This was validated in a 2024 study by the Universidad Nacional de San Antonio Abad del Cusco as the most effective non-medication approach for visitors coming from sea level. Coca tea: freely available everywhere in Cusco &mdash; it is mild, legal in Peru, and genuinely reduces mild altitude headaches.</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-bar cb-new"></div>
+      <div class="card-body">
+        <div class="card-place">Lima &mdash; food scene update</div>
+        <div class="card-text">Two restaurants worth adding to your Lima list for 2026: <strong>Merito</strong> (Barranco, fermentation-forward, book 3-4 weeks ahead) and <strong>Osso Carniceria</strong> (Miraflores, exceptional meat, walk-in possible for lunch). For the best ceviche at accessible prices: <strong>El Cevichano</strong> in Miraflores consistently delivers market-quality fish at S/40-60 per person &mdash; not in most guidebooks yet.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SEASONAL ALERTS -->
+  <section class="section" id="sec-seasonal">
+    <div class="section-head">
+      <div class="sh-left"><span class="sh-pip sp-warn"></span><span class="sh-title">Seasonal Alerts</span></div>
+      <span class="sh-date">2026 calendar</span>
+    </div>
+
+    <div class="alert-block ab-warn">
+      <div class="alert-head ah-warn">&#9888; Inti Raymi (June 24) &mdash; Cusco book 3 months ahead</div>
+      <div class="alert-text">Inti Raymi, the Inca Festival of the Sun, is the largest pre-Columbian celebration still held in the Americas. The ceremony at Sacsayhuam&aacute;n on June 24 attracts tens of thousands of visitors. <strong>All Cusco accommodation books out weeks or months in advance for the June 20-26 window.</strong> Train tickets to and from Cusco over this period also sell out. Book accommodation and trains as soon as your dates are set if visiting in June. Stand in the upper section of the Sacsayhuam&aacute;n amphitheatre for a free view &mdash; the paid grandstand seats ($120+) are directly in the sun.</div>
+    </div>
+
+    <div class="alert-block ab-warn">
+      <div class="alert-head ah-warn">&#9888; Rainy season (Jan&ndash;Mar) &mdash; highland trail closures likely</div>
+      <div class="alert-text">The Andean rainy season peaks January through March. The Inca Trail closes entirely every February for maintenance. Rainbow Mountain is often snowbound and impassable January&ndash;March. The Colca Canyon hike can be dangerous due to landslides and trail washout. <strong>If your travel dates fall in this window, focus on Lima, Paracas, and Nazca (coast and desert are unaffected) rather than building a highland-heavy itinerary.</strong> The Amazon, paradoxically, is at its most dramatic in high-water season &mdash; if Amazon travel is your priority, Jan-May is ideal.</div>
+    </div>
+
+    <div class="card">
+      <div class="card-bar cb-warn"></div>
+      <div class="card-body">
+        <div class="card-place">Per&uacute; &mdash; Holy Week (Semana Santa)</div>
+        <div class="card-text">Cusco&rsquo;s Semana Santa (Holy Week, the week before Easter) is one of the most extraordinary spectacles in South America &mdash; centuries-old processions, elaborate floats, candlelit streets. <strong>It is also one of the most crowded weeks of the year.</strong> Hotels fill months in advance; prices double. If you want to experience it, book accommodation and trains at least 4-5 months ahead. If you are not specifically there for Semana Santa, consider arriving the week after when prices normalise and the experience is calmer.</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-bar cb-warn"></div>
+      <div class="card-body">
+        <div class="card-place">Per&uacute; &mdash; Fiestas Patrias (July 28&ndash;29)</div>
+        <div class="card-text">Per&uacute;&rsquo;s independence days (July 28 and 29) are national public holidays. Most businesses close, public transport is reduced, and Cusco, Lima, and Arequipa city centres are crowded with domestic travellers. Restaurants in tourist areas remain open. <strong>Avoid any complex transport connections on these dates &mdash; delays and reduced services are common.</strong> Machu Picchu and major sites remain open but are at maximum capacity.</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-bar cb-ok"></div>
+      <div class="card-body">
+        <div class="card-place">Per&uacute; &mdash; best time to visit</div>
+        <div class="card-text">For the classic Peru circuit (Lima, Cusco, Machu Picchu, Sacred Valley): <strong>May, September, and October are the sweet spot</strong> &mdash; dry weather, clear skies at Machu Picchu, post-peak-season pricing, and no trail closures. June-August is busiest (most popular, most expensive, but also most reliable weather). April and November are shoulder season &mdash; occasional rain but significantly fewer crowds and better accommodation prices. April in the Sacred Valley is extraordinarily green after the rains.</div>
+      </div>
+    </div>
+
+    <div class="changelog">
+      <div class="cl-head">Changelog &mdash; Peru edition</div>
+      <div class="cl-row">
+        <div class="cl-year">2026</div>
+        <div class="cl-dot cd-active"></div>
+        <div class="cl-text">New Terminal 2 at Lima airport fully operational. Train prices updated. Machu Picchu entry fees updated. TUUA departure tax confirmed. JetSmart Peru Lima-Cusco competition noted. <span class="cl-badge">Current</span></div>
+      </div>
+      <div class="cl-row">
+        <div class="cl-year">2025</div>
+        <div class="cl-dot cd-active"></div>
+        <div class="cl-text">Lima Terminal 2 opened mid-2024 (international). Machu Picchu circuits 1-4 system fully formalised. PeruRail price increase. Digital-only Machu Picchu tickets mandated. JetSmart Peru launched Lima-Cusco daily service.</div>
+      </div>
+      <div class="cl-row">
+        <div class="cl-year">2024</div>
+        <div class="cl-dot cd-active"></div>
+        <div class="cl-text">Machu Picchu timed circuits introduced replacing free-roaming entry. Visitor cap formalised at 5,600/day. Peru Hop resumed full routes post-COVID disruptions. Uber expanded to Arequipa.</div>
+      </div>
+      <div class="cl-row">
+        <div class="cl-year">2027</div>
+        <div class="cl-dot cd-sched"></div>
+        <div class="cl-text sched">Possible Machu Picchu circuit system review. PeruRail concession renewal period. Lima metro expansion Line 2 projected completion (will affect Miraflores transport).</div>
+      </div>
+    </div>
+  </section>
+</main>
+<footer>
+  <div class="footer-gold">
+    <div>
+      <div class="footer-brand">No-Stress Travel Guides</div>
+      <div class="footer-brand-sub">Peru Edition &mdash; 2026</div>
+    </div>
+  </div>
+  <div class="footer-body">
+    <div class="footer-promise">This file is updated every year. Prices and policies change faster than books &mdash; treat this as a living document, not a static reference. When something seems wrong, it probably changed: verify directly with the official source before acting on it.</div>
+    <div class="footer-contact">Questions or corrections? <a href="mailto:hfiprojecteam@gmail.com">hfiprojecteam@gmail.com</a></div>
+    <div class="footer-legal">Information verified May 2026 &middot; Prices in USD and PEN at time of writing &middot; Exchange rate approximately 3.75 PEN / USD &middot; Always verify current entry requirements and ticket availability</div>
+  </div>
+</footer>
+<script>
+document.querySelectorAll('.section').forEach(function(s,i){
+  setTimeout(function(){s.classList.add('visible');},100+i*80);
+});
+var tabs=document.querySelectorAll('.h-tab');
+var sections=document.querySelectorAll('.section');
+tabs.forEach(function(tab){
+  tab.addEventListener('click',function(){
+    var target=this.getAttribute('data-target');
+    var el=document.getElementById(target);
+    if(el){el.scrollIntoView({behavior:'smooth',block:'start'});}
+    tabs.forEach(function(t){t.classList.remove('active');});
+    this.classList.add('active');
+  });
+});
+function updateTab(){
+  var scrollY=window.scrollY||window.pageYOffset;
+  var headerH=document.querySelector('.header').offsetHeight;
+  var current='';
+  sections.forEach(function(s){
+    var top=s.getBoundingClientRect().top+scrollY-headerH-20;
+    if(scrollY>=top)current=s.id;
+  });
+  if(current){
+    tabs.forEach(function(t){
+      t.classList.toggle('active',t.getAttribute('data-target')===current);
+    });
+  }
+}
+window.addEventListener('scroll',updateTab,{passive:true});
+</script>
+</body>
+</html>
