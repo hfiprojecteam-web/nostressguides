@@ -1,1 +1,672 @@
-
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Peru No-Stress -- Interactive Map</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Serif+Display&display=swap" rel="stylesheet">
+<style>
+:root{--p:#2b1a0e;--r:#c4533a;--a:#e8a838;--l:#f5f1eb;--d:#2c2c2c;--g:#2d6a4f;--bd:#e0d8cc}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'DM Sans',sans-serif;background:var(--l);color:var(--d);overflow:hidden}
+.hdr{position:fixed;top:0;left:0;right:0;height:50px;background:var(--p);color:#fff;display:flex;align-items:center;justify-content:space-between;padding:0 16px;z-index:1001;box-shadow:0 2px 12px rgba(0,0,0,.15)}
+.hdr-logo{display:flex;align-items:baseline;gap:8px}
+.hdr-main{font-family:'DM Serif Display',serif;font-size:1.3rem}
+.hdr-sub{font-size:.65rem;font-weight:500;opacity:.8;text-transform:uppercase;letter-spacing:.1em}
+.hdr-badge{background:var(--r);padding:4px 10px;border-radius:20px;font-size:.7rem;font-weight:600}
+#map{position:fixed;top:50px;left:0;right:0;bottom:0;z-index:1}
+.fab{display:none;position:fixed;bottom:20px;right:20px;width:56px;height:56px;background:var(--r);color:#fff;border:none;border-radius:50%;font-size:1.4rem;cursor:pointer;z-index:1002;box-shadow:0 4px 12px rgba(0,0,0,.3);align-items:center;justify-content:center}
+.panel{position:fixed;top:70px;left:20px;width:360px;background:#fff;border-radius:12px;box-shadow:0 4px 24px rgba(0,0,0,.12);z-index:1000;overflow:hidden;max-height:calc(100vh - 100px);display:flex;flex-direction:column}
+.tabs{display:flex;background:var(--p);flex-shrink:0}
+.tbtn{flex:1;padding:10px 4px;text-align:center;font-size:.65rem;font-weight:600;color:rgba(255,255,255,.6);cursor:pointer;border:none;background:none;transition:all .2s}
+.tbtn.on{color:#fff;background:rgba(255,255,255,.15)}
+.tbtn:hover{color:#fff}
+.px{background:none;border:none;color:#fff;font-size:1.4rem;cursor:pointer;padding:0 12px;display:none}
+.pane{display:none;overflow-y:auto;flex:1;padding:12px}
+.pane.on{display:block}
+.sec-ttl{font-family:'DM Serif Display',serif;font-size:.95rem;color:var(--p);margin-bottom:8px}
+.rt-label{display:block;font-size:.7rem;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:#888;margin-bottom:4px;margin-top:10px}
+.rt-sel{width:100%;padding:8px 10px;border:1.5px solid var(--bd);border-radius:8px;font-size:.82rem;font-family:'DM Sans',sans-serif;background:#fff;color:var(--d)}
+.rt-sel:focus{outline:none;border-color:var(--p)}
+.rt-result{display:none;background:var(--l);border-radius:8px;padding:10px 12px;margin-top:10px}
+.rt-result.on{display:block;animation:fadeIn .2s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+.rt-main{font-size:.92rem;font-weight:700;color:var(--p);margin-bottom:4px}
+.rt-detail{font-size:.78rem;color:#666;margin-bottom:4px}
+.rt-tip{font-size:.74rem;color:#6b5a00;background:#fff8e6;border-left:3px solid var(--a);padding:5px 8px;margin-top:6px;border-radius:0 4px 4px 0}
+.itin-card{background:var(--l);border-radius:10px;padding:12px;margin-bottom:8px;cursor:pointer;border:2px solid transparent;transition:all .2s}
+.itin-card:hover{border-color:var(--p)}
+.itin-card.on{border-color:var(--r);background:#fff}
+.itin-card h3{font-family:'DM Serif Display',serif;font-size:.95rem;color:var(--p);margin-bottom:3px}
+.imeta{font-size:.72rem;color:#666;margin-bottom:4px}
+.idesc{font-size:.76rem;color:#555;line-height:1.4}
+.dtabs{display:none;flex-wrap:wrap;gap:4px;margin-top:10px}
+.dtabs.on{display:flex}
+.dbtn{padding:5px 10px;border-radius:20px;font-size:.64rem;font-weight:600;border:1.5px solid var(--bd);background:#fff;color:var(--p);cursor:pointer;transition:all .15s}
+.dbtn.on{background:var(--r);border-color:var(--r);color:#fff}
+.bld-intro{font-size:.76rem;color:#666;margin-bottom:10px;padding:8px 10px;background:var(--l);border-radius:8px;line-height:1.5}
+.bld-stops{display:flex;flex-direction:column;gap:6px;margin-bottom:8px}
+.bld-stop{display:flex;align-items:center;gap:6px;padding:8px 10px;background:#fff;border:1.5px solid var(--bd);border-radius:8px;transition:all .2s}
+.bld-stop:hover{border-color:var(--p)}
+.bld-handle{cursor:grab;color:#bbb;font-size:.95rem;flex-shrink:0}
+.bld-num{width:20px;height:20px;border-radius:50%;background:var(--r);color:#fff;display:flex;align-items:center;justify-content:center;font-size:.65rem;font-weight:700;flex-shrink:0}
+.bld-sel{flex:1;padding:6px 8px;border:1px solid #ddd;border-radius:6px;font-size:.78rem;background:#fff;font-family:'DM Sans',sans-serif}
+.bld-sel:focus{outline:none;border-color:var(--p)}
+.bld-rm{width:22px;height:22px;border:none;background:#f5f5f5;border-radius:50%;cursor:pointer;color:#999;font-size:1rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;padding:0}
+.bld-rm:hover{background:#ffebee;color:var(--r)}
+.bld-add{width:100%;padding:9px;border:2px dashed #ccc;background:transparent;border-radius:8px;cursor:pointer;font-size:.8rem;color:#666;transition:all .2s;font-family:'DM Sans',sans-serif;margin-bottom:8px}
+.bld-add:hover{border-color:var(--p);color:var(--p)}
+.bld-actions{display:flex;gap:8px;margin-bottom:4px}
+.bld-calc{flex:1;padding:10px;background:var(--r);color:#fff;border:none;border-radius:8px;font-weight:600;cursor:pointer;font-size:.82rem;font-family:'DM Sans',sans-serif;transition:opacity .2s}
+.bld-calc:disabled{opacity:.45;cursor:not-allowed}
+.bld-clear{padding:10px 14px;background:#f5f5f5;color:#666;border:none;border-radius:8px;cursor:pointer;font-size:.78rem;font-family:'DM Sans',sans-serif}
+.bld-results{margin-top:10px}
+.bld-leg{background:#fff;border:1px solid var(--bd);border-radius:8px;padding:10px 12px;margin-bottom:6px}
+.bld-leg-head{font-weight:700;font-size:.82rem;color:var(--p);margin-bottom:3px}
+.bld-leg-detail{font-size:.74rem;color:#555;line-height:1.5}
+.bld-leg-tip{font-size:.69rem;color:#6b5a00;background:#fff8e6;border-left:2px solid var(--a);padding:4px 7px;margin-top:5px;border-radius:0 3px 3px 0}
+.bld-stop.dragging{opacity:.5;border-style:dashed}
+.bld-stop.drag-over{border-color:var(--r);background:#fff5f3}
+.stops{position:fixed;bottom:20px;left:20px;width:360px;background:#fff;border-radius:12px;box-shadow:0 4px 24px rgba(0,0,0,.12);z-index:1000;display:none;overflow:hidden;max-height:44vh}
+.stops.on{display:block;animation:up .25s ease}
+@keyframes up{from{transform:translateY(16px);opacity:0}to{transform:translateY(0);opacity:1}}
+.stops-hd{background:var(--g);color:#fff;padding:11px 14px;display:flex;align-items:center;justify-content:space-between}
+.stops-hd h3{font-family:'DM Serif Display',serif;font-size:.95rem;font-weight:400}
+.sx{background:none;border:none;color:#fff;font-size:1.3rem;cursor:pointer;line-height:1}
+.stops-bd{overflow-y:auto;max-height:calc(44vh - 46px)}
+.srow{padding:11px 14px;border-bottom:1px solid #eee}
+.srow:last-child{border-bottom:none}
+.snum{display:inline-flex;align-items:center;justify-content:center;width:21px;height:21px;border-radius:50%;background:var(--r);color:#fff;font-size:.7rem;font-weight:700;margin-right:7px;vertical-align:middle;flex-shrink:0}
+.sname{font-weight:600;font-size:.88rem;vertical-align:middle}
+.stime{font-size:.7rem;color:var(--p);margin-left:6px;font-weight:600}
+.stip{font-size:.73rem;color:#666;margin-top:3px;padding-left:28px}
+.legend{position:fixed;bottom:20px;right:20px;background:#fff;padding:12px 15px;border-radius:10px;box-shadow:0 4px 16px rgba(0,0,0,.1);z-index:1000}
+.legend h4{font-size:.66rem;font-weight:700;text-transform:uppercase;color:#888;margin-bottom:7px;letter-spacing:.04em}
+.legr{display:flex;align-items:center;gap:7px;margin-bottom:5px;font-size:.75rem;color:#555}
+.legr:last-child{margin-bottom:0}
+.legdot{width:12px;height:12px;border-radius:50%;flex-shrink:0}
+.dtable{width:100%;border-collapse:collapse;font-size:.76rem;margin-top:6px}
+.dtable th{background:var(--p);color:#fff;padding:5px 8px;text-align:left;font-size:.62rem;letter-spacing:.05em;text-transform:uppercase;font-weight:500}
+.dtable td{padding:5px 8px;border-bottom:1px solid var(--bd);color:#555}
+.dtable tr:last-child td{border-bottom:none}
+.pu{padding:12px 14px;min-width:185px}
+.pu-name{font-family:'DM Serif Display',serif;font-size:.98rem;color:var(--p);margin-bottom:2px}
+.pu-type{font-size:.6rem;text-transform:uppercase;letter-spacing:.08em;color:#999;margin-bottom:6px}
+.pu-row{font-size:.74rem;color:#555;margin-bottom:3px;line-height:1.4}
+.pu-row b{color:var(--d)}
+.pu-tip{background:var(--l);border-radius:4px;padding:5px 7px;font-size:.7rem;color:#6b5a00;margin-top:5px}
+@media(max-width:768px){
+  .panel{position:fixed;top:auto;bottom:0;left:0;right:0;width:100%;border-radius:16px 16px 0 0;transform:translateY(100%);max-height:75vh;transition:transform .3s ease}
+  .panel.open{transform:translateY(0)}
+  .px{display:block}
+  .stops{bottom:0;left:0;right:0;width:100%;border-radius:16px 16px 0 0;max-height:50vh}
+  .legend{display:none}
+  .fab{display:flex}
+}
+</style>
+</head>
+<body>
+<header class="hdr">
+  <div class="hdr-logo">
+    <span class="hdr-main">Peru</span>
+    <span class="hdr-sub">No-Stress Travel Guide</span>
+  </div>
+  <span class="hdr-badge">Interactive Map</span>
+</header>
+<div id="map"></div>
+<button class="fab" id="fab">&#9776;</button>
+<div class="panel" id="panel">
+  <div class="tabs">
+    <button class="tbtn on" onclick="showPane('itin',this)">&#128197; Itineraries</button>
+    <button class="tbtn"    onclick="showPane('routes',this)">&#128674; Trains &amp; Buses</button>
+    <button class="tbtn"    onclick="showPane('byt',this)">&#128466; Build Your Trip</button>
+    <button class="px" id="px">&#215;</button>
+  </div>
+  <div class="pane on" id="pane-itin"><div id="itinList"></div></div>
+  <div class="pane" id="pane-routes">
+    <div style="margin-bottom:16px">
+      <div class="sec-ttl">Journey Calculator</div>
+      <p style="font-size:.74rem;color:#666;margin-bottom:10px;line-height:1.5">Select two destinations to draw the route and see travel time, service type, and booking tip. Book PeruRail and Inca Rail months in advance — they sell out. Domestic flights are usually fastest for long hauls.</p>
+      <label class="rt-label">From</label>
+      <select class="rt-sel" id="selFrom"><option value="">Select origin...</option></select>
+      <label class="rt-label">To</label>
+      <select class="rt-sel" id="selTo"><option value="">Select destination...</option></select>
+      <div class="rt-result" id="rtResult">
+        <div class="rt-main" id="rtMain"></div>
+        <div class="rt-detail" id="rtDetail"></div>
+        <div class="rt-tip" id="rtTip"></div>
+      </div>
+    </div>
+    <div>
+      <div class="sec-ttl">Key journey times</div>
+      <table class="dtable">
+        <thead><tr><th>Route</th><th>Time</th><th>Best option</th></tr></thead>
+        <tbody>
+          <tr><td>Lima &rarr; Cusco</td><td>1h 20m</td><td>Flight (LATAM/Sky)</td></tr>
+          <tr><td>Lima &rarr; Arequipa</td><td>1h 20m</td><td>Flight or 16h bus</td></tr>
+          <tr><td>Lima &rarr; Paracas</td><td>3h 30m</td><td>Bus (Soyuz/Peru Hop)</td></tr>
+          <tr><td>Lima &rarr; Nazca</td><td>6h</td><td>Bus (Cruz del Sur)</td></tr>
+          <tr><td>Cusco &rarr; Aguas Calientes</td><td>3h 30m</td><td>PeruRail / Inca Rail</td></tr>
+          <tr><td>Cusco &rarr; Sacred Valley</td><td>45m &ndash; 1h</td><td>Minivan / taxi</td></tr>
+          <tr><td>Cusco &rarr; Puno</td><td>6h</td><td>Bus or scenic train</td></tr>
+          <tr><td>Arequipa &rarr; Colca Canyon</td><td>3h</td><td>Tour transfer</td></tr>
+          <tr><td>Arequipa &rarr; Puno</td><td>6h</td><td>Direct bus</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="pane" id="pane-byt">
+    <div class="bld-intro">Build your custom Peru itinerary. Add destinations in order, then calculate to see travel times and insider tips for each leg of your journey. Drag to reorder stops.</div>
+    <div class="bld-stops" id="bldStops">
+      <div class="bld-stop" data-index="0">
+        <span class="bld-handle">&#9776;</span>
+        <span class="bld-num">1</span>
+        <select class="bld-sel" data-index="0"><option value="">Add first stop...</option></select>
+        <button class="bld-rm" data-index="0">&#215;</button>
+      </div>
+    </div>
+    <button class="bld-add" id="bldAdd">+ Add Stop</button>
+    <div class="bld-actions">
+      <button class="bld-calc" id="bldCalc" disabled>Calculate Route</button>
+      <button class="bld-clear" id="bldClear">Clear</button>
+    </div>
+    <div class="bld-results" id="bldResults"></div>
+  </div>
+</div>
+<div class="stops" id="stops">
+  <div class="stops-hd">
+    <h3 id="stopsTitle">Itinerary</h3>
+    <button class="sx" onclick="document.getElementById('stops').classList.remove('on')">&#215;</button>
+  </div>
+  <div class="stops-bd" id="stopsBd"></div>
+</div>
+<div class="legend">
+  <h4>Legend</h4>
+  <div class="legr"><div class="legdot" style="background:#2b1a0e"></div>Gateway city</div>
+  <div class="legr"><div class="legdot" style="background:#7b3f00"></div>Highland / Inca</div>
+  <div class="legr"><div class="legdot" style="background:#2d6a4f"></div>Natural wonder</div>
+  <div class="legr"><div class="legdot" style="background:#1a5276"></div>Coastal / desert</div>
+  <div class="legr"><div class="legdot" style="background:#4a235a"></div>Amazon jungle</div>
+  <div class="legr" style="margin-top:6px"><div style="width:22px;height:0;border-top:3px dashed #2d6a4f"></div>Itinerary route</div>
+  <div class="legr"><div style="width:22px;height:3px;background:#c4533a;border-radius:2px"></div>Active route</div>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script>
+var nsMap, markersLayer, activeRouteObjs;
+activeRouteObjs = [];
+var DESTS = [
+  {id:'lima',n:'Lima',lat:-12.046,lng:-77.042,type:'hub',
+   tag:'Pacific gateway — Miraflores, Barranco & world-class food',
+   best:'May-Oct (dry). Dec-Mar: garua fog, mild temperatures.',
+   days:'2-3 days',
+   eat:'Central (book 6 months ahead), Maido, La Mar cevicheria, Astrid y Gaston. More world-class restaurants per block than almost any city in South America.',
+   tip:'Stay in Miraflores or Barranco — safe, walkable, coastal. Never take street taxis: use Uber or InDriver. The Larco Museum is unmissable (free Thursday evenings). Miraflores seafront clifftop (Malecon) is the best free view. Currency: soles (PEN) — get cash at Banco de Credito ATMs, avoid airport exchange desks.'},
+  {id:'cusco',n:'Cusco',lat:-13.532,lng:-71.967,type:'highland',
+   tag:'Inca capital at 3,400 m — hub for all highland travel',
+   best:'May-Oct (dry, clear). Inti Raymi festival June 24.',
+   days:'2-3 days',
+   eat:'Chicha por Gaston Acurio, Cicciolina, MAP Cafe inside the Pre-Columbian Art Museum. Try lomo saltado and cuy at a traditional chicharroneria.',
+   tip:'Altitude (3,400 m) affects almost everyone — rest the first day, no alcohol, coca tea helps. Acclimatize here before Rainbow Mountain (5,200 m). Book Machu Picchu train tickets MONTHS in advance — they sell out. San Pedro Market for breakfast. Sunset from Cristo Blanco.'},
+  {id:'sacred_valley',n:'Sacred Valley',lat:-13.315,lng:-72.068,type:'highland',
+   tag:'Inca ruins, markets & Andean villages above the valley',
+   best:'May-Oct. Apr-May: green and uncrowded.',
+   days:'1-2 days',
+   eat:'El Albergue restaurant at Ollantaytambo station. Pisac market (Tue/Thu/Sun) — eat with locals, not the tourist restaurants at the edge.',
+   tip:'Pisac ruins at dawn before tour groups arrive. Ollantaytambo fortress in the afternoon. Chinchero market (Sunday) — buy directly from weaving artisans. Many visitors base in Urubamba or Ollantaytambo the night before the Machu Picchu train — cheaper and more authentic than Aguas Calientes.'},
+  {id:'aguas_calientes',n:'Aguas Calientes / Machu Picchu',lat:-13.163,lng:-72.546,type:'wonder',
+   tag:'Base for Machu Picchu — cloud forest & hot springs',
+   best:'May-Oct (dry, clear skies). Apr-May for fewer crowds.',
+   days:'1-2 days',
+   eat:'Indio Feliz — best value in Aguas Calientes. Avoid the overpriced tourist strip along the river.',
+   tip:'Book Machu Picchu entry AND the train separately, MONTHS ahead — both sell out. Entry is by timed circuit: Circuit 4 goes to the Sun Gate, best for sunrise photos. Huayna Picchu mountain is separate and very limited. Bus from Aguas Calientes starts at 05:30. Leave large bags in Aguas Calientes storage.'},
+  {id:'arequipa',n:'Arequipa',lat:-16.409,lng:-71.537,type:'highland',
+   tag:'White city — colonial architecture & Colca Canyon gateway',
+   best:'May-Nov. Rainy season Jan-Mar.',
+   days:'2-3 days',
+   eat:'Zig Zag (colonial house, excellent steaks), La Nueva Palomino (authentic Arequipeno), Sol de Mayo (garden terrace). Try rocoto relleno and adobo.',
+   tip:'Santa Catalina Monastery is one of the most extraordinary spaces in South America — 3 hours minimum. At 2,335 m it is a good acclimatization step before Cusco. Book Colca Canyon tour 2+ days ahead — condor sighting requires a 04:00 departure. Plaza de Armas at dusk for the best sillar stone glow.'},
+  {id:'colca',n:'Colca Canyon',lat:-15.530,lng:-71.950,type:'wonder',
+   tag:'Second deepest canyon on Earth — Andean condors in flight',
+   best:'May-Oct. Condors most active May-Aug mornings.',
+   days:'2 days (most take a 2-day guided tour from Arequipa)',
+   eat:'Hotel Casa Andina Colca and Naturalodge have the best restaurants in the canyon area.',
+   tip:'Cruz del Condor viewpoint: condors soar at 09:00-11:00 on clear mornings — arrive well before tour buses. Canyon rim altitude reaches 4,000-4,800 m. Hot springs at Chivay afterward. Trek to the canyon bottom and back is 2 days; most visitors do the canyon rim drive.'},
+  {id:'puno',n:'Puno / Lake Titicaca',lat:-15.845,lng:-70.023,type:'wonder',
+   tag:'Floating islands at 3,810 m — world\'s highest navigable lake',
+   best:'May-Oct. Candelaria festival February is extraordinary.',
+   days:'1-2 days',
+   eat:'La Table del Inca on Uros Chulluni island. In Puno: Balthazar, Restaurant Don Piero.',
+   tip:'Uros floating reed islands are heavily touristic — set expectations right. For something authentic, continue to Taquile Island (3h by boat) where the community preserves Inca-era textile traditions (UNESCO). Overnight on Amantani Island to see the lake by moonlight. Altitude 3,810 m: give yourself a day. Bolivia crossing at Copacabana is straightforward.'},
+  {id:'rainbow_mtn',n:'Rainbow Mountain (Vinicunca)',lat:-13.703,lng:-71.314,type:'wonder',
+   tag:'Striped mineral mountain at 5,200 m — the newest Inca icon',
+   best:'Apr-Nov. Avoid Jan-Mar: snow makes the hike impossible.',
+   days:'Day trip from Cusco (very long day — 04:00 departure)',
+   eat:'Basic food stalls at the trailhead. Bring your own snacks and water.',
+   tip:'Altitude 5,200 m — higher than any Alpine peak. Do NOT attempt before 2-3 days acclimatizing in Cusco. Horses available for hire at the trailhead. Tours depart Cusco at 04:00, return by 17:00. Red Valley is a less-visited alternative nearby — equally spectacular, half the crowd.'},
+  {id:'paracas',n:'Paracas / Ballestas Islands',lat:-13.849,lng:-76.260,type:'coastal',
+   tag:'Peruvian Galapagos — sea lions, penguins & desert coast',
+   best:'Apr-Nov (dry). Dec-Mar: warmer but windier on the islands.',
+   days:'1-2 days',
+   eat:'La Trattoria di Remo (Paracas), Las Olas restaurant. Fresh ceviche at any local market.',
+   tip:'Ballestas Islands boat tour (2h, ~S/40) at 08:00 or 10:00: sea lions, Humboldt penguins, Peruvian boobies, pelicans. The Candelabra geoglyph visible from the boat. Paracas National Reserve: dramatic red desert cliffs meeting the Pacific. Easy 3.5h bus from Lima. Combine with Huacachina dunes (1h away) for a 2-day south coast loop.'},
+  {id:'nazca',n:'Nazca Lines',lat:-14.829,lng:-74.944,type:'coastal',
+   tag:'Ancient geoglyphs visible only from the air',
+   best:'Year-round. Jun-Sep best flying weather.',
+   days:'1 day',
+   eat:'El Huarango (best in town), basic picanterias near the market.',
+   tip:'Overflight (30 min, ~$120-180) is the only way to appreciate the lines — the viewing tower is not worth the stop alone. Book with Alas Peruanas or Aerodiana. Choose a morning flight for calmer air. Motion sickness common: skip breakfast. Chauchilla Cemetery (mummies, ~2,000 years old) nearby is one of Peru\'s strangest sites.'},
+  {id:'huacachina',n:'Huacachina',lat:-14.087,lng:-75.768,type:'coastal',
+   tag:'Desert oasis — sand dune buggy rides at sunset',
+   best:'Apr-Nov (dry and stable dunes).',
+   days:'1 day',
+   eat:'Restaurant Moron (lagoon view), simple eateries around the oasis.',
+   tip:'Surreal oasis lagoon surrounded by enormous dunes. Sand dune buggy + sandboarding (~2h, S/50) — aim for the sunset ride. Stay overnight to see it after day-trippers leave. 5 minutes from Ica. Peru Hop buses stop here on the Lima-Cusco overland route.'},
+  {id:'trujillo',n:'Trujillo',lat:-8.112,lng:-79.028,type:'coastal',
+   tag:'Mochica capital — Chan Chan & Huaca de la Luna',
+   best:'Year-round. May-Oct is sunnier.',
+   days:'2 days',
+   eat:'El Mochica, Romano-Rincon Criollo, Jugos Lucy market (best breakfast in northern Peru).',
+   tip:'Chan Chan (largest pre-Columbian city in the Americas — all adobe, UNESCO) and Huaca de la Luna (Moche pyramid with extraordinarily intact murals) represent two different ancient civilizations a few km apart — book a guide for both. Huanchaco beach has traditional totora caballitos still used by fishermen. 8h north of Lima by overnight bus.'},
+  {id:'iquitos',n:'Iquitos',lat:-3.749,lng:-73.254,type:'amazon',
+   tag:'Amazon gateway — accessible only by air or river',
+   best:'Jun-Nov (lower water, more wildlife). Dec-May: flooded forest, canoe through the treetops.',
+   days:'3-4 days minimum',
+   eat:'Dawn market on the Amazon riverfront, Al Frio y al Fuego (floating restaurant on the Itaya), Fitzcarraldo.',
+   tip:'The world\'s largest city with no road access — fly from Lima (1h30m) or take a 3-5 day boat from Pucallpa. For wildlife: stay at a jungle lodge outside the city (Explorama, Heliconia, Ceiba Tops). The Belen market and floating neighbourhood are extraordinary but not safe alone — go with a guide. Pink river dolphins visible on most lodge excursions.'},
+  {id:'puerto_maldonado',n:'Puerto Maldonado',lat:-12.592,lng:-69.181,type:'amazon',
+   tag:'Madre de Dios Amazon — easiest jungle access from Cusco',
+   best:'May-Oct (dry season — wildlife more concentrated near water).',
+   days:'3-4 days (lodge package)',
+   eat:'All meals included at lodges. In town: ceviche restaurants near the waterfront.',
+   tip:'45-minute flight from Cusco — much easier than Iquitos. Tambopata National Reserve is one of the most biodiverse places on Earth. Inkaterra Reserva Amazonica and Refugio Amazonas are top lodges. Macaw lick (collpa) at dawn: hundreds of macaws and parrots simultaneously. Mandatory guide for all reserve activities.'}
+];
+var ROUTES = {
+  'lima-cusco':{t:'1h 20m',d:'1,100 km',m:'Flight (LATAM, Sky, JetSmart)',tip:'Book 4-6 weeks ahead for best fares (S/200-400 one way). Altitude gain: sea level to 3,400 m — arrive, rest, no exertion. Bus is possible (24h) but only for the time-rich. Star Peru and LC Peru also operate this route.'},
+  'lima-arequipa':{t:'1h 20m',d:'1,000 km',m:'Flight or overnight bus',tip:'Fly LATAM or Sky (S/150-350, book ahead). Overnight bus is a great option: Cruz del Sur Cama suite (flat bed, S/120-180, 16h) — genuinely comfortable. Arrives at Arequipa terminal, 15 min taxi to centre.'},
+  'lima-paracas':{t:'3h 30m',d:'260 km',m:'Bus (Soyuz / Cruz del Sur)',tip:'Soyuz Express from Lima to Pisco/Paracas (S/30-50). Departs Lima Sur terminal (Javier Prado). Peru Hop hop-on-hop-off bus also covers this route with hotel pickups. Book one day ahead minimum.'},
+  'lima-nazca':{t:'6h',d:'450 km',m:'Bus (Cruz del Sur)',tip:'Cruz del Sur or Oltursa from Lima. S/60-100. Depart morning for an afternoon arrival with time to arrange the overflight for next day. Or depart Paracas for a 3h leg south.'},
+  'lima-trujillo':{t:'8h',d:'560 km',m:'Overnight bus (Ittsa / Movil)',tip:'Take an overnight sleeper: Ittsa or Movil Tours Cama seats (S/80-130). Leave Lima 22:00, arrive Trujillo 06:00. Good way to save accommodation costs.'},
+  'lima-iquitos':{t:'1h 30m',d:'1,100 km',m:'Flight (LATAM / Star Peru)',tip:'Fly from Lima Jorge Chavez Airport (S/200-400). Iquitos is accessible ONLY by air or multi-day river boat — no road connection exists. Book accommodation and lodge BEFORE booking your flights.'},
+  'cusco-aguas_calientes':{t:'3h 30m',d:'112 km',m:'PeruRail or Inca Rail',tip:'BOOK MONTHS IN ADVANCE — these trains sell out completely. PeruRail Expedition from $50 one way; Inca Rail also operates. Depart from Cusco Poroy, or Ollantaytambo (most convenient, saves 1h). Vistadome panoramic car is worth the upgrade. No road to Aguas Calientes exists.'},
+  'cusco-sacred_valley':{t:'45m - 1h',d:'60 km',m:'Minivan (colectivo) or taxi',tip:'Colectivos (shared minivans) depart near Cusco\'s Avenida Grau (S/5-10 to Pisac or Urubamba). Private taxi S/60-100 for the day. Most Sacred Valley tours include transport. Base yourself in Urubamba or Ollantaytambo the night before the Machu Picchu train.'},
+  'cusco-rainbow_mtn':{t:'3h - 4h drive',d:'90 km',m:'Tour van (day trip from Cusco)',tip:'All tours depart at 04:00 and return by 17:00 (S/50-80 including transport and guide). Road ends at 4,600 m; hike 8 km round trip to the 5,200 m summit. Must be acclimatized 2-3 days in Cusco first. Non-negotiable: warm layers, sunscreen, snacks, water.'},
+  'cusco-puno':{t:'6h',d:'386 km',m:'Tourist bus or scenic train',tip:'Inka Express tourist bus (~$35) stops at Raqchi temple, La Raya pass (4,350 m), Pukara — highly recommended. PeruRail Titicaca Train (Tue/Fri/Sat) is a premium option (from $200) with onboard show and lunch. Local bus via Juliaca is cheaper but has no stops (S/25).'},
+  'cusco-puerto_maldonado':{t:'45m',d:'500 km',m:'Flight (LATAM / Star Peru)',tip:'Fly Cusco to Puerto Maldonado (CUZ-PEM, S/150-250). Much easier than Iquitos. Your lodge will arrange the river boat transfer from the port. Book the lodge BEFORE booking flights — lodge boats are the only access into the reserve.'},
+  'arequipa-colca':{t:'3h to Chivay',d:'165 km',m:'Bus or guided tour transfer',tip:'Reyna buses from Arequipa terminal (S/15, 3h to Chivay). Most efficient: join a 2-day guided tour (~$40-70 all inclusive). Cruz del Condor viewpoint is 1h past Chivay. Start as early as possible — condors leave by midday.'},
+  'arequipa-puno':{t:'6h',d:'290 km',m:'Bus (direct)',tip:'Cruz del Sur or Tour Peru from Arequipa to Puno (S/30-60). Scenic drive through the altiplano. Civa also runs this route. Arrive Puno afternoon with time to arrange next-day lake tours.'},
+  'paracas-nazca':{t:'3h',d:'200 km',m:'Bus or Peru Hop',tip:'Regular buses along the Panamericana from Pisco/Paracas to Nazca. Peru Hop covers this stop. Huacachina oasis is a logical stopover — 1h from Paracas, 1h from Nazca.'},
+  'nazca-arequipa':{t:'9h',d:'565 km',m:'Overnight bus',tip:'Cruz del Sur or Oltursa runs Nazca to Arequipa overnight. S/80-150 Cama service. Depart 20:00, arrive 05:00. Good way to cover this long leg without losing a day.'},
+  'puno-cusco':{t:'6h',d:'386 km',m:'Tourist bus or PeruRail',tip:'Inka Express tourist bus (S/90, day trip with stops) or local bus (S/25). PeruRail Titicaca Train in reverse (Wed/Sat/Sun). The tourist bus is worth the price for Raqchi and La Raya — the altiplano landscape is extraordinary.'},
+  'trujillo-lima':{t:'8h',d:'560 km',m:'Overnight bus (Ittsa / Movil)',tip:'Return overnight to Lima or continue north to Chiclayo (3h) and Chachapoyas (10h) for Kuelap fortress. Or head south via Huaraz (trekking, Cordillera Blanca) if time allows.'},
+  'iquitos-lima':{t:'1h 30m',d:'1,100 km',m:'Flight (LATAM / Star Peru)',tip:'Return flight Lima Jorge Chavez. Book ahead. If time allows after Iquitos: half-day to Pachacamac ruins south of Lima (oracle temple, Inca ruins, excellent site museum).'}
+};
+function getRoute(from,to){return ROUTES[from+'-'+to]||ROUTES[to+'-'+from]||null;}
+var ITINS = [
+  {id:'classic',n:'Classic Peru Circuit',days:'10-12 days',transport:'Flights + Train + Bus',
+   desc:'Lima, Cusco, Sacred Valley, Machu Picchu — the essential Inca trail experience.',
+   dl:[
+     {lbl:'Days 1-2 — Lima',
+      stops:[{loc:'lima',n:'Lima — gateway city',time:'2 days',tip:'Larco Museum, Miraflores seafront walk, Barranco neighbourhood. Central or Maido dinner if budget allows. Acclimatization not needed — Lima is at sea level.'}],
+      routes:[]},
+     {lbl:'Day 3 — Fly to Cusco + rest',
+      stops:[{loc:'lima',n:'Lima to Cusco',time:'Morning flight',tip:'1h 20m. Arrive Cusco by 09:00. REST ALL DAY — altitude sickness risk is real at 3,400 m. Coca tea, no alcohol, light food. Gentle walk around the Plaza de Armas in the afternoon only.'},
+             {loc:'cusco',n:'Cusco — acclimatization day',time:'Rest + gentle explore',tip:'San Blas neighbourhood walk. San Pedro market. Chicha restaurant for dinner. Book Machu Picchu train and circuit tickets tonight if not already done.'}],
+      routes:[{f:'lima',t:'cusco'}]},
+     {lbl:'Day 4 — Cusco exploration',
+      stops:[{loc:'cusco',n:'Cusco full day',time:'Day 4',tip:'Sacsayhuaman Inca ruins. Qorikancha temple (most impressive Inca stonework). Cathedral. Sunset from Cristo Blanco hill.'}],
+      routes:[]},
+     {lbl:'Day 5 — Sacred Valley',
+      stops:[{loc:'cusco',n:'Cusco to Sacred Valley',time:'06:30 minivan',tip:'45 min to Pisac. Arrive early for dawn at the Pisac ruins before tour groups.'},
+             {loc:'sacred_valley',n:'Sacred Valley — Pisac & Ollantaytambo',time:'Full day + overnight',tip:'Pisac ruins at dawn, market mid-morning. Ollantaytambo fortress afternoon. Overnight in Ollantaytambo near the train station.'}],
+      routes:[{f:'cusco',t:'sacred_valley'}]},
+     {lbl:'Days 6-7 — Machu Picchu',
+      stops:[{loc:'sacred_valley',n:'Ollantaytambo to Aguas Calientes',time:'Train (1h 30m)',tip:'Early train from Ollantaytambo. Arrive by 10:00. Explore town, hot springs in the evening.'},
+             {loc:'aguas_calientes',n:'Machu Picchu — 2 days',time:'Days 6-7',tip:'Day 6: Bus at 05:30, Circuit 1 for the classic views. Day 7: Sun Gate trek (Circuit 4) for sunrise from above. Return train Day 7 afternoon back to Cusco.'}],
+      routes:[{f:'sacred_valley',t:'aguas_calientes'}]},
+     {lbl:'Day 8 — Rainbow Mountain',
+      stops:[{loc:'cusco',n:'Cusco + Rainbow Mountain day trip',time:'Day 8: 04:00 start',tip:'Return to Cusco from Machu Picchu. Next day: Rainbow Mountain (depart 04:00, back by 17:00). 5,200 m summit. Horses available. Red Valley alternative for fewer crowds.'},
+             {loc:'rainbow_mtn',n:'Vinicunca / Rainbow Mountain',time:'Day trip',tip:'Non-negotiable: fully acclimatized in Cusco before this. Bring layers — temperature swings 30 degrees in a single day.'}],
+      routes:[{f:'cusco',t:'rainbow_mtn'}]},
+     {lbl:'Days 9-10 — South extension or Lima',
+      stops:[{loc:'cusco',n:'Cusco to Puno or fly Lima',time:'Day 9',tip:'Option A: Inka Express bus to Puno (6h) for Lake Titicaca. Option B: fly Lima direct and end the circuit there.'},
+             {loc:'puno',n:'Puno — Lake Titicaca',time:'2 days',tip:'Uros floating islands + Taquile Island. Or continue to Arequipa (6h bus) and fly home from there.'}],
+      routes:[{f:'cusco',t:'puno'}]}
+   ]
+  },
+  {id:'southern',n:'Southern Peru Grand Loop',days:'14-16 days',transport:'Flights + Bus + Train',
+   desc:'Lima, south coast, Arequipa, Colca Canyon, Puno, Cusco and Machu Picchu — the full circuit.',
+   dl:[
+     {lbl:'Days 1-2 — Lima',
+      stops:[{loc:'lima',n:'Lima — 2 days',time:'Days 1-2',tip:'Essential Lima: Larco Museum, Miraflores, Barranco, ceviche lunch at La Mar. Evening at Huaca Pucllana restaurant (illuminated pyramid view).'}],
+      routes:[]},
+     {lbl:'Day 3 — Paracas',
+      stops:[{loc:'lima',n:'Lima to Paracas',time:'Bus (3.5h)',tip:'Morning bus from Lima Sur terminal. Arrive Paracas midday.'},
+             {loc:'paracas',n:'Paracas — 2 days',time:'Days 3-4',tip:'Day 3: arrive, settle in. Day 4: Ballestas Islands boat at 08:00, Paracas National Reserve afternoon. Sea lions, penguins, red desert cliffs.'}],
+      routes:[{f:'lima',t:'paracas'}]},
+     {lbl:'Day 5 — Huacachina + Nazca',
+      stops:[{loc:'paracas',n:'Paracas to Huacachina',time:'1h to Ica',tip:'Sand dune buggy at sunset — the dunes here are enormous.'},
+             {loc:'huacachina',n:'Huacachina to Nazca',time:'2h onward',tip:'Morning departure to Nazca. Arrange overflight for next morning with Alas Peruanas.'},
+             {loc:'nazca',n:'Nazca Lines overflight',time:'Day 6 at 08:00',tip:'Fly early for calmer air. Spider, hummingbird, monkey, astronaut. Skip breakfast morning of flight.'}],
+      routes:[{f:'paracas',t:'nazca'}]},
+     {lbl:'Days 7-9 — Arequipa + Colca',
+      stops:[{loc:'nazca',n:'Nazca to Arequipa',time:'Overnight bus',tip:'Cruz del Sur Cama, depart 20:00 arrive 05:00. Save a day and a hotel night.'},
+             {loc:'arequipa',n:'Arequipa — 2 days',time:'Days 7-8',tip:'Santa Catalina Monastery (3h minimum). Plaza de Armas at dusk. Rocoto relleno lunch. Good acclimatization at 2,335 m before Cusco.'},
+             {loc:'colca',n:'Colca Canyon',time:'Days 9-10 (2-day tour)',tip:'Cruz del Condor at 09:00. Condors soar over the world\'s second-deepest canyon. Hot springs at Chivay after.'}],
+      routes:[{f:'nazca',t:'arequipa'},{f:'arequipa',t:'colca'}]},
+     {lbl:'Days 11-12 — Puno / Lake Titicaca',
+      stops:[{loc:'arequipa',n:'Arequipa to Puno',time:'Direct bus (6h)',tip:'Cruz del Sur morning bus. Arrives afternoon.'},
+             {loc:'puno',n:'Puno — 2 days on the lake',time:'Days 11-12',tip:'Day 11: Uros floating islands. Day 12: Full-day Taquile Island visit — UNESCO weaving community, lunch with a local family.'}],
+      routes:[{f:'arequipa',t:'puno'}]},
+     {lbl:'Days 13-16 — Cusco & Machu Picchu',
+      stops:[{loc:'puno',n:'Puno to Cusco',time:'Inka Express bus',tip:'6h scenic bus with stops (S/90). Or PeruRail Titicaca Train for a premium experience.'},
+             {loc:'cusco',n:'Cusco — 2 days acclimatize & explore',time:'Days 13-14',tip:'Acclimatize after all the travel. Rainbow Mountain Day 14 (04:00 departure). San Pedro market, Sacsayhuaman, San Blas.'},
+             {loc:'aguas_calientes',n:'Machu Picchu',time:'Days 15-16',tip:'Train from Ollantaytambo. 2 days at the site. Return to Cusco, fly Lima Day 16.'}],
+      routes:[{f:'puno',t:'cusco'},{f:'cusco',t:'aguas_calientes'}]}
+   ]
+  },
+  {id:'cuscoloop',n:'Cusco & Highlands Focus',days:'7-8 days',transport:'Flight + Train + Tour van',
+   desc:'Fly straight into the highlands — Cusco, Sacred Valley, Machu Picchu, Rainbow Mountain.',
+   dl:[
+     {lbl:'Days 1-2 — Fly to Cusco + acclimatize',
+      stops:[{loc:'lima',n:'Lima to Cusco',time:'Morning flight',tip:'Fly early to maximize Cusco daylight. REST Day 1. Gentle Plaza de Armas walk Day 2. No alcohol 24-48h. Coca tea. San Blas neighbourhood at dusk.'},
+             {loc:'cusco',n:'Cusco — acclimatize and explore',time:'Days 1-2',tip:'Qorikancha temple, Cusco Cathedral, San Pedro market breakfast. Book all Machu Picchu tickets tonight — trains and entry sell out.'}],
+      routes:[{f:'lima',t:'cusco'}]},
+     {lbl:'Day 3 — Sacred Valley',
+      stops:[{loc:'cusco',n:'Cusco to Sacred Valley',time:'06:30 minivan',tip:'Early colectivo to Pisac. Arrive before tour groups for the ruins.'},
+             {loc:'sacred_valley',n:'Sacred Valley — Pisac & Ollantaytambo',time:'Full day + overnight',tip:'Pisac ruins at dawn, market mid-morning. Chinchero village weaving demo. Ollantaytambo fortress afternoon. Overnight in Ollantaytambo for the train.'}],
+      routes:[{f:'cusco',t:'sacred_valley'}]},
+     {lbl:'Days 4-5 — Machu Picchu',
+      stops:[{loc:'sacred_valley',n:'Ollantaytambo to Aguas Calientes',time:'Train (1h 30m)',tip:'Early train from Ollantaytambo. Arrive Aguas Calientes by 10:00. Hot springs in the evening.'},
+             {loc:'aguas_calientes',n:'Machu Picchu — 2 days',time:'Days 4-5',tip:'Day 4: Bus 05:30, full circuit of the site. Day 5: Sun Gate trek at dawn (Circuit 4). Return train Day 5 afternoon back to Cusco.'}],
+      routes:[{f:'sacred_valley',t:'aguas_calientes'}]},
+     {lbl:'Day 6 — Rainbow Mountain',
+      stops:[{loc:'cusco',n:'Cusco + Rainbow Mountain',time:'Day 6: 04:00 start',tip:'Return from Machu Picchu evening Day 5. Day 6: Rainbow Mountain departure at 04:00. Back by 17:00. Fully acclimatized? Good. Not sure? Hire a horse.'},
+             {loc:'rainbow_mtn',n:'Vinicunca 5,200 m',time:'Day trip',tip:'Multi-coloured striped mineral mountain. Red Valley is less crowded — ask your guide. Bring layers — 30-degree temperature swing in a single day.'}],
+      routes:[{f:'cusco',t:'rainbow_mtn'}]},
+     {lbl:'Days 7-8 — Optional Amazon add-on',
+      stops:[{loc:'cusco',n:'Cusco to Puerto Maldonado',time:'45-min flight',tip:'Fly into the Amazon on Day 7. 3 days at a lodge is the minimum for meaningful wildlife.'},
+             {loc:'puerto_maldonado',n:'Amazon — Tambopata Reserve',time:'2+ days',tip:'Inkaterra Reserva Amazonica or Refugio Amazonas. Macaw lick at dawn is the highlight. Giant otters, tapirs, river dolphins. Return to Cusco then Lima.'}],
+      routes:[{f:'cusco',t:'puerto_maldonado'}]}
+   ]
+  },
+  {id:'northcoast',n:'North Coast & Amazon',days:'10-12 days',transport:'Overnight bus + flight',
+   desc:'Trujillo, Chan Chan, the Amazon at Iquitos — Peru far beyond the Inca trail.',
+   dl:[
+     {lbl:'Days 1-2 — Lima',
+      stops:[{loc:'lima',n:'Lima — 2 days',time:'Days 1-2',tip:'Miraflores, Larco Museum, Barranco. Rest and eat well before the road north.'}],
+      routes:[]},
+     {lbl:'Days 3-5 — Trujillo & Chan Chan',
+      stops:[{loc:'lima',n:'Lima to Trujillo',time:'Overnight bus (8h)',tip:'Ittsa or Movil Tours overnight Cama. Depart 22:00, arrive 06:00 Trujillo.'},
+             {loc:'trujillo',n:'Trujillo — 3 days',time:'Days 3-5',tip:'Day 3: Huaca de la Luna (Moche murals — extraordinary). Day 4: Chan Chan UNESCO adobe city. Day 5: Huanchaco beach, totora caballito boats, ceviche lunch.'}],
+      routes:[{f:'lima',t:'trujillo'}]},
+     {lbl:'Days 6-9 — Iquitos Amazon',
+      stops:[{loc:'lima',n:'Trujillo to Lima to Iquitos',time:'Bus + flight',tip:'Overnight bus back to Lima, then fly Iquitos next morning. Or fly Trujillo to Lima to Iquitos on Day 6.'},
+             {loc:'iquitos',n:'Iquitos — 4 days at jungle lodges',time:'Days 6-9',tip:'3-4 days at Explorama, Ceiba Tops, or Heliconia. Pink river dolphins, piranha fishing, canopy walk, medicine plant walk. Dawn and dusk best for wildlife.'}],
+      routes:[{f:'lima',t:'iquitos'}]},
+     {lbl:'Days 10-12 — Return Lima + optional coast',
+      stops:[{loc:'iquitos',n:'Fly Iquitos to Lima',time:'1h 30m',tip:'Return to Lima. Pachacamac ruins south of Lima (oracle temple, Inca site museum) is worth a half-day if time allows.'},
+             {loc:'paracas',n:'Optional: Paracas day trip',time:'Day 11 or 12',tip:'Bus Lima to Paracas (3.5h), Ballestas Islands morning, back to Lima by evening. Good finale before departure.'}],
+      routes:[{f:'iquitos',t:'lima'},{f:'lima',t:'paracas'}]}
+   ]
+  }
+];
+var _activeItinId=null, _globalStops=[];
+function buildGlobalStops(it){
+  var res=[],n=1;
+  it.dl.forEach(function(day,di){
+    var prev=null;
+    day.stops.forEach(function(s){
+      var d=getDestById(s.loc);
+      var xy=d?[d.lat,d.lng]:null;
+      if(!xy)return;
+      if(s.loc===prev){if(res.length>0&&res[res.length-1].dayIdx===di)res[res.length-1].label+=' + '+s.n;return;}
+      prev=s.loc;
+      res.push({locId:s.loc,coords:xy,label:s.n,num:n++,dayIdx:di});
+    });
+  });
+  return res;
+}
+function activateItinerary(it){_activeItinId=it.id;_globalStops=buildGlobalStops(it);}
+function mkIcon(type){
+  var conf={hub:{col:'#2b1a0e'},highland:{col:'#7b3f00'},wonder:{col:'#2d6a4f'},coastal:{col:'#1a5276'},amazon:{col:'#4a235a'}};
+  var c=(conf[type]||conf.hub).col;
+  var letter={hub:'G',highland:'H',wonder:'W',coastal:'C',amazon:'A'}[type]||'H';
+  return L.divIcon({html:'<div style="width:30px;height:30px;border-radius:50%;background:'+c+';border:2.5px solid white;box-shadow:0 2px 8px rgba(0,0,0,.4);display:flex;align-items:center;justify-content:center;color:white;font-size:11px;font-weight:700;">'+letter+'</div>',iconSize:[30,30],iconAnchor:[15,15],popupAnchor:[0,-18],className:''});
+}
+function getDestById(id){for(var i=0;i<DESTS.length;i++)if(DESTS[i].id===id)return DESTS[i];return null;}
+window.onload=function(){
+  nsMap=L.map('map',{zoomControl:true}).setView([-10.0,-75.0],5);
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',{attribution:'&copy; OpenStreetMap &copy; CARTO',subdomains:'abcd',maxZoom:19}).addTo(nsMap);
+  markersLayer=L.layerGroup().addTo(nsMap);
+  placeLandmarkMarkers();
+  buildItinList();
+  fillSelects();
+  fillBldSelect(document.querySelector('.bld-sel[data-index="0"]'));
+  document.querySelector('.bld-rm[data-index="0"]').addEventListener('click',function(){removeBldStop(0);});
+  setupBldDrag();updateBldState();
+  document.getElementById('bldAdd').addEventListener('click',addBldStop);
+  document.getElementById('bldCalc').addEventListener('click',calcBldRoute);
+  document.getElementById('bldClear').addEventListener('click',clearBld);
+  document.getElementById('px').addEventListener('click',function(){document.getElementById('panel').classList.remove('open');});
+  document.getElementById('fab').addEventListener('click',function(){document.getElementById('panel').classList.toggle('open');});
+};
+function placeLandmarkMarkers(){
+  markersLayer.clearLayers();
+  DESTS.forEach(function(d){
+    var html='<div class="pu"><div class="pu-name">'+d.n+'</div><div class="pu-type">'+d.tag+'</div><div class="pu-row"><b>Best time:</b> '+d.best+'</div><div class="pu-row"><b>Stay:</b> '+d.days+'</div><div class="pu-tip">'+d.tip+'</div></div>';
+    L.marker([d.lat,d.lng],{icon:mkIcon(d.type)}).bindPopup(html,{maxWidth:260}).addTo(markersLayer);
+  });
+}
+function buildItinList(){
+  var cont=document.getElementById('itinList');
+  ITINS.forEach(function(it){
+    var card=document.createElement('div');
+    card.className='itin-card';
+    var btns=it.dl.map(function(d,i){return '<button class="dbtn'+(i===0?' on':'')+'" data-itin="'+it.id+'" data-idx="'+i+'">'+d.lbl+'</button>';}).join('');
+    card.innerHTML='<h3>'+it.n+'</h3><div class="imeta">'+it.days+'&nbsp;&nbsp;'+it.transport+'</div><div class="idesc">'+it.desc+'</div><div class="dtabs" id="dtabs-'+it.id+'">'+btns+'</div>';
+    card.addEventListener('click',function(e){
+      if(e.target.closest&&e.target.closest('.dbtn'))return;
+      var isOn=card.classList.contains('on');
+      document.querySelectorAll('.itin-card').forEach(function(c){c.classList.remove('on');});
+      document.querySelectorAll('.dtabs').forEach(function(t){t.classList.remove('on');});
+      clearRoutes();
+      if(!isOn){
+        card.classList.add('on');
+        document.getElementById('dtabs-'+it.id).classList.add('on');
+        activateItinerary(it);
+        drawDay(it,0);
+        document.querySelectorAll('#dtabs-'+it.id+' .dbtn').forEach(function(b,i){b.classList.toggle('on',i===0);});
+      }
+    });
+    cont.appendChild(card);
+  });
+  cont.addEventListener('click',function(e){
+    var btn=e.target.closest('[data-itin]');
+    if(!btn)return;
+    e.stopPropagation();
+    var itId=btn.getAttribute('data-itin'),idx=parseInt(btn.getAttribute('data-idx'));
+    var it2=null;for(var i=0;i<ITINS.length;i++){if(ITINS[i].id===itId){it2=ITINS[i];break;}}
+    if(!it2)return;
+    if(_activeItinId!==itId)activateItinerary(it2);
+    document.querySelectorAll('#dtabs-'+itId+' .dbtn').forEach(function(b){b.classList.remove('on');});
+    btn.classList.add('on');
+    drawDay(it2,idx);
+  });
+}
+function clearRoutes(){
+  activeRouteObjs.forEach(function(o){nsMap.removeLayer(o);});
+  activeRouteObjs=[];
+  document.getElementById('stops').classList.remove('on');
+}
+function drawDay(it,dayIdx){
+  clearRoutes();
+  var day=it.dl[dayIdx];
+  if(!day)return;
+  DESTS.forEach(function(d){activeRouteObjs.push(L.circleMarker([d.lat,d.lng],{radius:4,color:'#fff',fillColor:'#b0bccc',fillOpacity:.35,weight:1,interactive:false}).addTo(nsMap));});
+  var dayStops=_globalStops.filter(function(s){return s.dayIdx===dayIdx;});
+  var prevLast=null;
+  if(dayIdx>0){var prev=_globalStops.filter(function(s){return s.dayIdx===dayIdx-1;});if(prev.length)prevLast=prev[prev.length-1];}
+  if(prevLast&&dayStops.length>0&&prevLast.locId!==dayStops[0].locId){
+    activeRouteObjs.push(L.polyline([prevLast.coords,dayStops[0].coords],{color:'#e8a838',weight:3,opacity:.75,dashArray:'8,5',lineCap:'round'}).addTo(nsMap));
+    activeRouteObjs.push(L.marker(prevLast.coords,{icon:L.divIcon({className:'',html:'<div style="width:22px;height:22px;border-radius:50%;background:#99a8bb;border:2px solid white;box-shadow:0 1px 5px rgba(0,0,0,.2);display:flex;align-items:center;justify-content:center;color:white;font-size:10px;font-weight:600;">'+prevLast.num+'</div>',iconSize:[22,22],iconAnchor:[11,11],zIndexOffset:350}),zIndexOffset:350}).addTo(nsMap));
+  }
+  for(var j=0;j<dayStops.length-1;j++){
+    if(dayStops[j].locId===dayStops[j+1].locId)continue;
+    activeRouteObjs.push(L.polyline([dayStops[j].coords,dayStops[j+1].coords],{color:'#2d6a4f',weight:5,opacity:1,dashArray:'10,6',lineCap:'round',lineJoin:'round'}).addTo(nsMap));
+  }
+  var bCoords=[];
+  dayStops.forEach(function(s){
+    bCoords.push(s.coords);
+    var lbl=s.label.length>24?s.label.substring(0,22)+'...':s.label;
+    var icon=L.divIcon({className:'',html:'<div style="text-align:center;width:130px;"><div style="width:30px;height:30px;border-radius:50%;background:#c4533a;border:3px solid white;box-shadow:0 2px 10px rgba(0,0,0,.4);display:flex;align-items:center;justify-content:center;color:white;font-size:12px;font-weight:700;margin:0 auto;">'+s.num+'</div><div style="margin-top:3px;font-size:10px;font-weight:700;color:#2b1a0e;background:rgba(255,255,255,.92);border-radius:3px;padding:1px 4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:130px;display:inline-block;">'+lbl+'</div></div>',iconSize:[130,46],iconAnchor:[65,15],zIndexOffset:700});
+    activeRouteObjs.push(L.marker(s.coords,{icon:icon,zIndexOffset:700}).addTo(nsMap));
+  });
+  if(prevLast&&prevLast.locId!==dayStops[0].locId)bCoords.push(prevLast.coords);
+  var seen={},uniq=[];
+  bCoords.forEach(function(xy){var k=xy[0].toFixed(2)+','+xy[1].toFixed(2);if(!seen[k]){seen[k]=true;uniq.push(xy);}});
+  if(uniq.length>1)nsMap.fitBounds(L.latLngBounds(uniq),{paddingTopLeft:[380,70],paddingBottomRight:[80,90],animate:true,maxZoom:11});
+  else if(uniq.length===1)nsMap.setView(uniq[0],11,{animate:true});
+  document.getElementById('stopsTitle').textContent=it.n+' - '+day.lbl;
+  document.getElementById('stopsBd').innerHTML=day.stops.map(function(s,i){return '<div class="srow"><span class="snum">'+(i+1)+'</span><span class="sname">'+s.n+'</span>'+(s.time?'<span class="stime">'+s.time+'</span>':'')+(s.tip?'<div class="stip">'+s.tip+'</div>':'')+'</div>';}).join('');
+  document.getElementById('stops').classList.add('on');
+  if(window.innerWidth<=768)document.getElementById('panel').classList.remove('open');
+}
+function fillSelects(){
+  ['selFrom','selTo'].forEach(function(sid){
+    var sel=document.getElementById(sid);
+    if(!sel)return;
+    DESTS.forEach(function(d){var opt=document.createElement('option');opt.value=d.id;opt.textContent=d.n;sel.appendChild(opt);});
+    sel.addEventListener('change',liveRoute);
+  });
+}
+function liveRoute(){
+  var from=document.getElementById('selFrom').value;
+  var to=document.getElementById('selTo').value;
+  var res=document.getElementById('rtResult');
+  if(!from||!to||from===to){res.classList.remove('on');clearRoutes();placeLandmarkMarkers();return;}
+  var A=getDestById(from),B=getDestById(to);
+  if(!A||!B)return;
+  var r=getRoute(from,to);
+  clearRoutes();placeLandmarkMarkers();
+  var line=L.polyline([[A.lat,A.lng],[B.lat,B.lng]],{color:'#c4533a',weight:5,opacity:.95,dashArray:'9,6',lineCap:'round'}).addTo(nsMap);
+  activeRouteObjs.push(line);
+  [{d:A,lbl:'A'},{d:B,lbl:'B'}].forEach(function(pt){
+    var icon=L.divIcon({className:'',html:'<div style="text-align:center;width:100px;"><div style="width:28px;height:28px;border-radius:50%;background:#c4533a;border:3px solid white;box-shadow:0 2px 10px rgba(0,0,0,.35);display:flex;align-items:center;justify-content:center;color:white;font-size:11px;font-weight:700;margin:0 auto;">'+pt.lbl+'</div><div style="margin-top:3px;font-size:10px;font-weight:700;color:#2b1a0e;background:rgba(255,255,255,.9);border-radius:3px;padding:1px 4px;white-space:nowrap;max-width:100px;overflow:hidden;text-overflow:ellipsis;display:inline-block;">'+pt.d.n+'</div></div>',iconSize:[100,40],iconAnchor:[50,14],zIndexOffset:600});
+    activeRouteObjs.push(L.marker([pt.d.lat,pt.d.lng],{icon:icon,zIndexOffset:600}).addTo(nsMap));
+  });
+  nsMap.fitBounds(L.latLngBounds([[A.lat,A.lng],[B.lat,B.lng]]),{paddingTopLeft:[380,60],paddingBottomRight:[80,60],animate:true,maxZoom:11});
+  if(r){
+    document.getElementById('rtMain').textContent=A.n+' → '+B.n+' — '+r.t;
+    document.getElementById('rtDetail').textContent='Distance: '+r.d+' · Service: '+r.m;
+    document.getElementById('rtTip').textContent=r.tip;
+  } else {
+    document.getElementById('rtMain').textContent=A.n+' → '+B.n;
+    document.getElementById('rtDetail').textContent='Indicative straight-line. Check LATAM, Sky Peru or Cruz del Sur for exact connections.';
+    document.getElementById('rtTip').textContent='Peru\'s main hubs connect by domestic flights (LATAM, Sky, Star Peru). Long-distance buses (Cruz del Sur, Oltursa) are comfortable for coastal routes. Train travel is limited to the Cusco-Machu Picchu corridor via PeruRail and Inca Rail.';
+  }
+  res.classList.add('on');
+}
+function fillBldSelect(sel){
+  if(!sel)return;
+  DESTS.forEach(function(d){var opt=document.createElement('option');opt.value=d.id;opt.textContent=d.n;sel.appendChild(opt);});
+  sel.addEventListener('change',updateBldState);
+}
+function addBldStop(){
+  var container=document.getElementById('bldStops');
+  var idx=container.querySelectorAll('.bld-stop').length;
+  var div=document.createElement('div');div.className='bld-stop';div.setAttribute('data-index',idx);
+  div.innerHTML='<span class="bld-handle">&#9776;</span><span class="bld-num">'+(idx+1)+'</span><select class="bld-sel" data-index="'+idx+'"><option value="">Select destination...</option></select><button class="bld-rm" data-index="'+idx+'">&#215;</button>';
+  container.appendChild(div);
+  fillBldSelect(div.querySelector('.bld-sel'));
+  div.querySelector('.bld-rm').addEventListener('click',function(){removeBldStop(parseInt(this.getAttribute('data-index')));});
+  setupBldDrag();updateBldState();
+}
+function removeBldStop(idx){
+  var container=document.getElementById('bldStops');
+  if(container.querySelectorAll('.bld-stop').length<=1)return;
+  var el=container.querySelector('.bld-stop[data-index="'+idx+'"]');
+  if(el)el.remove();
+  renumberBld();updateBldState();
+}
+function renumberBld(){
+  document.querySelectorAll('.bld-stop').forEach(function(s,i){
+    s.setAttribute('data-index',i);s.querySelector('.bld-num').textContent=i+1;
+    var sel=s.querySelector('.bld-sel');if(sel)sel.setAttribute('data-index',i);
+    var rm=s.querySelector('.bld-rm');if(rm)rm.setAttribute('data-index',i);
+  });
+}
+function updateBldState(){
+  var vals=Array.from(document.querySelectorAll('.bld-sel')).map(function(s){return s.value;}).filter(Boolean);
+  document.getElementById('bldCalc').disabled=vals.length<2;
+}
+function setupBldDrag(){
+  document.querySelectorAll('.bld-stop').forEach(function(s){
+    s.setAttribute('draggable','true');
+    s.ondragstart=function(e){this.classList.add('dragging');e.dataTransfer.setData('text/plain',this.getAttribute('data-index'));};
+    s.ondragend=function(){this.classList.remove('dragging');document.querySelectorAll('.bld-stop').forEach(function(x){x.classList.remove('drag-over');});};
+    s.ondragover=function(e){e.preventDefault();this.classList.add('drag-over');};
+    s.ondragleave=function(){this.classList.remove('drag-over');};
+    s.ondrop=function(e){
+      e.preventDefault();this.classList.remove('drag-over');
+      var fromIdx=parseInt(e.dataTransfer.getData('text/plain'));
+      var toIdx=parseInt(this.getAttribute('data-index'));
+      if(fromIdx===toIdx)return;
+      var container=document.getElementById('bldStops');
+      var all=Array.from(container.querySelectorAll('.bld-stop'));
+      var moved=all.splice(fromIdx,1)[0];all.splice(toIdx,0,moved);
+      all.forEach(function(x){container.appendChild(x);});
+      renumberBld();updateBldState();
+    };
+  });
+}
+function clearBld(){
+  var container=document.getElementById('bldStops');
+  container.innerHTML='<div class="bld-stop" data-index="0"><span class="bld-handle">&#9776;</span><span class="bld-num">1</span><select class="bld-sel" data-index="0"><option value="">Add first stop...</option></select><button class="bld-rm" data-index="0">&#215;</button></div>';
+  fillBldSelect(container.querySelector('.bld-sel'));
+  container.querySelector('.bld-rm').addEventListener('click',function(){removeBldStop(0);});
+  setupBldDrag();document.getElementById('bldResults').innerHTML='';document.getElementById('bldCalc').disabled=true;
+  clearRoutes();placeLandmarkMarkers();
+}
+function calcBldRoute(){
+  var stops=Array.from(document.querySelectorAll('.bld-sel')).map(function(s){return s.value;}).filter(Boolean);
+  if(stops.length<2)return;
+  clearRoutes();placeLandmarkMarkers();
+  var legs=[],coords=[];
+  for(var i=0;i<stops.length-1;i++){
+    var A=getDestById(stops[i]),B=getDestById(stops[i+1]);
+    if(!A||!B)continue;
+    var r=getRoute(stops[i],stops[i+1]);
+    legs.push({A:A,B:B,r:r});
+    activeRouteObjs.push(L.polyline([[A.lat,A.lng],[B.lat,B.lng]],{color:'#c4533a',weight:4,opacity:.9,dashArray:'7,5',lineCap:'round'}).addTo(nsMap));
+    coords.push([A.lat,A.lng]);
+  }
+  var last=getDestById(stops[stops.length-1]);if(last)coords.push([last.lat,last.lng]);
+  stops.forEach(function(id,i){
+    var d=getDestById(id);if(!d)return;
+    var icon=L.divIcon({className:'',html:'<div style="text-align:center;width:110px;"><div style="width:30px;height:30px;border-radius:50%;background:#c4533a;border:3px solid white;box-shadow:0 2px 10px rgba(0,0,0,.4);display:flex;align-items:center;justify-content:center;color:white;font-size:12px;font-weight:700;margin:0 auto;">'+(i+1)+'</div><div style="margin-top:3px;font-size:10px;font-weight:700;color:#2b1a0e;background:rgba(255,255,255,.9);border-radius:3px;padding:1px 4px;white-space:nowrap;max-width:110px;overflow:hidden;text-overflow:ellipsis;display:inline-block;">'+d.n+'</div></div>',iconSize:[120,38],iconAnchor:[60,11]});
+    activeRouteObjs.push(L.marker([d.lat,d.lng],{icon:icon,zIndexOffset:500}).addTo(nsMap));
+  });
+  if(coords.length>1)nsMap.fitBounds(L.latLngBounds(coords),{padding:[80,80],animate:true});
+  var html='';
+  legs.forEach(function(leg){
+    html+='<div class="bld-leg"><div class="bld-leg-head">'+leg.A.n+' &rarr; '+leg.B.n+(leg.r?' &mdash; '+leg.r.t:'')+'</div>';
+    if(leg.r)html+='<div class="bld-leg-detail"><b>Distance:</b> '+leg.r.d+' &middot; <b>Service:</b> '+leg.r.m+'</div><div class="bld-leg-tip">'+leg.r.tip+'</div>';
+    else html+='<div class="bld-leg-detail">Check LATAM, Sky Peru or Cruz del Sur for connections. Domestic flights are usually the most efficient option for long distances in Peru.</div>';
+    html+='</div>';
+  });
+  document.getElementById('bldResults').innerHTML=html;
+}
+function showPane(id,btn){
+  clearRoutes();
+  document.querySelectorAll('.itin-card').forEach(function(c){c.classList.remove('on');});
+  document.querySelectorAll('.dtabs').forEach(function(t){t.classList.remove('on');});
+  var rtr=document.getElementById('rtResult');if(rtr)rtr.classList.remove('on');
+  document.querySelectorAll('.tbtn').forEach(function(b){b.classList.remove('on');});
+  document.querySelectorAll('.pane').forEach(function(p){p.classList.remove('on');});
+  btn.classList.add('on');document.getElementById('pane-'+id).classList.add('on');
+  placeLandmarkMarkers();
+}
+</script>
+</body>
+</html>
