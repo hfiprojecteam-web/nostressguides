@@ -1,1 +1,422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>2026 Updates — The No-Stress Tokyo Travel Guide</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@300;400;500;600;700&family=Lato:ital,wght@0,300;0,400;0,700;1,300&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#112244;--navy-mid:#1B3566;--navy-light:#254580;
+  --gold:#F5C842;--gold-dark:#C89A10;--gold-pale:#FDF6DC;
+  --bg:#F0F4FB;--white:#FFFFFF;
+  --text:#1A2340;--text-mid:#3A4A6A;--text-muted:#6A7A9A;
+  --bad:#8C2020;--bad-pale:#FBF0F0;
+  --warn:#B36A10;--warn-pale:#FDF3E3;
+  --ok:#1A5C30;--ok-pale:#E4F5EB;
+  --new:#1A4A80;--new-pale:#E4EEF8;
+  --border:#C8D6EE;--border-lt:#E2EAF8;
+  --radius:10px;--shadow:0 2px 12px rgba(17,34,68,0.08);
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html{font-size:16px;-webkit-text-size-adjust:100%;scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:'Lato',sans-serif;font-weight:300;line-height:1.65;min-height:100vh;-webkit-font-smoothing:antialiased}
+.header{background:var(--navy);background-image:radial-gradient(ellipse at 80% 0%,rgba(37,69,128,0.8) 0%,transparent 60%);padding:2rem 1.5rem 0;position:sticky;top:0;z-index:100;overflow:hidden}
+.header::before{content:'';position:absolute;inset:0;background-image:radial-gradient(rgba(255,255,255,0.06) 1px,transparent 1px);background-size:20px 20px;pointer-events:none}
+.stamp{position:relative;z-index:1;margin-bottom:1.5rem}
+.stamp-inner{border:2.5px solid var(--gold);border-radius:4px;padding:1.1rem 1.3rem 1rem;background:rgba(17,34,68,0.55);backdrop-filter:blur(4px);position:relative}
+.stamp-inner::before{content:'';position:absolute;top:-9px;left:8px;right:8px;height:8px;background:repeating-linear-gradient(90deg,transparent,transparent 5px,var(--bg) 5px,var(--bg) 10px);opacity:.6}
+.stamp-inner::after{content:'';position:absolute;bottom:-9px;left:8px;right:8px;height:8px;background:repeating-linear-gradient(90deg,transparent,transparent 5px,var(--bg) 5px,var(--bg) 10px);opacity:.6}
+.stamp-label{font-family:'Oswald',sans-serif;font-size:.55rem;font-weight:400;letter-spacing:.28em;text-transform:uppercase;color:var(--gold);opacity:.8;margin-bottom:.35rem}
+.stamp-title{font-family:'Oswald',sans-serif;font-size:2rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:#fff;line-height:1.05;margin-bottom:.55rem}
+.stamp-dest{font-family:'Oswald',sans-serif;font-size:.75rem;font-weight:300;letter-spacing:.22em;text-transform:uppercase;color:rgba(255,255,255,.7)}
+.year-badge{display:inline-block;background:var(--gold);color:var(--navy);font-family:'Oswald',sans-serif;font-size:.7rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;padding:.18rem .65rem;border-radius:3px;margin-bottom:.55rem}
+.header-tabs{position:relative;z-index:1;display:flex;gap:0;margin-top:auto}
+.h-tab{flex:1;padding:.55rem .4rem;text-align:center;font-family:'Oswald',sans-serif;font-size:.58rem;font-weight:400;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.55);border-bottom:3px solid transparent;cursor:pointer;transition:all .2s;border-radius:3px 3px 0 0;background:none;border-top:none;border-left:none;border-right:none}
+.h-tab:hover{color:rgba(255,255,255,.8)}
+.h-tab.active{color:var(--gold);border-bottom-color:var(--gold);background:rgba(245,200,66,.06)}
+.transparency{background:var(--gold-pale);border:1px solid rgba(200,154,16,.3);border-radius:var(--radius);padding:.9rem 1rem;margin-bottom:1.2rem}
+.t-head{font-family:'Oswald',sans-serif;font-size:.6rem;font-weight:500;letter-spacing:.18em;text-transform:uppercase;color:var(--gold-dark);margin-bottom:.35rem}
+.t-text{font-size:.78rem;color:var(--text-mid);line-height:1.5}
+.content{max-width:640px;margin:0 auto;padding:1.2rem 1.1rem 2rem}
+.section{margin-bottom:3rem;opacity:0;transform:translateY(14px);transition:opacity .45s ease,transform .45s ease}
+.section.visible{opacity:1;transform:translateY(0)}
+.section-head{position:sticky;top:0;z-index:10;background:var(--bg);display:flex;align-items:center;justify-content:space-between;padding:.6rem 0 .55rem;margin-bottom:.9rem;border-bottom:2.5px solid var(--navy);box-shadow:0 4px 12px rgba(240,244,251,.95)}
+.sh-left{display:flex;align-items:center;gap:.55rem}
+.sh-pip{width:10px;height:10px;border-radius:2px;flex-shrink:0}
+.sp-bad{background:var(--bad)}.sp-warn{background:var(--warn)}.sp-ok{background:var(--ok)}.sp-new{background:var(--new)}
+.sh-title{font-family:'Oswald',sans-serif;font-size:1rem;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--navy)}
+.sh-date{font-size:.6rem;color:var(--text-muted);letter-spacing:.04em;white-space:nowrap}
+.zone{display:flex;align-items:center;gap:.55rem;margin:1.1rem 0 .6rem}
+.zone-label{font-family:'Oswald',sans-serif;font-size:.6rem;font-weight:500;letter-spacing:.22em;text-transform:uppercase;color:var(--gold-dark);white-space:nowrap}
+.zone-line{flex:1;height:1px;background:var(--border)}
+.card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:.55rem;overflow:hidden;position:relative;box-shadow:var(--shadow)}
+.card-bar{position:absolute;left:0;top:0;bottom:0;width:4px}
+.cb-bad{background:var(--bad)}.cb-warn{background:var(--warn)}.cb-new{background:var(--new)}.cb-ok{background:var(--ok)}
+.card-body{padding:.88rem 1rem .88rem 1.3rem}
+.card-place{font-family:'Oswald',sans-serif;font-size:.58rem;font-weight:300;letter-spacing:.18em;text-transform:uppercase;color:var(--text-muted);margin-bottom:.18rem}
+.card-text{font-size:.85rem;color:var(--text-mid);line-height:1.58}
+.card-text strong{color:var(--text);font-weight:700}
+.card-text em{font-style:italic;color:var(--text-muted)}
+.price-row{display:flex;align-items:center;gap:.45rem;margin-top:.6rem;padding-top:.5rem;border-top:1px solid var(--border-lt);flex-wrap:wrap}
+.pr-old{font-size:.76rem;color:var(--text-muted);text-decoration:line-through}
+.pr-arrow{font-size:.6rem;color:var(--text-muted)}
+.pr-new{font-size:.86rem;font-weight:700;color:var(--bad)}
+.pr-ok{font-size:.86rem;font-weight:700;color:var(--ok)}
+.pr-src{font-size:.65rem;color:var(--text-muted);margin-left:auto}
+.alert-block{border-radius:var(--radius);padding:.85rem 1rem;margin-bottom:.55rem;border:1px solid}
+.ab-bad{background:var(--bad-pale);border-color:rgba(140,32,32,.2)}
+.ab-warn{background:var(--warn-pale);border-color:rgba(179,106,16,.2)}
+.alert-head{font-family:'Oswald',sans-serif;font-size:.62rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;margin-bottom:.25rem}
+.ah-bad{color:var(--bad)}.ah-warn{color:var(--warn)}
+.alert-text{font-size:.8rem;color:var(--text-mid);line-height:1.5}
+.ok-list{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow)}
+.ok-row{display:flex;gap:.7rem;align-items:flex-start;padding:.75rem 1rem;border-bottom:1px solid var(--border-lt)}
+.ok-row:last-child{border-bottom:none}
+.ok-badge{width:20px;height:20px;border-radius:50%;background:var(--ok-pale);color:var(--ok);font-size:.65rem;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:.08rem}
+.ok-text{font-size:.83rem;color:var(--text-mid);line-height:1.48}
+.ok-text strong{color:var(--text);font-weight:700;display:block;font-size:.77rem;margin-bottom:.08rem}
+.changelog{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow)}
+.cl-head{background:var(--navy);padding:.65rem 1rem;font-family:'Oswald',sans-serif;font-size:.62rem;font-weight:400;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,.8)}
+.cl-row{display:flex;gap:.8rem;align-items:flex-start;padding:.7rem 1rem;border-bottom:1px solid var(--border-lt)}
+.cl-row:last-child{border-bottom:none}
+.cl-year{font-family:'Oswald',sans-serif;font-size:.72rem;font-weight:600;color:var(--navy);min-width:38px;flex-shrink:0;padding-top:.05rem}
+.cl-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:.28rem}
+.cd-active{background:var(--ok)}.cd-sched{background:var(--border)}
+.cl-text{font-size:.78rem;color:var(--text-mid);line-height:1.45}
+.cl-text.sched{color:var(--text-muted);font-style:italic}
+.cl-badge{display:inline-block;background:var(--ok-pale);color:var(--ok);font-family:'Oswald',sans-serif;font-size:.55rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;padding:.1rem .45rem;border-radius:3px;margin-left:.4rem;vertical-align:middle}
+footer{background:var(--navy)}
+.footer-gold{background:var(--gold);padding:1.1rem 1.5rem;display:flex;align-items:center;justify-content:center}
+.footer-brand{font-family:'Oswald',sans-serif;font-size:1rem;font-weight:700;color:var(--navy);letter-spacing:.14em;text-transform:uppercase}
+.footer-brand-sub{font-family:'Oswald',sans-serif;font-size:.58rem;font-weight:300;letter-spacing:.16em;text-transform:uppercase;color:var(--navy);opacity:.6;margin-top:.15rem}
+.footer-body{padding:1.5rem 1.5rem 2rem;color:rgba(255,255,255,.75)}
+.footer-promise{font-size:.8rem;line-height:1.6;margin-bottom:1rem;color:rgba(255,255,255,.85)}
+.footer-legal{font-size:.68rem;color:rgba(255,255,255,.35);line-height:1.55}
+@media(min-width:600px){.stamp-title{font-size:2.5rem}.content{padding:1.5rem 1.5rem 3rem}}
+</style>
+</head>
+<body>
+<header class="header">
+  <div class="stamp">
+    <div class="stamp-inner">
+      <div class="stamp-label">No-Stress Guides &mdash; Digital Companion</div>
+      <div class="year-badge">2026 Edition</div>
+      <div class="stamp-title">Tokyo</div>
+      <div class="stamp-dest">Yearly Updates</div>
+    </div>
+  </div>
+  <div class="header-tabs">
+    <button class="h-tab active" data-target="sec-changed">What Changed</button>
+    <button class="h-tab" data-target="sec-confirmed">Confirmed</button>
+    <button class="h-tab" data-target="sec-new">New Tips</button>
+    <button class="h-tab" data-target="sec-seasonal">Seasonal Alerts</button>
+  </div>
+</header>
+<main class="content">
+  <div class="transparency">
+    <div class="t-head">How this page works</div>
+    <div class="t-text">Every item verified for 2026 against official sources: Japan Tourism Agency, Tokyo Metro, JR East, Tokyo Metropolitan Government, and direct attraction websites. Information verified May 2026. Check 3&ndash;5 days before departure for any last-minute changes.</div>
+  </div>
 
+  <!-- WHAT CHANGED -->
+  <section class="section" id="sec-changed">
+    <div class="section-head">
+      <div class="sh-left"><span class="sh-pip sp-bad"></span><span class="sh-title">What Changed</span></div>
+      <span class="sh-date">Verified May 2026</span>
+    </div>
+
+    <div class="zone"><span class="zone-label">teamLab — major relocation</span><span class="zone-line"></span></div>
+    <div class="alert-block ab-bad">
+      <div class="alert-head ah-bad">teamLab Borderless has moved to Azabudai Hills — not Odaiba</div>
+      <div class="alert-text">teamLab Borderless closed at its original Odaiba location and reopened in <strong>Azabudai Hills</strong> (Minato ward, accessible via Kamiyacho or Roppongi-Itchome Metro). The guide's Odaiba reference is now outdated. teamLab Planets remains at its original Toyosu location (accessible via Yurikamome line or Metro Hibiya line to Tsukiji, then bus). <strong>These are two separate experiences at two different locations.</strong> Both require advance booking. Do not arrive expecting walk-in availability.</div>
+    </div>
+    <div class="card">
+      <div class="card-bar cb-bad"></div>
+      <div class="card-body">
+        <div class="card-place">teamLab Borderless — Azabudai Hills</div>
+        <div class="card-text">The new Azabudai Hills venue is larger than the original Odaiba location with updated installations. The experience is different enough that visitors who attended the original may want to return. <strong>Book at teamlab.art</strong> — no other source. Tickets sell out weeks ahead on weekends. Nearest Metro: Kamiyacho (Hibiya line) or Roppongi-Itchome (Namboku/Oedo lines).</div>
+        <div class="price-row">
+          <span class="pr-old">Odaiba location (closed)</span>
+          <span class="pr-arrow">&rarr;</span>
+          <span class="pr-new">Azabudai Hills, Minato (2025–)</span>
+          <span class="pr-src">teamlab.art</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="zone"><span class="zone-label">Entry requirements — Japan ETA</span><span class="zone-line"></span></div>
+    <div class="alert-block ab-bad">
+      <div class="alert-head ah-bad">Japan ETA now required for some nationalities — check before booking flights</div>
+      <div class="alert-text">Japan introduced an Electronic Travel Authorization (ETA) system for certain passport holders. The requirement varies by nationality. The ETA is applied for online, is inexpensive, and typically approved quickly — but <strong>travellers who discover this at check-in face boarding denial.</strong> Verify your nationality's requirements at japan.travel/en/plan/eta before purchasing any flights. Apply at least 72 hours before departure.</div>
+    </div>
+
+    <div class="zone"><span class="zone-label">Suica / IC Card — 2026 status</span><span class="zone-line"></span></div>
+    <div class="card">
+      <div class="card-bar cb-warn"></div>
+      <div class="card-body">
+        <div class="card-place">IC Cards — Physical and Digital</div>
+        <div class="card-text">The situation regarding IC cards for foreign visitors improved in 2025–2026. <strong>Digital Suica</strong> can now be added to Apple Wallet or Google Pay for many foreign bank-issued cards (Visa, Mastercard) — check your banking app before departure. Physical Suica and Pasmo cards are available at all major station machines. <strong>The ¥500 card deposit is refundable</strong> when you return the physical card before leaving Japan (Suica) or at Pasmo counters.</div>
+        <div class="price-row">
+          <span class="pr-old">Physical only for foreign visitors (prev. years)</span>
+          <span class="pr-arrow">&rarr;</span>
+          <span class="pr-ok">Digital Suica now available for many foreign cards (2026)</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="zone"><span class="zone-label">Prices — major attractions</span><span class="zone-line"></span></div>
+    <div class="card">
+      <div class="card-bar cb-bad"></div>
+      <div class="card-body">
+        <div class="card-place">Shibuya Sky — Shibuya Scramble Square</div>
+        <div class="card-text">Shibuya Sky admission is <strong>¥2,000 adults</strong> (unchanged from 2025). Book online at shibuyasky.com — sunset and weekend slots sell out. Walk-in availability on weekday mornings is occasionally possible but not reliable. The outdoor terrace is the key experience; factor weather into your timing.</div>
+        <div class="price-row">
+          <span class="pr-old">¥2,000 (confirmed unchanged)</span>
+          <span class="pr-arrow">&rarr;</span>
+          <span class="pr-ok">¥2,000 adult (2026)</span>
+          <span class="pr-src">shibuyasky.com</span>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-bar cb-bad"></div>
+      <div class="card-body">
+        <div class="card-place">Tokyo Skytree</div>
+        <div class="card-text">Skytree prices increased in 2023 and have remained stable. <strong>Tembo Deck (350m): ¥2,100</strong> (weekday) to <strong>¥2,400</strong> (weekend). Tembo Galleria (450m): additional ¥1,000. Advance online booking is available and avoids the worst queues. Reminder: the Metropolitan Government Building (free, 45th floor) provides comparable views with no queuing and no cost.</div>
+        <div class="price-row">
+          <span class="pr-old">¥2,060 (pre-2023)</span>
+          <span class="pr-arrow">&rarr;</span>
+          <span class="pr-new">¥2,100–2,400 (2026)</span>
+          <span class="pr-src">tokyo-skytree.jp</span>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-bar cb-bad"></div>
+      <div class="card-body">
+        <div class="card-place">Tokyo National Museum — Ueno</div>
+        <div class="card-text">Tokyo National Museum now uses a <strong>timed-entry system for busy periods</strong> (cherry blossom season, Golden Week, autumn leaves). General admission: <strong>¥1,000</strong> adults. Special exhibitions require separate tickets purchased in advance — check tnm.jp before visiting. Monday closures remain in effect.</div>
+        <div class="price-row">
+          <span class="pr-old">¥620 (pre-2023 general)</span>
+          <span class="pr-arrow">&rarr;</span>
+          <span class="pr-new">¥1,000 adult general (2026)</span>
+          <span class="pr-src">tnm.jp</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="zone"><span class="zone-label">Exchange rate context</span><span class="zone-line"></span></div>
+    <div class="card">
+      <div class="card-bar cb-warn"></div>
+      <div class="card-body">
+        <div class="card-place">Currency — USD/JPY</div>
+        <div class="card-text">At the time of research (early 2026), <strong>¥150 = 1 USD</strong> approximately. This makes Tokyo materially cheaper for USD holders than it was in 2019 (¥110/USD). Budget travellers can eat well and stay comfortably on ¥8,000–12,000/day. Mid-range: ¥15,000–22,000/day. The exchange rate fluctuates — check live rates before departure. Withdraw cash via 7-Eleven ATMs for the best available rate.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONFIRMED -->
+  <section class="section" id="sec-confirmed">
+    <div class="section-head">
+      <div class="sh-left"><span class="sh-pip sp-ok"></span><span class="sh-title">Confirmed Still Working</span></div>
+      <span class="sh-date">Verified 2026</span>
+    </div>
+    <div class="ok-list">
+      <div class="ok-row">
+        <div class="ok-badge">✓</div>
+        <div class="ok-text"><strong>Yamanote Line — every 2–4 minutes</strong>JR Yamanote frequency and coverage unchanged. Every major area in the guide remains on the loop. Last trains around 00:30–01:00 depending on direction.</div>
+      </div>
+      <div class="ok-row">
+        <div class="ok-badge">✓</div>
+        <div class="ok-text"><strong>Tsukiji Outer Market — still excellent</strong>The outer market remains open and thriving. Sushi at standing counters, tamagoyaki, fresh produce. Arrive before 09:00 for best selection. Most stalls close by 13:00–14:00.</div>
+      </div>
+      <div class="ok-row">
+        <div class="ok-badge">✓</div>
+        <div class="ok-text"><strong>Ghibli Museum tickets — same system</strong>Tickets still sold exclusively through Lawson (lawsonticket.com) on the 10th of each month for the following month. Face value ¥1,000–2,000. Process unchanged.</div>
+      </div>
+      <div class="ok-row">
+        <div class="ok-badge">✓</div>
+        <div class="ok-text"><strong>Tokyo Metropolitan Government Building — free, no reservation</strong>North Tower observation deck (45th floor) open until 23:00. Free entry. No reservation needed. South Tower has variable closures — check before visiting.</div>
+      </div>
+      <div class="ok-row">
+        <div class="ok-badge">✓</div>
+        <div class="ok-text"><strong>7-Eleven ATMs — best for foreign cards</strong>7-Eleven bank ATMs accept foreign Visa, Mastercard, AmEx. Available 24/7. Limit per withdrawal typically ¥50,000. Still the most reliable cash access method for visitors.</div>
+      </div>
+      <div class="ok-row">
+        <div class="ok-badge">✓</div>
+        <div class="ok-text"><strong>Senso-ji — free, no booking required</strong>The outer precincts and Nakamise-dori remain free and open always. Inner hall: 06:00–17:00. No timed entry or booking at this time.</div>
+      </div>
+      <div class="ok-row">
+        <div class="ok-badge">✓</div>
+        <div class="ok-text"><strong>Meiji Jingu — free outer access</strong>Forest shrine grounds free to enter at all times. Treasury admission unchanged at ¥500. Morning visits (before 09:00) remain the quietest.</div>
+      </div>
+      <div class="ok-row">
+        <div class="ok-badge">✓</div>
+        <div class="ok-text"><strong>N'EX from Narita — same journey times</strong>Narita Express to Shinjuku: approximately 80 minutes. Price: ¥3,250 one-way. Skyliner to Ueno: 36 minutes, ¥2,570. Both unchanged.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- NEW TIPS -->
+  <section class="section" id="sec-new">
+    <div class="section-head">
+      <div class="sh-left"><span class="sh-pip sp-new"></span><span class="sh-title">New Tips for 2026</span></div>
+      <span class="sh-date">Added 2026</span>
+    </div>
+
+    <div class="zone"><span class="zone-label">Azabudai Hills — new development</span><span class="zone-line"></span></div>
+    <div class="card">
+      <div class="card-bar cb-new"></div>
+      <div class="card-body">
+        <div class="card-place">Azabudai Hills — Minato Ward (opened 2023)</div>
+        <div class="card-text">Azabudai Hills is Tokyo's largest recent development: a mixed-use tower complex containing <strong>teamLab Borderless</strong>, galleries, restaurants, the Mori JP Tower observation floor, and a significant green public plaza. Worth a separate visit beyond teamLab. The complex connects to Roppongi Hills via a 15-minute walk. Nearest Metro: Kamiyacho (Hibiya line).</div>
+      </div>
+    </div>
+
+    <div class="zone"><span class="zone-label">IC card — digital options</span><span class="zone-line"></span></div>
+    <div class="card">
+      <div class="card-bar cb-new"></div>
+      <div class="card-body">
+        <div class="card-place">Suica via Apple / Google Wallet</div>
+        <div class="card-text">Foreign visitors can now add Suica to Apple Wallet or Google Pay from supported countries using compatible Visa or Mastercard cards. Check your banking app before travel — not all foreign-issued cards are eligible yet. When it works, this eliminates the need for a physical IC card and allows top-up directly from your phone. Still carry ¥5,000–10,000 in cash as backup.</div>
+      </div>
+    </div>
+
+    <div class="zone"><span class="zone-label">Practical</span><span class="zone-line"></span></div>
+    <div class="card">
+      <div class="card-bar cb-new"></div>
+      <div class="card-body">
+        <div class="card-place">Luggage forwarding — takuhaibin</div>
+        <div class="card-text"><strong>Takuhaibin</strong> (door-to-door luggage delivery) is one of Tokyo's most under-used advantages. Send your luggage from your hotel to any other hotel, airport, or even to a convenience store near a train station the night before check-out. Cost: ¥1,500–2,500 per bag. Services: Yamato Transport (Kuroneko), Sagawa. Most hotels can arrange it. This transforms day trips and airport days completely.</div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-bar cb-new"></div>
+      <div class="card-body">
+        <div class="card-place">Apps That Actually Work in Tokyo (2026)</div>
+        <div class="card-text"><strong>Google Maps</strong> now handles Tokyo transit accurately including platform-level directions. <strong>Navitime</strong> is better for last-train queries and provides actual walking times. <strong>TableCheck / Ikyu</strong> for restaurant reservations at mid-to-high range restaurants (some require Japanese phone number — use hotel concierge as intermediary). <strong>Tabelog</strong> for ratings and discovery (all in Japanese, but numbers translate).</div>
+      </div>
+    </div>
+
+    <div class="zone"><span class="zone-label">Honest money notes</span><span class="zone-line"></span></div>
+    <div class="card">
+      <div class="card-bar cb-new"></div>
+      <div class="card-body">
+        <div class="card-place">Daily Budget Reality — Early 2026</div>
+        <div class="card-text">At ¥150/USD (early 2026 rates), realistic daily costs: <strong>Budget traveller:</strong> ¥8,000–12,000/day (hostel, convenience store breakfast, ramen/gyudon meals, metro travel, one paid attraction). <strong>Mid-range:</strong> ¥15,000–22,000/day (3-star hotel, varied restaurants, 1–2 paid attractions, comfortable pace). <strong>Comfortable:</strong> ¥25,000–40,000/day adds a nicer dinner and taxi use. Accommodation is the largest variable — book 2–4 months ahead for best rates, especially during cherry blossom season.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SEASONAL ALERTS -->
+  <section class="section" id="sec-seasonal">
+    <div class="section-head">
+      <div class="sh-left"><span class="sh-pip sp-warn"></span><span class="sh-title">Seasonal Alerts</span></div>
+      <span class="sh-date">Year-round planning</span>
+    </div>
+
+    <div class="zone"><span class="zone-label">Cherry blossom — late March to early April</span><span class="zone-line"></span></div>
+    <div class="alert-block ab-warn">
+      <div class="alert-head ah-warn">Cherry blossom timing: unpredictable until 6 weeks before bloom</div>
+      <div class="alert-text">Tokyo's cherry blossom season typically peaks late March to early April, but exact dates shift based on winter temperatures. Full bloom might be March 24 or April 5 in different years. Reliable forecasts only emerge 4–6 weeks before bloom (Japan Meteorological Corporation publishes these). If you book flights far in advance around late March, you're making an educated bet — not a guarantee. Peak bloom lasts 5–10 days, and crowds at Ueno Park, Shinjuku Gyoen, Chidorigafuchi, and Yoyogi Park are intense. Accommodation prices increase significantly during bloom weeks.</div>
+    </div>
+
+    <div class="zone"><span class="zone-label">Golden Week — late April to early May</span><span class="zone-line"></span></div>
+    <div class="alert-block ab-warn">
+      <div class="alert-head ah-warn">Golden Week: Japan's busiest domestic travel period</div>
+      <div class="alert-text">Golden Week (April 29 – May 5) is Japan's major national holiday cluster. Domestic travel spikes dramatically: Shinkansen books out weeks in advance, popular attractions have maximum crowds, hotel prices increase 30–50%. If you travel during Golden Week, book all accommodation and Shinkansen at least 6–8 weeks ahead. Expect queues at Tsukiji, Senso-ji, Shibuya, and Harajuku to be the longest of the year. The advantage: the city is festive, events happen throughout, and Golden Gai and Omoide Yokocho are particularly atmospheric.</div>
+    </div>
+
+    <div class="zone"><span class="zone-label">Summer — July to August</span><span class="zone-line"></span></div>
+    <div class="card">
+      <div class="card-bar cb-warn"></div>
+      <div class="card-body">
+        <div class="card-place">Summer Heat — July and August</div>
+        <div class="card-text">Tokyo summer is genuinely challenging: temperatures 30–36°C with high humidity. Morning sightseeing (before 10:00) and evening sightseeing (after 18:00) are the functional windows. Midday is for air-conditioned museums, department store food halls, or the well-air-conditioned underground shopping passages beneath Tokyo Station and Shinjuku. <strong>Hydration is critical</strong> — convenience stores and vending machines everywhere, heat stroke is a real risk for visitors unaccustomed to this humidity level.</div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-bar cb-warn"></div>
+      <div class="card-body">
+        <div class="card-place">Summer Fireworks Festivals</div>
+        <div class="card-text">Sumida River Fireworks Festival (last Saturday of July, 2026 TBC) is one of the largest fireworks displays in Japan. <strong>Crowds are extreme</strong> — entire areas near Asakusa and Sumida River become impassable. Viewing spots fill 3–4 hours before the event. If attending, commit to it fully and plan your entire day around it. Do not casually "swing by."</div>
+      </div>
+    </div>
+
+    <div class="zone"><span class="zone-label">Autumn — October to November</span><span class="zone-line"></span></div>
+    <div class="card">
+      <div class="card-bar cb-ok"></div>
+      <div class="card-body">
+        <div class="card-place">Autumn Leaves — Koyo Season</div>
+        <div class="card-text">October to mid-December brings koyo (autumn foliage) — Tokyo's second most beautiful season. Shinjuku Gyoen, Ueno Park, Yoyogi Park, and Rikugien Garden turn spectacular. Crowds are large but less intense than cherry blossom season. The key parks charge admission but remain well worth it. Rikugien in Bunkyo ward is particularly photogenic and often overlooked by first-time visitors.</div>
+      </div>
+    </div>
+
+    <div class="zone"><span class="zone-label">Year-round</span><span class="zone-line"></span></div>
+    <div class="changelog">
+      <div class="cl-head">Tokyo Capacity History</div>
+      <div class="cl-row">
+        <div class="cl-year">2020–21</div>
+        <div class="cl-dot cd-active"></div>
+        <div class="cl-text">Olympics held in 2021 (delayed). No foreign spectators admitted. Tourism suspended.</div>
+      </div>
+      <div class="cl-row">
+        <div class="cl-year">2022–23</div>
+        <div class="cl-dot cd-active"></div>
+        <div class="cl-text">International tourism reopened October 2022. Visitor numbers recovered rapidly. Skytree and Shibuya Sky price increases.</div>
+      </div>
+      <div class="cl-row">
+        <div class="cl-year">2024</div>
+        <div class="cl-dot cd-active"></div>
+        <div class="cl-text">Record international visitor numbers. Shibuya began pedestrian control measures around the crossing during Halloween to manage crowd safety.</div>
+      </div>
+      <div class="cl-row">
+        <div class="cl-year">2025</div>
+        <div class="cl-dot cd-active"></div>
+        <div class="cl-text">teamLab Borderless reopened at Azabudai Hills. Digital Suica expanded for foreign card holders. Japan ETA introduced for certain nationalities.</div>
+      </div>
+      <div class="cl-row">
+        <div class="cl-year">2026</div>
+        <div class="cl-dot cd-active"></div>
+        <div class="cl-text cl-badge">Current</div>
+        <div class="cl-text">Prices, hours, and booking systems as documented in this update. Verify individual attraction sites before visiting.</div>
+      </div>
+    </div>
+  </section>
+</main>
+<footer>
+  <div class="footer-gold">
+    <div>
+      <div class="footer-brand">No-Stress Guides</div>
+      <div class="footer-brand-sub">Tokyo Travel Guide</div>
+    </div>
+  </div>
+  <div class="footer-body">
+    <div class="footer-promise">Everything in this update was independently verified. Nothing is sponsored. We update this page when we find significant changes. The travel landscape shifts — always check official sources for the most current prices and booking requirements before you travel.</div>
+    <div class="footer-legal">&copy; 2026 No-Stress Travel Guides. All rights reserved.</div>
+  </div>
+</footer>
+<script>
+document.querySelectorAll('.section').forEach(function(s,i){setTimeout(function(){s.classList.add('visible')},100+i*80);});
+var headerEl=document.querySelector('.header');
+document.querySelectorAll('.h-tab').forEach(function(btn){
+  btn.addEventListener('click',function(){
+    var target=this.getAttribute('data-target');
+    document.querySelectorAll('.h-tab').forEach(function(t){t.classList.remove('active')});
+    btn.classList.add('active');
+    var el=document.getElementById(target);
+    if(!el)return;
+    var hh=headerEl?headerEl.offsetHeight:0;
+    window.scrollTo({top:el.getBoundingClientRect().top+window.scrollY-hh-8,behavior:'smooth'});
+  });
+});
+var sIds=['sec-changed','sec-confirmed','sec-new','sec-seasonal'];
+var allTabs=document.querySelectorAll('.h-tab');
+function updateTab(){var hh=headerEl?headerEl.offsetHeight:0;var active=0;sIds.forEach(function(id,i){var el=document.getElementById(id);if(el&&el.getBoundingClientRect().top<=hh+20)active=i;});allTabs.forEach(function(t,i){t.classList.toggle('active',i===active);});}
+window.addEventListener('scroll',updateTab,{passive:true});
+updateTab();
+</script>
+</body>
+</html>
